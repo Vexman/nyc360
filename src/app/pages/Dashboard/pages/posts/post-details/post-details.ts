@@ -25,19 +25,23 @@ export class PostDetailsComponent implements OnInit {
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
+  // Data
   post: Post | null = null;
   isLoading = true;
   errorMessage = '';
   categories = PostCategoryList;
+  
+  // User
   currentUserId: string | null = null;
   currentUserData: any = null;
   isAdmin = false;
   
+  // Interactions
   newCommentContent = '';
   replyInputs: { [key: number]: string } = {};
   activeReplyId: number | null = null;
 
-  // Report & Menu
+  // Menu & Report State
   isMenuOpen = false;
   isReportModalOpen = false;
   reportReason: number | null = null;
@@ -76,16 +80,31 @@ export class PostDetailsComponent implements OnInit {
         this.isLoading = false;
         if (res.isSuccess && res.data) {
           this.post = res.data;
+          // Safe Initialization
           if (!this.post.stats) this.post.stats = { views:0, likes:0, dislikes:0, comments:0, shares:0 };
           if (!this.post.comments) this.post.comments = [];
-        } else { this.errorMessage = res.error?.message || 'Post not found.'; }
-        this.cdr.detectChanges();
+          this.cdr.detectChanges();
+          this.checkFragment();
+        } else {
+          this.errorMessage = res.error?.message || 'Post not found.';
+        }
       },
       error: () => { this.isLoading = false; this.errorMessage = 'Network error.'; this.cdr.detectChanges(); }
     });
   }
 
-  // --- Menu & Report Logic ---
+  checkFragment() {
+    this.route.fragment.subscribe(fragment => {
+      if (fragment === 'comments-section') {
+        setTimeout(() => {
+          const element = document.getElementById('comments-section');
+          if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+      }
+    });
+  }
+
+  // --- Menu & Report ---
   toggleMenu(event: Event) {
     event.stopPropagation();
     this.isMenuOpen = !this.isMenuOpen;
@@ -106,14 +125,14 @@ export class PostDetailsComponent implements OnInit {
     this.postsService.reportPost(this.post.id, this.reportReason, this.reportDetails).subscribe({
       next: (res) => {
         this.isReporting = false;
-        if (res.isSuccess) { alert('Report submitted.'); this.closeReportModal(); }
+        if (res.isSuccess) { alert('Report submitted successfully.'); this.closeReportModal(); }
         else { alert(res.error?.message || 'Failed.'); }
       },
-      error: () => { this.isReporting = false; alert('Error.'); }
+      error: () => { this.isReporting = false; alert('Network error.'); }
     });
   }
 
-  // --- Image Helpers ---
+  // --- Helpers ---
   resolveImageUrl(url: string | undefined | null): string {
     if (!url) return '';
     if (url.includes('@local://')) return `${this.environment.apiBaseUrl3}/${url.replace('@local://', '')}`;
@@ -121,9 +140,27 @@ export class PostDetailsComponent implements OnInit {
     return url;
   }
 
-  getAvatar(author: any): string { return this.resolveImageUrl(author?.imageUrl) || 'assets/images/default-avatar.png'; }
+  getAvatar(author: any): string {
+    return this.resolveImageUrl(author?.imageUrl) || 'assets/images/default-avatar.png';
+  }
 
-  // --- Interaction ---
+  getCategoryName(id: number): string { return this.categories.find(c => c.id === id)?.name || 'General'; }
+
+  // --- Permissions ---
+  get isOwnerOrAdmin(): boolean {
+    if (this.isAdmin) return true;
+    if (!this.post?.author || !this.currentUserId) return false;
+    let authorId = (typeof this.post.author === 'object') ? (this.post.author as any).id : this.post.author;
+    return String(authorId) === String(this.currentUserId);
+  }
+
+  // --- Actions ---
+  onDelete() {
+    if (this.post && confirm('Delete post?')) {
+      this.postsService.deletePost(this.post.id).subscribe({ next: () => this.router.navigate(['/admin/posts']) });
+    }
+  }
+
   toggleInteraction(type: InteractionType) {
     if (!this.post) return;
     if (!this.currentUserId) { alert('Login required.'); return; }
@@ -144,6 +181,7 @@ export class PostDetailsComponent implements OnInit {
     });
   }
 
+  // --- Comments ---
   submitComment() {
     if (!this.newCommentContent.trim() || !this.post) return;
     if (!this.currentUserId) { alert('Login required.'); return; }
@@ -152,19 +190,34 @@ export class PostDetailsComponent implements OnInit {
     if (!this.post.stats) this.post.stats = { views:0, likes:0, dislikes:0, comments:0, shares:0 };
 
     const content = this.newCommentContent;
-    const tempComment: any = { id: -Date.now(), content, author: { fullName: this.currentUserData?.fullName, imageUrl: this.currentUserData?.imageUrl }, createdAt: new Date().toISOString(), replies: [] };
+    const tempComment: any = { 
+      id: -Date.now(), 
+      content: content, 
+      author: { fullName: this.currentUserData?.fullName || 'User', imageUrl: this.currentUserData?.imageUrl }, 
+      createdAt: new Date().toISOString(), 
+      replies: [] 
+    };
 
     this.post.comments.unshift(tempComment);
     this.post.stats.comments++;
     this.newCommentContent = '';
 
     this.postsService.addComment(this.post.id, content).subscribe({
-      next: (res) => { if (res.isSuccess && this.post?.comments) { this.post.comments.shift(); this.post.comments.unshift(res.data as any); } },
-      error: () => { if(this.post?.comments) this.post.comments.shift(); if(this.post?.stats) this.post.stats.comments--; this.newCommentContent = content; }
+      next: (res) => { 
+        if (res.isSuccess && this.post?.comments) { 
+            this.post.comments.shift(); 
+            this.post.comments.unshift(res.data as any); 
+        } 
+      },
+      error: () => { 
+        if(this.post?.comments) this.post.comments.shift(); 
+        if(this.post?.stats) this.post.stats.comments--; 
+        this.newCommentContent = content; 
+      }
     });
   }
 
-  openReplyInput(id: number) { this.activeReplyId = this.activeReplyId === id ? null : id; }
+  openReplyInput(commentId: number) { this.activeReplyId = this.activeReplyId === commentId ? null : commentId; }
 
   submitReply(parent: Comment) {
     const content = this.replyInputs[parent.id];
@@ -174,30 +227,20 @@ export class PostDetailsComponent implements OnInit {
     if (!parent.replies) parent.replies = [];
     if (!this.post.stats) this.post.stats = { views:0, likes:0, dislikes:0, comments:0, shares:0 };
 
-    const temp: any = { id: -Date.now(), content, author: { fullName: this.currentUserData?.fullName, imageUrl: this.currentUserData?.imageUrl }, createdAt: new Date().toISOString() };
-    parent.replies.push(temp); this.replyInputs[parent.id] = ''; this.activeReplyId = null; this.post.stats.comments++;
+    const tempReply: any = { 
+      id: -Date.now(), 
+      content: content, 
+      author: { fullName: this.currentUserData?.fullName || 'User', imageUrl: this.currentUserData?.imageUrl }, 
+      createdAt: new Date().toISOString() 
+    };
+    parent.replies.push(tempReply);
+    this.replyInputs[parent.id] = '';
+    this.activeReplyId = null;
+    this.post.stats.comments++;
 
     this.postsService.addComment(this.post.id, content, parent.id).subscribe({
       next: (res) => { if (res.isSuccess && parent.replies) { parent.replies.pop(); parent.replies.push(res.data as any); } },
       error: () => { if(parent.replies) parent.replies.pop(); if(this.post?.stats) this.post.stats.comments--; }
     });
-  }
-
-  get isOwnerOrAdmin(): boolean {
-    if (this.isAdmin) return true;
-    if (!this.post?.author || !this.currentUserId) return false;
-    let authorId = (typeof this.post.author === 'object') ? (this.post.author as any).id : this.post.author;
-    return String(authorId) === String(this.currentUserId);
-  }
-
-  // Helper Accessor
-  get canEdit(): boolean { return this.isOwnerOrAdmin; }
-
-  getCategoryName(id: number): string { return this.categories.find(c => c.id === id)?.name || 'General'; }
-
-  onDelete() {
-    if (this.post && confirm('Delete post?')) {
-      this.postsService.deletePost(this.post.id).subscribe({ next: () => this.router.navigate(['/admin/posts']) });
-    }
   }
 }

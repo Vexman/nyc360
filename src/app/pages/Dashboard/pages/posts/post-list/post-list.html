@@ -62,7 +62,7 @@
              [class.bi-hand-thumbs-up]="post.currentUserInteraction !== InteractionType.Like"></i> Like
         </button>
         <button class="action-btn" (click)="toggleComments(post.id)"><i class="bi bi-chat-bubble"></i> Comment</button>
-        <button class="action-btn" [routerLink]="['/posts/details', post.id]"><i class="bi bi-share"></i> View</button>
+        <button class="action-btn" [routerLink]="['admin/posts/details', post.id]"><i class="bi bi-share"></i> View</button>
       </div>
 
       <div class="comments-area" *ngIf="showComments[post.id]">

@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TrendingService } from '../services/trending';
 import { environment } from '../../../../../environments/environment';
-import { CategoryMap, PostAuthor, TrendingPost } from '../models/trending';
+import { CategoryMap, PostAuthor, TrendingPost, PostStats } from '../models/trending';
+import { PostsService } from '../services/posts'; 
+import { InteractionType } from '../../posts/models/posts'; 
+import { AuthService } from '../../../../Authentication/Service/auth';
 
 @Component({
   selector: 'app-trending',
@@ -15,19 +18,27 @@ import { CategoryMap, PostAuthor, TrendingPost } from '../models/trending';
 export class TrendingComponent implements OnInit {
   
   private trendingService = inject(TrendingService);
+  private postsService = inject(PostsService); 
+  private authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   
   protected readonly environment = environment;
+  protected readonly InteractionType = InteractionType; // For Template access
 
   // State
   posts: TrendingPost[] = [];
   isLoading = true;
   hasMore = true;
   currentPage = 1;
-  readonly pageSize = 10; // قللنا العدد شوية عشان التحميل يكون أسرع في القائمة الطويلة
+  readonly pageSize = 10;
+  
+  currentUserId: string | null = null;
 
   ngOnInit() {
+    this.authService.currentUser$.subscribe(user => {
+      if (user) this.currentUserId = user.id || user.userId;
+    });
     this.loadPosts();
   }
 
@@ -37,18 +48,15 @@ export class TrendingComponent implements OnInit {
     this.trendingService.getTrendingPosts(this.currentPage, this.pageSize).subscribe({
       next: (res) => {
         if (res.isSuccess && res.data) {
-          // دمج البيانات
-          const newPosts = res.data;
-          this.posts = [...this.posts, ...newPosts];
-
-          // *** الترتيب: ضمان أن الأحدث يظهر في الأعلى ***
-          this.posts.sort((a, b) => {
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-          });
+          const newPosts = res.data.map(p => ({
+            ...p,
+            stats: p.stats || { likes: 0, comments: 0, views: 0, dislikes: 0, shares: 0 } as PostStats
+          }));
           
-          if (this.currentPage >= res.totalPages) {
-            this.hasMore = false;
-          }
+          this.posts = [...this.posts, ...newPosts];
+          this.posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          
+          if (this.currentPage >= res.totalPages) this.hasMore = false;
         }
         
         this.isLoading = false;
@@ -69,23 +77,44 @@ export class TrendingComponent implements OnInit {
     }
   }
 
+  // --- Interaction Logic ---
+  toggleLike(post: TrendingPost) {
+    if (!this.currentUserId) return alert('Please login.');
+    if (!post.stats) post.stats = { likes: 0, comments: 0, views: 0, dislikes: 0, shares: 0 };
+
+    const isLiked = post.currentUserInteraction === InteractionType.Like;
+    const oldState = post.currentUserInteraction;
+
+    // Optimistic Update
+    if (isLiked) {
+      post.currentUserInteraction = 0; 
+      post.stats.likes--;
+    } else {
+      post.currentUserInteraction = InteractionType.Like; 
+      post.stats.likes++;
+      if (oldState === InteractionType.Dislike) post.stats.dislikes--;
+    }
+
+    this.postsService.interact(post.id, InteractionType.Like).subscribe({
+      error: () => {
+        post.currentUserInteraction = oldState;
+        if (isLiked) post.stats!.likes++; else post.stats!.likes--;
+      }
+    });
+  }
+
+  // FIXED: Added this function
+  goToDetails(id: number, fragment?: string) {
+    this.router.navigate(['/admin/posts/details', id], { fragment });
+  }
+
   // --- Helpers ---
-
-  openDetails(id: number) {
-    this.router.navigate(['/posts/details', id]);
-  }
-
-  getCategoryName(id: number): string {
-    return CategoryMap[id] || 'General';
-  }
+  getCategoryName(id: number): string { return CategoryMap[id] || 'General'; }
 
   getPostImage(post: TrendingPost): string {
     if (post.attachments && post.attachments.length > 0) {
       let url = post.attachments[0].url;
-      if (url.includes('@local://')) {
-        const filename = url.replace('@local://', '');
-        return `${this.environment.apiBaseUrl3}/${filename}`;
-      }
+      if (url.includes('@local://')) return `${this.environment.apiBaseUrl3}/${url.replace('@local://', '')}`;
       return url;
     }
     return 'assets/images/news-placeholder.jpg'; 
@@ -98,10 +127,7 @@ export class TrendingComponent implements OnInit {
 
   getAuthorImage(url: string | null | undefined): string {
     if (!url) return 'assets/images/avatar-placeholder.png';
-    if (url.includes('@local://')) {
-      const filename = url.replace('@local://', '');
-      return `${this.environment.apiBaseUrl3}/${filename}`;
-    }
+    if (url.includes('@local://')) return `${this.environment.apiBaseUrl3}/${url.replace('@local://', '')}`;
     return url;
   }
 }
