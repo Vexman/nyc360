@@ -1,13 +1,11 @@
-// src/app/pages/Dashboard/pages/posts/post-details/post-details.ts
-
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
-import { PostsService } from '../services/posts'; // Ensure correct path
-import { Post, PostCategoryList, InteractionType, Comment } from '../models/posts'; // Ensure correct path
-import { AuthService } from '../../../../Authentication/Service/auth'; // Ensure correct path
+import { PostsService } from '../services/posts';
+import { Post, PostCategoryList, InteractionType, Comment, FlagReasonType } from '../models/posts';
+import { AuthService } from '../../../../Authentication/Service/auth';
 
 @Component({
   selector: 'app-post-details',
@@ -31,24 +29,40 @@ export class PostDetailsComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
   categories = PostCategoryList;
-  
   currentUserId: string | null = null;
+  currentUserData: any = null;
   isAdmin = false;
-
+  
   newCommentContent = '';
+  replyInputs: { [key: number]: string } = {};
+  activeReplyId: number | null = null;
+
+  // Report & Menu
+  isMenuOpen = false;
+  isReportModalOpen = false;
+  reportReason: number | null = null;
+  reportDetails: string = '';
+  isReporting = false;
+
+  reportReasonsList = [
+    { id: FlagReasonType.Spam, label: 'Spam' },
+    { id: FlagReasonType.HateSpeech, label: 'Hate Speech' },
+    { id: FlagReasonType.Harassment, label: 'Harassment' },
+    { id: FlagReasonType.InappropriateContent, label: 'Inappropriate Content' },
+    { id: FlagReasonType.ScamOrFraud, label: 'Scam or Fraud' },
+    { id: FlagReasonType.ViolationOfPolicy, label: 'Violation of Policy' },
+    { id: FlagReasonType.Other, label: 'Other' }
+  ];
 
   ngOnInit() {
-    // 1. Monitor User
     this.authService.currentUser$.subscribe(user => {
-      if (user && user.id) {
-        this.currentUserId = user.id;
+      if (user) {
+        this.currentUserId = user.id || user.userId;
+        this.currentUserData = user;
         this.isAdmin = Array.isArray(user.roles) ? user.roles.includes('Admin') : user.roles === 'Admin';
-      } else {
-        this.currentUserId = null;
       }
     });
 
-    // 2. Load Post
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) this.loadPost(+id);
@@ -62,137 +76,128 @@ export class PostDetailsComponent implements OnInit {
         this.isLoading = false;
         if (res.isSuccess && res.data) {
           this.post = res.data;
-          
-          // Initialize arrays/objects if null
           if (!this.post.stats) this.post.stats = { views:0, likes:0, dislikes:0, comments:0, shares:0 };
           if (!this.post.comments) this.post.comments = [];
-        } else {
-          this.errorMessage = res.error?.message || 'Post not found.';
-        }
+        } else { this.errorMessage = res.error?.message || 'Post not found.'; }
         this.cdr.detectChanges();
       },
-      error: () => { 
-        this.isLoading = false; 
-        this.errorMessage = 'Network error.'; 
-        this.cdr.detectChanges();
-      }
+      error: () => { this.isLoading = false; this.errorMessage = 'Network error.'; this.cdr.detectChanges(); }
     });
   }
 
-  // --- Interaction (Like/Dislike) ---
+  // --- Menu & Report Logic ---
+  toggleMenu(event: Event) {
+    event.stopPropagation();
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  openReportModal() {
+    this.isReportModalOpen = true;
+    this.isMenuOpen = false;
+    this.reportReason = null;
+    this.reportDetails = '';
+  }
+
+  closeReportModal() { this.isReportModalOpen = false; }
+
+  submitReport() {
+    if (!this.post || !this.reportReason) return;
+    this.isReporting = true;
+    this.postsService.reportPost(this.post.id, this.reportReason, this.reportDetails).subscribe({
+      next: (res) => {
+        this.isReporting = false;
+        if (res.isSuccess) { alert('Report submitted.'); this.closeReportModal(); }
+        else { alert(res.error?.message || 'Failed.'); }
+      },
+      error: () => { this.isReporting = false; alert('Error.'); }
+    });
+  }
+
+  // --- Image Helpers ---
+  resolveImageUrl(url: string | undefined | null): string {
+    if (!url) return '';
+    if (url.includes('@local://')) return `${this.environment.apiBaseUrl3}/${url.replace('@local://', '')}`;
+    if (!url.startsWith('http') && !url.startsWith('data:')) return `${this.environment.apiBaseUrl}/${url}`;
+    return url;
+  }
+
+  getAvatar(author: any): string { return this.resolveImageUrl(author?.imageUrl) || 'assets/images/default-avatar.png'; }
+
+  // --- Interaction ---
   toggleInteraction(type: InteractionType) {
     if (!this.post) return;
+    if (!this.currentUserId) { alert('Login required.'); return; }
 
-    if (!this.currentUserId) { 
-      alert('Please login to interact.'); 
-      this.router.navigate(['/auth/login']);
-      return; 
-    }
-
-    // Use 'currentUserInteraction' as per Model
     const oldInteraction = this.post.currentUserInteraction;
-    const oldStats = { ...this.post.stats! };
-
-    // Optimistic Update
     if (this.post.currentUserInteraction === type) {
-      // Toggle OFF
-      this.post.currentUserInteraction = 0; // Assuming 0 is none
-      if (type === InteractionType.Like) this.post.stats!.likes--;
-      else this.post.stats!.dislikes--;
+      this.post.currentUserInteraction = 0;
+      if (type === InteractionType.Like) this.post.stats!.likes--; else this.post.stats!.dislikes--;
     } else {
-      // Toggle ON (Switching)
       if (this.post.currentUserInteraction === InteractionType.Like) this.post.stats!.likes--;
       if (this.post.currentUserInteraction === InteractionType.Dislike) this.post.stats!.dislikes--;
-      
       this.post.currentUserInteraction = type;
-      if (type === InteractionType.Like) this.post.stats!.likes++;
-      else this.post.stats!.dislikes++;
+      if (type === InteractionType.Like) this.post.stats!.likes++; else this.post.stats!.dislikes++;
     }
 
     this.postsService.interact(this.post.id, type).subscribe({
-      error: (err) => {
-        console.error('Interaction Failed:', err);
-        // Revert on error
-        this.post!.currentUserInteraction = oldInteraction;
-        this.post!.stats = oldStats;
-        
-        if (err.status === 0) {
-          alert('Network Error: CORS or Server Down.');
-        } else {
-          alert('Failed to interact. Try again.');
-        }
-      }
+      error: () => { if(this.post) { this.post.currentUserInteraction = oldInteraction; if (type === InteractionType.Like) this.post.stats!.likes--; } }
     });
   }
 
-  // --- Comments ---
   submitComment() {
     if (!this.newCommentContent.trim() || !this.post) return;
-    if (!this.currentUserId) { 
-      alert('Please login to comment.'); 
-      this.router.navigate(['/auth/login']);
-      return; 
-    }
+    if (!this.currentUserId) { alert('Login required.'); return; }
     
-    this.postsService.addComment(this.post.id, this.newCommentContent).subscribe({
-      next: (res) => {
-        if (res.isSuccess) {
-          if (!this.post!.comments) this.post!.comments = [];
-          this.post!.comments.unshift(res.data as any); 
-          this.post!.stats!.comments++;
-          this.newCommentContent = '';
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        alert('Failed to post comment.');
-      }
+    if (!this.post.comments) this.post.comments = [];
+    if (!this.post.stats) this.post.stats = { views:0, likes:0, dislikes:0, comments:0, shares:0 };
+
+    const content = this.newCommentContent;
+    const tempComment: any = { id: -Date.now(), content, author: { fullName: this.currentUserData?.fullName, imageUrl: this.currentUserData?.imageUrl }, createdAt: new Date().toISOString(), replies: [] };
+
+    this.post.comments.unshift(tempComment);
+    this.post.stats.comments++;
+    this.newCommentContent = '';
+
+    this.postsService.addComment(this.post.id, content).subscribe({
+      next: (res) => { if (res.isSuccess && this.post?.comments) { this.post.comments.shift(); this.post.comments.unshift(res.data as any); } },
+      error: () => { if(this.post?.comments) this.post.comments.shift(); if(this.post?.stats) this.post.stats.comments--; this.newCommentContent = content; }
     });
   }
 
-  submitReply(parentComment: Comment, replyContent: string) {
-    if (!replyContent.trim() || !this.post) return;
-    if (!this.currentUserId) { alert('Please login to reply.'); return; }
+  openReplyInput(id: number) { this.activeReplyId = this.activeReplyId === id ? null : id; }
 
-    this.postsService.addComment(this.post.id, replyContent, parentComment.id).subscribe({
-      next: (res) => {
-        if (res.isSuccess) {
-          if (!parentComment.replies) parentComment.replies = [];
-          parentComment.replies.push(res.data as any);
-          // Assuming isReplying is purely UI state, we handle it in template or safely cast here
-          (parentComment as any).isReplying = false; 
-          this.post!.stats!.comments++;
-        }
-      }
+  submitReply(parent: Comment) {
+    const content = this.replyInputs[parent.id];
+    if (!content?.trim() || !this.post) return;
+    if (!this.currentUserId) { alert('Login required.'); return; }
+
+    if (!parent.replies) parent.replies = [];
+    if (!this.post.stats) this.post.stats = { views:0, likes:0, dislikes:0, comments:0, shares:0 };
+
+    const temp: any = { id: -Date.now(), content, author: { fullName: this.currentUserData?.fullName, imageUrl: this.currentUserData?.imageUrl }, createdAt: new Date().toISOString() };
+    parent.replies.push(temp); this.replyInputs[parent.id] = ''; this.activeReplyId = null; this.post.stats.comments++;
+
+    this.postsService.addComment(this.post.id, content, parent.id).subscribe({
+      next: (res) => { if (res.isSuccess && parent.replies) { parent.replies.pop(); parent.replies.push(res.data as any); } },
+      error: () => { if(parent.replies) parent.replies.pop(); if(this.post?.stats) this.post.stats.comments--; }
     });
   }
 
-  // --- Permissions ---
-  get canEdit(): boolean {
+  get isOwnerOrAdmin(): boolean {
+    if (this.isAdmin) return true;
     if (!this.post?.author || !this.currentUserId) return false;
-    
-    // Safely extract Author ID regardless of type (string or object)
-    let authorId: string | number;
-    if (typeof this.post.author === 'object' && this.post.author !== null) {
-      // Use type assertion to access 'id' if TS complains, or rely on JS behavior
-      authorId = (this.post.author as any).id; 
-    } else {
-      authorId = this.post.author as string;
-    }
-
-    return String(authorId) === String(this.currentUserId) || this.isAdmin;
+    let authorId = (typeof this.post.author === 'object') ? (this.post.author as any).id : this.post.author;
+    return String(authorId) === String(this.currentUserId);
   }
 
-  getCategoryName(id: number): string {
-    return this.categories.find(c => c.id === id)?.name || 'General';
-  }
+  // Helper Accessor
+  get canEdit(): boolean { return this.isOwnerOrAdmin; }
+
+  getCategoryName(id: number): string { return this.categories.find(c => c.id === id)?.name || 'General'; }
 
   onDelete() {
-    if (this.post && confirm('Delete this post?')) {
-      this.postsService.deletePost(this.post.id).subscribe({
-        next: () => this.router.navigate(['/admin/posts']),
-        error: () => alert('Failed to delete.')
-      });
+    if (this.post && confirm('Delete post?')) {
+      this.postsService.deletePost(this.post.id).subscribe({ next: () => this.router.navigate(['/admin/posts']) });
     }
   }
 }

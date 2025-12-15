@@ -10,8 +10,9 @@ import { ApiResponse, Post, InteractionType, Comment } from '../models/posts';
 export class PostsService {
   private http = inject(HttpClient);
   
-  // تأكد أن الرابط الأساسي صحيح
-  private baseUrl = `${environment.apiBaseUrl}/posts-dashboard`;
+  // Base URLs based on your structure
+  private baseUrl = `${environment.apiBaseUrl}/posts-dashboard`; 
+  private baseUrl2 = `${environment.apiBaseUrl}/posts`;          
 
   // =================================================================
   // READ OPERATIONS
@@ -26,7 +27,6 @@ export class PostsService {
       params = params.set('category', category.toString());
     }
     
-    // الرابط هو /list حسب Swagger
     return this.http.get<ApiResponse<Post[]>>(`${this.baseUrl}/list`, { params }); 
   }
 
@@ -40,41 +40,26 @@ export class PostsService {
 
   createPost(data: any, files?: File[]): Observable<any> {
     const formData = new FormData();
-
     formData.append('title', data.title);
     formData.append('content', data.content);
     formData.append('category', data.category);
 
-    // في الإنشاء الحقل اسمه attachments
     if (files && files.length > 0) {
-      files.forEach((file) => {
-        formData.append('attachments', file); 
-      });
+      files.forEach((file) => formData.append('attachments', file));
     }
-
     return this.http.post(`${this.baseUrl}/create`, formData);
   }
 
-  /**
-   * دالة التعديل (هنا الحل لمشكلتك)
-   */
   updatePost(id: number, data: any, files?: File[]): Observable<any> {
     const formData = new FormData();
-
-    // 1. التصحيح: تغيير الاسم من id إلى postId ليطابق الباك إند
     formData.append('postId', id.toString());
-    
     formData.append('title', data.title);
     formData.append('content', data.content);
     formData.append('category', data.category);
 
-    // 2. التصحيح: تغيير الاسم من attachments إلى addedAttachments
     if (files && files.length > 0) {
-      files.forEach((file) => {
-        formData.append('addedAttachments', file);
-      });
+      files.forEach((file) => formData.append('addedAttachments', file));
     }
-
     return this.http.put(`${this.baseUrl}/edit`, formData);
   }
 
@@ -84,13 +69,25 @@ export class PostsService {
     });
   }
 
-  // ... باقي الدوال (interact, addComment) كما هي
+  // =================================================================
+  // INTERACTIONS (Likes & Comments)
+  // =================================================================
+
   interact(postId: number, type: InteractionType): Observable<ApiResponse<any>> {
-    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/${postId}/interact`, { type });
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl2}/${postId}/interact`, { type });
   }
 
   addComment(postId: number, content: string, parentCommentId?: number): Observable<ApiResponse<Comment>> {
     const body = { postId, content, parentCommentId: parentCommentId || 0 };
-    return this.http.post<ApiResponse<Comment>>(`${this.baseUrl}/comment`, body);
+    return this.http.post<ApiResponse<Comment>>(`${this.baseUrl2}/comment`, body);
+  }
+
+  // =================================================================
+  // REPORTING (New Feature)
+  // =================================================================
+  // Matches the endpoint: POST /api/posts/{postId}/report
+  reportPost(postId: number, reason: number, details: string): Observable<ApiResponse<any>> {
+    const body = { reason, details };
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl2}/${postId}/report`, body);
   }
 }
