@@ -1,18 +1,15 @@
 import { Component, OnInit, inject, OnDestroy, PLATFORM_ID } from '@angular/core';
-import { CommonModule, DatePipe, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../Authentication/Service/auth';
-// Import the Category List/Enum from your model to ensure consistency
-// import { PostCategoryList } from '../../../Dashboard/pages/posts/models/post.models'; 
 
 @Component({
   selector: 'app-nav-bar',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './nav-bar.component.html',
-  styleUrls: ['./nav-bar.component.scss'],
-  providers: [DatePipe]
+  styleUrls: ['./nav-bar.component.scss']
 })
 export class NavBarComponent implements OnInit, OnDestroy {
   
@@ -20,29 +17,27 @@ export class NavBarComponent implements OnInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
   
   isMenuOpen = false;
-  currentDate = new Date();
   isLoggedIn = false;
   currentUsername: string | null = null;
-  canViewDashboard = false;
+  // يمكن إضافة منطق للإشعارات هنا
+  hasNotifications = true; 
   
   private userSub!: Subscription;
 
-  // 🔥 Dynamic Categories from your Shared Model
-  // We map them to match the structure needed for the navbar
-  // Note: Colors are hardcoded here for visual appeal as they are not in the model
+  // 🔥 New Categories with Icons and Active Color Logic
   categories = [
-    { id: 1, name: 'Art', color: '#FD7E14' },
-    { id: 2, name: 'Community', color: '#E35D6A' },
-    { id: 3, name: 'Culture', color: '#DC3545' },
-    { id: 4, name: 'Education', color: '#6610f2' },
-    { id: 5, name: 'Events', color: '#D63384' },
-    { id: 6, name: 'Lifestyle', color: '#6F42C1' },
-    { id: 7, name: 'Media', color: '#20c997' },
-    { id: 8, name: 'News', color: '#198754' },
-    { id: 9, name: 'Recruitment', color: '#A5673F' },
-    { id: 10, name: 'Social', color: '#75B798' },
-    { id: 11, name: 'Tourism', color: '#FFC107' },
-    { id: 12, name: 'TV', color: '#0D6EFD' }
+    { id: 'all', name: 'All', icon: 'bi-grid-fill' },
+    { id: 'community', name: 'Community', icon: 'bi-people-fill' },
+    { id: 'culture', name: 'Culture', icon: 'bi-palette-fill' },
+    { id: 'education', name: 'Education', icon: 'bi-mortarboard-fill' },
+    { id: 'events', name: 'Events', icon: 'bi-calendar-event-fill' },
+    { id: 'health', name: 'Health', icon: 'bi-heart-fill' },
+    { id: 'legal', name: 'Legal', icon: 'bi-hammer' },
+    { id: 'lifestyle', name: 'Lifestyle', icon: 'bi-person-arms-up' },
+    { id: 'news', name: 'News', icon: 'bi-newspaper' },
+    { id: 'profession', name: 'Profession', icon: 'bi-briefcase-fill' },
+    { id: 'social', name: 'Social', icon: 'bi-globe' },
+    { id: 'tour', name: 'Tour', icon: 'bi-airplane-fill' }
   ];
 
   ngOnInit() {
@@ -50,16 +45,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
       this.isLoggedIn = !!user;
       if (user) {
         this.currentUsername = user.username || user.unique_name || user.email;
-        this.canViewDashboard = this.authService.hasPermission('Permissions.Dashboard.View');
       } else {
-        this.resetPermissions();
+        this.currentUsername = null;
       }
     });
-  }
-
-  resetPermissions() {
-    this.currentUsername = null;
-    this.canViewDashboard = false;
   }
 
   toggleMenu() { 
@@ -79,8 +68,5 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.userSub) this.userSub.unsubscribe();
-    if (isPlatformBrowser(this.platformId)) {
-      document.body.style.overflow = 'auto'; 
-    }
   }
 }

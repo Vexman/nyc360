@@ -12,18 +12,6 @@
     </div>
   </div>
 
-<!--   
-  <div class="category-sticky-header">
-    <div class="category-scroll-container">
-      <button *ngFor="let cat of categories" 
-              class="cat-pill" 
-              [class.active]="selectedCategoryId === cat.id"
-              (click)="filterByCategory(cat.id)">
-        <i class="bi" [class]="cat.icon"></i>
-        <span>{{ cat.name }}</span>
-      </button>
-    </div>
-  </div> -->
   <div class="main-layout">
     
     <aside class="sidebar left-sidebar">
@@ -31,7 +19,9 @@
       <div class="widget-card profile-widget">
         <div class="profile-header"></div>
         <div class="profile-content">
-          <img [src]="currentUser ? getAuthorAvatar(currentUser) : 'assets/images/default-avatar.png'" class="avatar-main">
+          <div class="avatar-icon-wrapper">
+            <i class="bi bi-person-circle"></i>
+          </div>
           
           <div class="text-center mt-2" *ngIf="currentUser">
             <h3 class="user-name">{{ currentUser.fullName || currentUser.username }}</h3>
@@ -54,10 +44,10 @@
 
       <div class="widget-card nav-widget">
         <nav class="side-nav">
-          <a routerLink="/feed" class="nav-item active"><i class="bi bi-columns-gap"></i> My Feed</a>
-          <a routerLink="/nearby" class="nav-item"><i class="bi bi-geo-alt"></i> Nearby</a>
-          <a routerLink="/saved" class="nav-item"><i class="bi bi-bookmark"></i> Saved Posts</a>
-          <a routerLink="/tags" class="nav-item"><i class="bi bi-hash"></i> Trending Tags</a>
+          <a routerLink="/public/feed" class="nav-item active"><i class="bi bi-columns-gap"></i> My Feed</a>
+          <a routerLink="/public/nearby" class="nav-item"><i class="bi bi-geo-alt"></i> Nearby</a>
+          <a routerLink="/public/saved" class="nav-item"><i class="bi bi-bookmark"></i> Saved Posts</a>
+          <a routerLink="/public/tags" class="nav-item"><i class="bi bi-hash"></i> Trending Tags</a>
         </nav>
       </div>
 
@@ -67,14 +57,9 @@
       
       <div class="create-post-widget">
         <div class="input-top">
-          <img [src]="currentUser ? getAuthorAvatar(currentUser) : 'assets/images/default-avatar.png'" class="avatar-sm">
+          <i class="bi bi-person-circle avatar-icon-sm"></i>
           <button class="fake-input" routerLink="/admin/posts/create">What's happening in NYC?</button>
         </div>
-        <!-- <div class="actions-bottom">
-          <button class="action-btn photo"><i class="bi bi-image-fill"></i> Photo</button>
-          <button class="action-btn video"><i class="bi bi-camera-video-fill"></i> Video</button>
-          <button class="action-btn event"><i class="bi bi-calendar-event-fill"></i> Event</button>
-        </div> -->
       </div>
 
       <div *ngIf="isLoading" class="state-widget">
@@ -91,16 +76,19 @@
       <div class="post-card fade-in-up" *ngFor="let post of posts">
         
         <div class="post-header">
-          <img [src]="getAuthorAvatar(post.author)" class="author-img">
+          <div class="author-icon-wrapper">
+             <i class="bi bi-person-circle"></i>
+          </div>
+          
           <div class="post-meta">
             <h4 class="author-name">{{ getAuthorName(post.author) }}</h4>
             <span class="post-time">{{ post.createdAt | date:'mediumDate' }}</span>
           </div>
-          <a [routerLink]="['/posts/details', post.id]" class="options-btn"><i class="bi bi-three-dots"></i></a>
+          <a [routerLink]="['/public/posts/details', post.id]" class="options-btn"><i class="bi bi-three-dots"></i></a>
         </div>
 
         <div class="post-body">
-          <a [routerLink]="['/posts/details', post.id]" class="post-link">
+          <a [routerLink]="['/public/posts/details', post.id]" class="post-link">
             <h3 class="post-title">{{ post.title }}</h3>
             <p class="post-desc">{{ (post.content | slice:0:150) }}{{ post.content.length > 150 ? '...' : '' }}</p>
           </a>
@@ -121,8 +109,8 @@
                  [class.bi-heart]="post.userInteraction !== InteractionType.Like"></i>
               <span>{{ post.stats?.likes || 0 }}</span>
             </button>
-            
-            <a [routerLink]="['/posts/details', post.id]" class="int-btn comment">
+
+            <a [routerLink]="['/public/posts/details', post.id]" class="int-btn comment">
               <i class="bi bi-chat-dots"></i>
               <span>{{ post.stats?.comments || 0 }}</span>
             </a>
@@ -149,21 +137,21 @@
             <span class="degree">72°</span>
             <span class="status">Partly Cloudy</span>
           </div>
-          <div class="aqi-badge">AQI: 45 (Good)</div>
+          <div class="aqi-badge">AQI: 45</div>
         </div>
       </div>
 
       <div class="widget-card">
-        <div class="widget-title">Trending Now</div>
+        <div class="widget-title"><i class="bi bi-graph-up-arrow me-2"></i> Trending Now</div>
         <div class="tags-list">
           <span class="trend-tag" *ngFor="let tag of trendingTags">#{{ tag }}</span>
         </div>
       </div>
 
       <div class="widget-card">
-        <div class="widget-title">Suggested Communities</div>
+        <div class="widget-title"><i class="bi bi-people-fill me-2"></i> Communities</div>
         <div class="community-item" *ngFor="let comm of communities">
-          <div class="comm-icon">{{ comm.acronym }}</div>
+          <div class="comm-icon"><i class="bi bi-people"></i></div>
           <div class="comm-details">
             <h5>{{ comm.name }}</h5>
             <small>{{ comm.members }} Members</small>

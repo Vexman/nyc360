@@ -13,7 +13,7 @@ import { InteractionType, Post, PostAuthor } from '../models/posts';
   templateUrl: './home.html',
   styleUrls: ['./home.scss']
 })
-export class HomeComponent implements OnInit {
+export class Home implements OnInit {
   
   protected readonly environment = environment;
   protected readonly InteractionType = InteractionType;
@@ -34,17 +34,17 @@ export class HomeComponent implements OnInit {
   categories = [
     { id: null, name: 'All', icon: 'bi-grid-fill' },
     { id: 1, name: 'Art', icon: 'bi-palette' },
-    { id: 2, name: 'Community', icon: 'bi-people-fill' },
-    { id: 3, name: 'Culture', icon: 'bi-bank' },
-    { id: 4, name: 'Education', icon: 'bi-mortarboard' },
-    { id: 5, name: 'Events', icon: 'bi-calendar-event' },
-    { id: 6, name: 'Lifestyle', icon: 'bi-cup-hot' },
-    { id: 7, name: 'Media', icon: 'bi-collection-play' },
-    { id: 8, name: 'News', icon: 'bi-newspaper' },
-    { id: 9, name: 'Recruitment', icon: 'bi-briefcase' },
-    { id: 10, name: 'Social', icon: 'bi-chat-heart' },
-    { id: 11, name: 'Tourism', icon: 'bi-airplane' },
-    { id: 12, name: 'TV', icon: 'bi-tv' }
+    // { id: 2, name: 'Community', icon: 'bi-people-fill' },
+    // { id: 3, name: 'Culture', icon: 'bi-bank' },
+    // { id: 4, name: 'Education', icon: 'bi-mortarboard' },
+    // { id: 5, name: 'Events', icon: 'bi-calendar-event' },
+    // { id: 6, name: 'Lifestyle', icon: 'bi-cup-hot' },
+    // { id: 7, name: 'Media', icon: 'bi-collection-play' },
+    // { id: 8, name: 'News', icon: 'bi-newspaper' },
+    // { id: 9, name: 'Recruitment', icon: 'bi-briefcase' },
+    // { id: 10, name: 'Social', icon: 'bi-chat-heart' },
+    // { id: 11, name: 'Tourism', icon: 'bi-airplane' },
+    // { id: 12, name: 'TV', icon: 'bi-tv' }
   ];
 
   trendingTags = ['NYC_Events', 'ManhattanArt', 'SubwayUpdates', 'TechSummit'];
