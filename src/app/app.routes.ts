@@ -39,7 +39,7 @@ export const routes: Routes = [
       },
       { 
         path: 'posts/details/:id', 
-        loadComponent: () => import('./pages/Dashboard/pages/posts/post-details/post-details').then(m => m.PostDetailsComponent) 
+        loadComponent: () => import('../app/pages/Public/pages/posts/post-details/post-details').then(m => m.PostDetailsComponent) 
       },
 
 
@@ -121,7 +121,7 @@ export const routes: Routes = [
       },
       { 
         path: 'posts/details/:id', 
-        loadComponent: () => import('./pages/Dashboard/pages/posts/post-details/post-details').then(m => m.PostDetailsComponent) 
+        loadComponent: () => import('../app/pages/Public/pages/posts/post-details/post-details').then(m => m.PostDetailsComponent) 
       },
 
       // --- Trending & Flags ---

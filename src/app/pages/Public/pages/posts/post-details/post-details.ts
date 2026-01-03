@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
-// ✅ Import PostComment instead of Comment
 import { AuthService } from '../../../../Authentication/Service/auth';
 import { InteractionType, Post, PostAuthor, PostCategoryList, PostComment } from '../models/posts';
 import { PostsService } from '../services/posts';
@@ -37,6 +36,16 @@ export class PostDetailsComponent implements OnInit {
   newCommentContent = '';
   replyInputs: { [key: number]: string } = {};
   activeReplyId: number | null = null;
+
+  // 🔥 متغير للتحكم في ظهور القائمة المنسدلة (Edit/Delete)
+  showMenu = false;
+
+  // 🔥 بيانات وهمية للـ Sidebar لتطابق التصميم (يمكنك استبدالها بـ API لاحقاً)
+  relatedPosts = [
+    { title: 'New Express Bus Route Added', time: '28min', comments: 480, img: 'assets/images/bus.jpg' },
+    { title: 'Subway Expansion Vote Results', time: '4h ago', comments: 2400, img: 'assets/images/train.jpg' },
+    { title: 'City Bike Lanes Update', time: '1d ago', comments: 120, img: 'assets/images/bike.jpg' }
+  ];
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
@@ -78,8 +87,19 @@ export class PostDetailsComponent implements OnInit {
   }
 
   // --- Helpers ---
+  
+  // وظيفة لفتح/غلق القائمة
+  toggleMenu() {
+    this.showMenu = !this.showMenu;
+  }
+
+  // إغلاق القائمة عند النقر خارجها (اختياري، يمكن تحسينه بـ Directive)
+  closeMenu() {
+    this.showMenu = false;
+  }
+
   getAuthorName(author: PostAuthor | string | undefined): string {
-    if (!author) return 'Unknown User';
+    if (!author) return 'NYC360 User';
     if (typeof author === 'string') return 'User';
     return author.fullName || author.username || 'User';
   }
@@ -96,6 +116,10 @@ export class PostDetailsComponent implements OnInit {
     if (url.includes('@local://')) return `${this.environment.apiBaseUrl3}/${url.replace('@local://', '')}`;
     if (!url.startsWith('http') && !url.startsWith('data:')) return `${this.environment.apiBaseUrl}/${url}`;
     return url;
+  }
+
+  getCategoryName(id: number): string {
+    return this.categories.find(c => c.id === id)?.name || 'News';
   }
 
   // --- Comments ---
@@ -117,7 +141,6 @@ export class PostDetailsComponent implements OnInit {
     this.activeReplyId = this.activeReplyId === commentId ? null : commentId;
   }
 
-  // ✅ استخدام النوع الصحيح PostComment
   submitReply(parentComment: PostComment, content: string) {
     if (!content || !content.trim() || !this.post || !this.currentUserId) return;
 
@@ -127,7 +150,6 @@ export class PostDetailsComponent implements OnInit {
           if (!parentComment.replies) parentComment.replies = [];
           parentComment.replies.push(res.data as any);
           if (this.post?.stats) this.post.stats.comments++;
-          
           this.replyInputs[parentComment.id] = ''; 
           this.activeReplyId = null;
         }
@@ -164,10 +186,6 @@ export class PostDetailsComponent implements OnInit {
     if (typeof this.post.author === 'object') authorId = this.post.author.id;
     else authorId = this.post.author;
     return String(authorId) === String(this.currentUserId) || this.isAdmin;
-  }
-
-  getCategoryName(id: number): string {
-    return this.categories.find(c => c.id === id)?.name || 'General';
   }
 
   onDelete() {

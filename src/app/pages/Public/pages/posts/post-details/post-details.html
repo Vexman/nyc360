@@ -3,91 +3,129 @@
   <div *ngIf="isLoading" class="state-container"><div class="spinner-border text-primary" role="status"></div></div>
   <div *ngIf="errorMessage" class="state-container text-danger">{{ errorMessage }}</div>
 
-  <div *ngIf="!isLoading && post" class="post-details-wrapper post-card">
+  <div *ngIf="!isLoading && post" class="content-grid">
     
-    <div class="card-top">
-      <a routerLink="/admin/posts" class="icon-btn"><i class="bi bi-arrow-left"></i></a>
-      <img [src]="getAuthorAvatar(post.author)" class="user-avatar">
-      <div class="meta">
-        <h4 class="username">{{ getAuthorName(post.author) }}</h4>
-        <span class="timestamp">{{ post.createdAt | date:'mediumDate' }} • <span class="cat">{{ getCategoryName(post.category) }}</span></span>
-      </div>
+    <main class="main-column">
       
-      <div class="post-menu-container" *ngIf="canEdit">
-        <button class="icon-btn" (click)="onDelete()"><i class="bi bi-trash text-danger"></i></button>
-      </div>
-    </div>
-
-    <div class="card-content">
-      <h3 class="post-title">{{ post.title }}</h3>
-      <p class="post-text" [innerHTML]="post.content"></p>
-    </div>
-
-    <div class="card-media" *ngIf="post.imageUrl || (post.attachments && post.attachments.length > 0)">
-      <img *ngIf="post.attachments && post.attachments.length > 0" [src]="resolveImageUrl(post.attachments[0].url)">
-      <img *ngIf="(!post.attachments || post.attachments.length === 0) && post.imageUrl" [src]="resolveImageUrl(post.imageUrl)">
-    </div>
-
-    <div class="card-stats">
-      <span><i class="bi bi-hand-thumbs-up-fill text-primary"></i> {{ post.stats?.likes }}</span>
-      <span>{{ post.stats?.comments }} Comments</span>
-    </div>
-
-    <div class="card-actions">
-      <button class="action-btn" 
-              [class.active]="post.userInteraction === InteractionType.Like" 
-              (click)="toggleInteraction(InteractionType.Like)">
-        <i class="bi" [class.bi-hand-thumbs-up-fill]="post.userInteraction === InteractionType.Like" 
-           [class.bi-hand-thumbs-up]="post.userInteraction !== InteractionType.Like"></i> Like
-      </button>
-      <button class="action-btn" onclick="document.getElementById('commentInput').focus()">
-        <i class="bi bi-chat-bubble"></i> Comment
-      </button>
-    </div>
-
-    <div class="comments-area">
-      <div class="comment-input-wrapper">
-        <input id="commentInput" type="text" placeholder="Write a comment..." [(ngModel)]="newCommentContent" (keydown.enter)="submitComment()">
-        <button (click)="submitComment()" [disabled]="!newCommentContent.trim()"><i class="bi bi-send-fill"></i></button>
+      <div class="featured-media" *ngIf="post.imageUrl || (post.attachments && post.attachments.length > 0)">
+        <img *ngIf="post.attachments && post.attachments.length > 0" [src]="resolveImageUrl(post.attachments[0].url)">
+        <img *ngIf="(!post.attachments || post.attachments.length === 0) && post.imageUrl" [src]="resolveImageUrl(post.imageUrl)">
       </div>
 
-      <div class="comments-stream">
-        <div class="comment-thread" *ngFor="let comment of post.comments">
-          <div class="comment-row">
-            <img [src]="getAuthorAvatar(comment.author)" class="comment-avatar">
-            <div class="bubble-container">
-              <div class="comment-bubble">
-                <span class="author">{{ getAuthorName(comment.author) }}</span>
-                <p>{{ comment.content }}</p>
-              </div>
-              <div class="comment-actions-text">
-                <span (click)="openReplyInput(comment.id)">Reply</span>
-                <span class="time">{{ comment.createdAt | date:'shortTime' }}</span>
-              </div>
-            </div>
-          </div>
+      <div class="meta-row">
+        <div class="author-info">
+          <div class="author-icon-bg">
+            <i class="bi bi-tv"></i> </div>
+          <span class="author-name">{{ getAuthorName(post.author) }}</span>
+        </div>
+        
+        <span class="divider">•</span>
+        <span class="date">{{ post.createdAt | date:'mediumDate' }}</span>
+        <span class="divider">•</span>
+        <span class="read-time">12 min read</span>
 
-          <div class="nested-replies" *ngIf="comment.replies?.length">
-            <div class="comment-row reply" *ngFor="let reply of comment.replies">
-              <img [src]="getAuthorAvatar(reply.author)" class="comment-avatar small">
-              <div class="bubble-container">
-                <div class="comment-bubble">
-                  <span class="author">{{ getAuthorName(reply.author) }}</span>
-                  <p>{{ reply.content }}</p>
-                </div>
-              </div>
+        <div class="more-options-wrapper">
+          <button class="icon-btn-ghost" (click)="toggleMenu()">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          
+          <div class="dropdown-menu-custom" *ngIf="showMenu">
+            <div class="menu-item" *ngIf="canEdit" routerLink="/admin/posts/edit/{{post.id}}">
+              <i class="bi bi-pencil"></i> <span>Edit Post</span>
             </div>
-          </div>
-
-          <div class="reply-input-wrapper" *ngIf="activeReplyId === comment.id">
-            <div class="input-box small">
-              <input #replyInput type="text" placeholder="Write a reply..." 
-                     (keydown.enter)="submitReply(comment, replyInput.value)" autoFocus>
-              <button (click)="submitReply(comment, replyInput.value)"><i class="bi bi-send-fill"></i></button>
+            <div class="menu-item text-danger" *ngIf="canEdit" (click)="onDelete()">
+              <i class="bi bi-trash"></i> <span>Delete Post</span>
+            </div>
+            <div class="menu-item">
+              <i class="bi bi-flag"></i> <span>Report Post</span>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <div class="tags-row">
+        <span class="tag-pill dark">News</span>
+        <span class="tag-pill blue">{{ getCategoryName(post.category) }}</span>
+      </div>
+
+      <h1 class="article-title">{{ post.title }}</h1>
+      <div class="article-body" [innerHTML]="post.content"></div>
+
+      <div class="comments-section-modern">
+        
+        <div class="comment-input-area">
+          <img [src]="getAuthorAvatar(post.author)" class="current-user-avatar">
+          <div class="input-wrapper">
+            <input type="text" placeholder="what are your thoughts" [(ngModel)]="newCommentContent" (keydown.enter)="submitComment()">
+          </div>
+        </div>
+
+        <div class="comments-sort">
+          <span>Sort by: <strong>Recent</strong></span>
+        </div>
+
+        <div class="comments-list">
+          <div class="comment-item-modern" *ngFor="let comment of post.comments">
+            <img [src]="getAuthorAvatar(comment.author)" class="comment-avatar">
+            <div class="comment-content">
+              <h5 class="comment-author">{{ getAuthorName(comment.author) }}</h5>
+              <p class="comment-text">{{ comment.content }}</p>
+              
+              <div class="comment-actions">
+                <button class="act-btn"><i class="bi bi-hand-thumbs-up"></i></button>
+                <button class="act-btn" (click)="openReplyInput(comment.id)"><i class="bi bi-reply"></i> Reply</button>
+                <button class="act-btn"><i class="bi bi-share"></i> Share</button>
+              </div>
+
+              <div class="reply-input-box" *ngIf="activeReplyId === comment.id">
+                <input #replyInput type="text" placeholder="Reply..." (keydown.enter)="submitReply(comment, replyInput.value)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+
+    <aside class="sidebar-column">
+      
+      <div class="sidebar-card profile-card">
+        <div class="card-header-blue">
+          <div class="icon-box"><i class="bi bi-tv"></i></div>
+          <button class="btn-follow">Follow</button>
+        </div>
+        <div class="card-body">
+          <div class="hub-info">
+            <h4>{{ getAuthorName(post.author) }} <i class="bi bi-patch-check-fill text-primary"></i></h4>
+            <p>Your hub for city transit updates, news, and commuting discussions.</p>
+          </div>
+          
+          <div class="stats-row">
+            <div class="stat"><strong>124K</strong> <span>Posts</span></div>
+            <div class="stat"><strong>4.2M</strong> <span>Followers</span></div>
+          </div>
+
+          <div class="links-list">
+             <div class="link-item"><i class="bi bi-globe"></i> Public Community</div>
+             <div class="link-item"><i class="bi bi-calendar"></i> Created Jan 24, 2019</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card related-posts">
+        <h4 class="sidebar-title">Related Posts</h4>
+        <div class="related-list">
+          <div class="related-item" *ngFor="let item of relatedPosts">
+            <div class="rel-img"></div> <div class="rel-info">
+              <h5>{{ item.title }}</h5>
+              <span>{{ item.comments }} comment • {{ item.time }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
   </div>
 </div>
