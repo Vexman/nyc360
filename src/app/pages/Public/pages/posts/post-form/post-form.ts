@@ -1,10 +1,12 @@
+// src/app/pages/Public/pages/posts/post-form/post-form.ts
+
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Observable } from 'rxjs';
 import { PostsService } from '../services/posts';
 import { PostCategoryList } from '../models/posts';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-post-form',
@@ -20,9 +22,7 @@ export class PostFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  // 👇 تم تغيير الاسم من postForm إلى form ليتطابق مع الـ HTML
   form: FormGroup;
-  
   isEditMode = false;
   postId: number | null = null;
   isLoading = false;
@@ -70,7 +70,6 @@ export class PostFormComponent implements OnInit {
     });
   }
 
-  // 👇 تم تغيير الاسم ليتطابق مع الـ HTML (أو العكس، سأجعله onFileSelect)
   onFileSelect(event: any) {
     const file = event.target.files[0];
     if (file) {
@@ -89,12 +88,15 @@ export class PostFormComponent implements OnInit {
     this.isSubmitting = true;
     const formData = this.form.value;
 
+    // ✅ الحل: وضع الملف في مصفوفة لأن السيرفس يتوقع File[]
+    const filesToSend = this.selectedFile ? [this.selectedFile] : undefined;
+
     let request$: Observable<any>;
 
     if (this.isEditMode && this.postId) {
-      request$ = this.postsService.updatePost(this.postId, formData, this.selectedFile || undefined);
+      request$ = this.postsService.updatePost(this.postId, formData, filesToSend);
     } else {
-      request$ = this.postsService.createPost(formData, this.selectedFile || undefined);
+      request$ = this.postsService.createPost(formData, filesToSend);
     }
 
     request$.subscribe({
@@ -115,7 +117,6 @@ export class PostFormComponent implements OnInit {
     });
   }
 
-  // 👇 إضافة دالة goBack المفقودة
   goBack() {
     this.router.navigate(['/admin/posts']);
   }

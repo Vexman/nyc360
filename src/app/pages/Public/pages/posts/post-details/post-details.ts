@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
-import { PostsService } from '../services/posts';
-import { Post, PostCategoryList, InteractionType, Comment } from '../models/posts';
+// ✅ Import PostComment instead of Comment
 import { AuthService } from '../../../../Authentication/Service/auth';
+import { InteractionType, Post, PostAuthor, PostCategoryList, PostComment } from '../models/posts';
+import { PostsService } from '../services/posts';
 
 @Component({
   selector: 'app-post-details',
@@ -32,22 +33,19 @@ export class PostDetailsComponent implements OnInit {
   
   currentUserId: string | null = null;
   isAdmin = false;
-
+  
   newCommentContent = '';
+  replyInputs: { [key: number]: string } = {};
+  activeReplyId: number | null = null;
 
   ngOnInit() {
-    // 1. مراقبة المستخدم (الآن الـ AuthService بيرجع id جاهز)
     this.authService.currentUser$.subscribe(user => {
       if (user && user.id) {
         this.currentUserId = user.id;
         this.isAdmin = Array.isArray(user.roles) ? user.roles.includes('Admin') : user.roles === 'Admin';
-        console.log("✅ Current User ID in Post Details:", this.currentUserId);
-      } else {
-        this.currentUserId = null;
       }
     });
 
-    // 2. تحميل البوست
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) this.loadPost(+id);
@@ -61,9 +59,11 @@ export class PostDetailsComponent implements OnInit {
         this.isLoading = false;
         if (res.isSuccess && res.data) {
           this.post = res.data;
-          // تهيئة المصفوفات لتجنب الأخطاء
-          if (!this.post.stats) this.post.stats = { views:0, likes:0, dislikes:0, comments:0, shares:0 };
+          if (!this.post.stats) this.post.stats = { views: 0, likes: 0, dislikes: 0, comments: 0, shares: 0 };
           if (!this.post.comments) this.post.comments = [];
+          if (this.post.currentUserInteraction !== undefined) {
+             this.post.userInteraction = this.post.currentUserInteraction;
+          }
         } else {
           this.errorMessage = res.error?.message || 'Post not found.';
         }
@@ -77,98 +77,93 @@ export class PostDetailsComponent implements OnInit {
     });
   }
 
-  // --- التفاعل (Like/Dislike) ---
-  toggleInteraction(type: InteractionType) {
-    if (!this.post) return;
-
-    if (!this.currentUserId) { 
-      alert('Please login to interact.'); 
-      // توجيه لصفحة تسجيل الدخول إذا لم يكن مسجلاً
-      this.router.navigate(['/auth/login']);
-      return; 
-    }
-
-    const oldInteraction = this.post.userInteraction;
-    const oldStats = { ...this.post.stats! };
-
-    // Optimistic Update (تحديث الواجهة فوراً)
-    if (this.post.userInteraction === type) {
-      this.post.userInteraction = null;
-      if (type === InteractionType.Like) this.post.stats!.likes--;
-      else this.post.stats!.dislikes--;
-    } else {
-      if (this.post.userInteraction === InteractionType.Like) this.post.stats!.likes--;
-      if (this.post.userInteraction === InteractionType.Dislike) this.post.stats!.dislikes--;
-      
-      this.post.userInteraction = type;
-      if (type === InteractionType.Like) this.post.stats!.likes++;
-      else this.post.stats!.dislikes++;
-    }
-
-    this.postsService.interact(this.post.id, type).subscribe({
-      error: (err) => {
-        console.error('Interaction Failed:', err);
-        // التراجع عند الخطأ
-        this.post!.userInteraction = oldInteraction;
-        this.post!.stats = oldStats;
-        
-        // التحقق من أخطاء الـ CORS أو السيرفر
-        if (err.status === 0) {
-          alert('Network Error: CORS or Server Down.');
-        } else {
-          alert('Failed to interact. Try again.');
-        }
-      }
-    });
+  // --- Helpers ---
+  getAuthorName(author: PostAuthor | string | undefined): string {
+    if (!author) return 'Unknown User';
+    if (typeof author === 'string') return 'User';
+    return author.fullName || author.username || 'User';
   }
 
-  // --- التعليقات ---
-  submitComment() {
-    if (!this.newCommentContent.trim() || !this.post) return;
-    if (!this.currentUserId) { 
-      alert('Please login to comment.'); 
-      this.router.navigate(['/auth/login']);
-      return; 
+  getAuthorAvatar(author: PostAuthor | string | undefined): string {
+    if (typeof author === 'object' && author?.imageUrl) {
+      return this.resolveImageUrl(author.imageUrl);
     }
+    return 'assets/images/default-avatar.png';
+  }
+
+  resolveImageUrl(url: string | undefined | null): string {
+    if (!url) return '';
+    if (url.includes('@local://')) return `${this.environment.apiBaseUrl3}/${url.replace('@local://', '')}`;
+    if (!url.startsWith('http') && !url.startsWith('data:')) return `${this.environment.apiBaseUrl}/${url}`;
+    return url;
+  }
+
+  // --- Comments ---
+  submitComment() {
+    if (!this.newCommentContent.trim() || !this.post || !this.currentUserId) return;
     
     this.postsService.addComment(this.post.id, this.newCommentContent).subscribe({
       next: (res) => {
-        if (res.isSuccess) {
-          // التأكد من أن التعليقات مصفوفة قبل الإضافة
-          if (!this.post!.comments) this.post!.comments = [];
-          this.post!.comments.unshift(res.data as any); 
-          this.post!.stats!.comments++;
+        if (res.isSuccess && this.post?.comments) {
+          this.post.comments.unshift(res.data as any); 
+          if(this.post.stats) this.post.stats.comments++;
           this.newCommentContent = '';
         }
-      },
-      error: (err) => {
-        console.error(err);
-        alert('Failed to post comment.');
       }
     });
   }
 
-  // --- الردود ---
-  submitReply(parentComment: Comment, replyContent: string) {
-    if (!replyContent.trim() || !this.post) return;
-    if (!this.currentUserId) { alert('Please login to reply.'); return; }
+  openReplyInput(commentId: number) {
+    this.activeReplyId = this.activeReplyId === commentId ? null : commentId;
+  }
 
-    this.postsService.addComment(this.post.id, replyContent, parentComment.id).subscribe({
+  // ✅ استخدام النوع الصحيح PostComment
+  submitReply(parentComment: PostComment, content: string) {
+    if (!content || !content.trim() || !this.post || !this.currentUserId) return;
+
+    this.postsService.addComment(this.post.id, content, parentComment.id).subscribe({
       next: (res) => {
         if (res.isSuccess) {
           if (!parentComment.replies) parentComment.replies = [];
           parentComment.replies.push(res.data as any);
-          parentComment.isReplying = false;
-          this.post!.stats!.comments++;
+          if (this.post?.stats) this.post.stats.comments++;
+          
+          this.replyInputs[parentComment.id] = ''; 
+          this.activeReplyId = null;
         }
-      }
+      },
+      error: () => alert('Failed to reply')
     });
   }
 
-  // --- الصلاحيات ---
+  // --- Interactions ---
+  toggleInteraction(type: InteractionType) {
+    if (!this.post || !this.currentUserId) return;
+    const oldInteraction = this.post.userInteraction;
+    
+    if (this.post.userInteraction === type) {
+      this.post.userInteraction = null;
+      if (this.post.stats) type === InteractionType.Like ? this.post.stats.likes-- : this.post.stats.dislikes--;
+    } else {
+      if (this.post.stats) {
+        if (this.post.userInteraction === InteractionType.Like) this.post.stats.likes--;
+        if (this.post.userInteraction === InteractionType.Dislike) this.post.stats.dislikes--;
+        type === InteractionType.Like ? this.post.stats.likes++ : this.post.stats.dislikes++;
+      }
+      this.post.userInteraction = type;
+    }
+
+    this.postsService.interact(this.post.id, type).subscribe({
+      error: () => { if (this.post) this.post.userInteraction = oldInteraction; }
+    });
+  }
+
   get canEdit(): boolean {
     if (!this.post?.author || !this.currentUserId) return false;
-    return String(this.post.author.id) === String(this.currentUserId) || this.isAdmin;
+    let authorId: any;
+    if (typeof this.post.author === 'object') authorId = this.post.author.id;
+    else authorId = this.post.author;
+    return String(authorId) === String(this.currentUserId) || this.isAdmin;
   }
 
   getCategoryName(id: number): string {
@@ -176,10 +171,9 @@ export class PostDetailsComponent implements OnInit {
   }
 
   onDelete() {
-    if (this.post && confirm('Delete this post?')) {
+    if (this.post && confirm('Delete?')) {
       this.postsService.deletePost(this.post.id).subscribe({
-        next: () => this.router.navigate(['/admin/posts']),
-        error: () => alert('Failed to delete.')
+        next: () => this.router.navigate(['/admin/posts'])
       });
     }
   }

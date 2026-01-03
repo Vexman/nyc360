@@ -3,6 +3,7 @@ import { PublicLayoutComponent } from './pages/Layout/public-layout/public-layou
 import { AdminLayoutComponent } from './pages/Layout/admin-layout/admin-layout.component';
 import { authGuard } from './guard/auth-guard'; // Ensure correct path to your Guard
 import { AuthLayout } from './pages/Layout/auth-layout/auth-layout';
+import { LandingLayout } from './pages/Layout/landing-layout/landing-layout';
 
 export const routes: Routes = [
   
@@ -11,12 +12,35 @@ export const routes: Routes = [
   // ============================================================
   {
     path: '',
-    component: PublicLayoutComponent,
+    component: LandingLayout,
     children: [
       // --- General Pages ---
       {
         path: '',
-        loadComponent: () => import('./pages/Public/pages/home/home').then(m => m.HomeComponent)
+        loadComponent: () => import('./pages/Public/pages/landing-page/landing-page').then(m => m.LandingPage)
+      },      
+
+      {
+        path: 'about',
+        loadComponent: () => import('./pages/Public/pages/about-us/about-us').then(m => m.AboutUsComponent)
+      },
+    
+
+    ]
+  },
+
+
+  // ============================================================
+  // 1. PUBLIC LAYOUT (Accessible to everyone)
+  // ============================================================
+  {
+    path: 'public',
+    component: PublicLayoutComponent,
+    children: [
+      // --- General Pages ---  
+      {
+        path: 'home',
+        loadComponent: () => import('./pages/Public/pages/posts/home/home').then(m => m.HomeComponent)
       },
       {
         path: 'about',
@@ -40,6 +64,7 @@ export const routes: Routes = [
 
     ]
   },
+
 
   // ============================================================
   // 2. ADMIN LAYOUT (Protected by AuthGuard)

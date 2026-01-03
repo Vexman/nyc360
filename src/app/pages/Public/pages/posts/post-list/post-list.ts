@@ -2,9 +2,9 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
-import { Post, PostCategoryList } from '../models/posts'; // Ensure correct path
-import { PostsService } from '../services/posts'; // Ensure correct path
-import { AuthService } from '../../../../Authentication/Service/auth'; // Ensure correct path
+import { Post, PostCategoryList, PostAuthor } from '../models/posts';
+import { PostsService } from '../services/posts';
+import { AuthService } from '../../../../Authentication/Service/auth';
 
 @Component({
   selector: 'app-post-list',
@@ -16,31 +16,25 @@ import { AuthService } from '../../../../Authentication/Service/auth'; // Ensure
 export class PostListComponent implements OnInit {
   
   protected readonly environment = environment;
-  
-  // Dependencies
   private postsService = inject(PostsService);
   private authService = inject(AuthService); 
   private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  // State
   posts: Post[] = [];
   categories = PostCategoryList;
   isLoading = true;
   errorMessage = '';
   selectedCategoryId: number | null = null;
-
-  // User Info
   currentUserId: string | null = null;
   isAdmin = false;
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       if (user) {
-        // Adjust property access based on your specific User model structure from AuthService
-        this.currentUserId = user.id || user.userId || user.sub; 
-        this.isAdmin = user.roles?.includes('Admin') || false;
+        this.currentUserId = user.id || user.userId;
+        this.isAdmin = Array.isArray(user.roles) ? user.roles.includes('Admin') : user.roles === 'Admin';
       }
     });
 
@@ -61,34 +55,36 @@ export class PostListComponent implements OnInit {
         if (res.isSuccess) {
           this.posts = Array.isArray(res.data) ? res.data : [];
           this.cdr.detectChanges();
-        } else {
-          this.errorMessage = res.error?.message || 'Failed to load posts.';
         }
       },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMessage = 'Network error.';
-        console.error(err);
-        this.cdr.detectChanges();
-      }
+      error: () => { this.isLoading = false; this.cdr.detectChanges(); }
     });
   }
 
   filterByCategory(id: number | null) {
     this.selectedCategoryId = id;
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { category: id },
-      queryParamsHandling: 'merge'
-    });
+    this.router.navigate([], { relativeTo: this.route, queryParams: { category: id } });
   }
 
-  // ✅ التصحيح هنا: استخدام post.author?.id بدلاً من post.userId
+  // ✅ Helper Template Methods
+  getAuthorName(author: PostAuthor | string | undefined): string {
+    if (!author) return 'User';
+    if (typeof author === 'string') return 'User';
+    return author.fullName || 'User';
+  }
+
+  // ✅ إصلاح مشكلة الـ Type Checking هنا
   canEditPost(post: Post): boolean {
     if (!this.currentUserId || !post.author) return false;
     
-    // تحويل الـ IDs إلى String للمقارنة الآمنة
-    return String(post.author.id) === String(this.currentUserId) || this.isAdmin;
+    let authorId: any;
+    if (typeof post.author === 'object') {
+      authorId = post.author.id;
+    } else {
+      authorId = post.author;
+    }
+    
+    return String(authorId) === String(this.currentUserId) || this.isAdmin;
   }
 
   getCategoryName(id: number): string {
@@ -96,10 +92,9 @@ export class PostListComponent implements OnInit {
   }
 
   onDelete(id: number) {
-    if (confirm('Are you sure you want to delete this post?')) {
+    if (confirm('Delete post?')) {
       this.postsService.deletePost(id).subscribe({
-        next: () => this.loadPosts(),
-        error: () => alert('Failed to delete post.')
+        next: () => this.loadPosts()
       });
     }
   }

@@ -1,4 +1,4 @@
-// src/app/pages/Dashboard/pages/posts/models/post.models.ts
+// src/app/pages/Dashboard/pages/posts/models/posts.ts
 
 export enum PostCategory {
   Art = 0, Community = 1, Culture = 2, Education = 3, Events = 4,
@@ -17,6 +17,12 @@ export enum InteractionType {
   Dislike = 2
 }
 
+export interface PostAttachment {
+  id: number;
+  url: string;
+  type?: number;
+}
+
 export interface PostAuthor {
   id: number;
   username: string;
@@ -33,12 +39,13 @@ export interface PostStats {
   shares: number;
 }
 
-export interface Comment {
+// ✅ تم تغيير الاسم هنا لتجنب التضارب مع DOM Comment
+export interface PostComment {
   id: number;
   content: string;
-  author: PostAuthor;
+  author: PostAuthor | string;
   createdAt: string;
-  replies?: Comment[];
+  replies?: PostComment[];
   isReplying?: boolean;
 }
 
@@ -50,11 +57,12 @@ export interface Post {
   category: number;
   createdAt: string;
   
-  author?: PostAuthor; 
+  author?: PostAuthor | string;
   stats?: PostStats;
-  comments?: Comment[];
+  comments?: PostComment[]; // ✅ تحديث هنا أيضاً
+  attachments?: PostAttachment[];
   
-  // حالة التفاعل الحالية للمستخدم
+  currentUserInteraction?: InteractionType | null; 
   userInteraction?: InteractionType | null;
 }
 

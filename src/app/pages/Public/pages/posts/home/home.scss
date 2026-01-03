@@ -1,0 +1,254 @@
+@use "sass:color";
+
+// --- Design Tokens ---
+$primary: #0A3D85;
+$bg-main: #f3f4f6;
+$white: #ffffff;
+$text-dark: #1f2937;
+$text-gray: #6b7280;
+$border: #e5e7eb;
+$radius-lg: 16px;
+$radius-md: 10px;
+$shadow-card: 0 2px 5px rgba(0, 0, 0, 0.04);
+
+// --- Layout ---
+.home-container {
+  background-color: $bg-main;
+  min-height: 100vh;
+  // تقليل البادينج العلوي لرفع المحتوى
+  padding: 10px 20px 20px 20px; 
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+// 1. Sticky Category Header (تعديل لرفع الشريط وإظهار السكرول)
+.category-sticky-header {
+  position: sticky;
+  top: 0; // لضمان الالتصاق بالأعلى تماماً
+  z-index: 100;
+  margin-bottom: 20px;
+  background: $bg-main; // نفس لون الخلفية عشان يغطي اللي وراه لما تعمل سكرول للصفحة
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+  .category-scroll-container {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto; // السماح بالسكرول
+    padding: 4px 4px 12px 4px; // مسافة سفلية عشان السكرول بار يبان
+    width: 100%;
+    
+    // --- ستايل السكرول بار (Custom Scrollbar) ---
+    &::-webkit-scrollbar {
+      height: 6px; // ارتفاع شريط السكرول
+      display: block; // إظهاره
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #e5e7eb; // لون الخلفية الرمادي الفاتح للسكرول
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #bbb; // لون المقبض
+      border-radius: 10px;
+      cursor: pointer;
+      
+      &:hover {
+        background: $primary; // يتغير لونه عند الوقوف عليه
+      }
+    }
+
+    .cat-pill {
+      flex: 0 0 auto; 
+      background: $white;
+      border: 1px solid transparent;
+      padding: 8px 20px; // تصغير البادينج قليلاً لرفع الشكل
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: $text-gray;
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+
+      i { font-size: 1.1rem; color: $primary; }
+
+      &:hover {
+        background: $white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        color: $primary;
+      }
+
+      &.active {
+        background: $primary;
+        color: $white;
+        box-shadow: 0 4px 12px rgba($primary, 0.3);
+        i { color: $white; }
+      }
+    }
+  }
+}
+
+// --- Main Grid ---
+.main-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 300px; 
+  gap: 24px;
+  max-width: 1450px; // توسيع العرض قليلاً لاستغلال الشاشات الكبيرة
+  margin: 0 auto;
+}
+
+// --- Widget Card Style ---
+.widget-card {
+  background: $white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  border: 1px solid $border;
+  overflow: hidden;
+  margin-bottom: 20px;
+  padding: 16px;
+}
+
+// 2. Sidebars Styles
+.sidebar {
+  // Sticky logic for sidebars
+  position: sticky; 
+  top: 90px; // مسافة من الأعلى عشان ميلزقش في السقف لما تعمل سكرول
+  height: fit-content;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  
+  // Hide sidebar scrollbar for cleaner look
+  &::-webkit-scrollbar { width: 0; display: none; }
+
+  // Profile Widget
+  .profile-widget {
+    padding: 0;
+    .profile-header { height: 70px; background: linear-gradient(135deg, $primary, color.scale($primary, $lightness: 20%)); }
+    .profile-content {
+      padding: 0 16px 16px; margin-top: -35px; display: flex; flex-direction: column; align-items: center;
+      .avatar-main { width: 70px; height: 70px; border-radius: 50%; border: 4px solid $white; object-fit: cover; background: $white; }
+      .user-name { font-size: 1.1rem; font-weight: 700; color: $text-dark; margin: 0; }
+      .user-role { font-size: 0.85rem; color: $text-gray; }
+      .btn-login-sm { margin-top: 10px; background: $primary; color: $white; padding: 6px 20px; border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+      
+      .stats-row {
+        width: 100%; display: flex; justify-content: space-around; margin-top: 20px; padding-top: 15px; border-top: 1px solid $border;
+        .stat { display: flex; flex-direction: column; align-items: center; font-size: 0.8rem; color: $text-gray; strong { font-size: 1rem; color: $text-dark; } }
+      }
+    }
+  }
+
+  // Nav Widget
+  .nav-widget {
+    padding: 10px;
+    .side-nav {
+      display: flex; flex-direction: column; gap: 5px;
+      .nav-item {
+        display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: $radius-md;
+        text-decoration: none; color: $text-gray; font-weight: 600; font-size: 0.95rem; transition: 0.2s;
+        &:hover { background: #f8fafc; color: $primary; }
+        &.active { background: #eff6ff; color: $primary; border-left: 4px solid $primary; }
+        i { font-size: 1.2rem; }
+      }
+    }
+  }
+
+  // Right Sidebar Widgets
+  .widget-title { font-size: 0.95rem; font-weight: 700; color: $text-dark; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+  
+  .weather-widget {
+    .weather-content {
+      display: flex; justify-content: space-between; align-items: center;
+      .degree { font-size: 2rem; font-weight: 800; color: $text-dark; }
+      .status { font-size: 0.85rem; color: $text-gray; display: block; }
+      .aqi-badge { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
+    }
+  }
+
+  .tags-list {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    .trend-tag { background: #f3f4f6; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; color: $text-dark; cursor: pointer; transition: 0.2s; &:hover { background: #e5e7eb; } }
+  }
+
+  .community-item {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+    .comm-icon { width: 40px; height: 40px; background: #e0e7ff; color: $primary; font-weight: 700; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .comm-details { flex: 1; h5 { font-size: 0.9rem; font-weight: 700; margin: 0; } small { font-size: 0.75rem; color: $text-gray; } }
+    .btn-icon-join { width: 32px; height: 32px; border-radius: 50%; border: 1px solid $border; background: $white; cursor: pointer; display: flex; align-items: center; justify-content: center; &:hover { background: #f3f4f6; } }
+  }
+}
+
+// 3. Center Feed
+.feed-content {
+  
+  .create-post-widget {
+    @extend .widget-card;
+    .input-top {
+      display: flex; gap: 12px; margin-bottom: 16px;
+      .avatar-sm { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
+      .fake-input { flex: 1; background: #f9fafb; border: 1px solid $border; border-radius: 24px; text-align: left; padding: 0 20px; color: $text-gray; cursor: pointer; &:hover { background: #f3f4f6; } }
+    }
+    .actions-bottom {
+      display: flex; gap: 10px; padding-top: 10px; border-top: 1px solid $border;
+      .action-btn { flex: 1; background: transparent; border: none; padding: 8px; border-radius: 6px; font-weight: 600; color: $text-gray; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; &:hover { background: #f3f4f6; } &.photo i { color: #4ade80; } &.video i { color: #f87171; } &.event i { color: #fbbf24; } }
+    }
+  }
+
+  .state-widget { @extend .widget-card; text-align: center; padding: 40px; color: $text-gray; .empty-icon { font-size: 3rem; opacity: 0.5; margin-bottom: 10px; display: block; } }
+
+  .post-card {
+    @extend .widget-card;
+    padding: 0;
+    animation: fadeInUp 0.5s ease-out;
+
+    .post-header {
+      padding: 16px; display: flex; align-items: center; gap: 12px;
+      .author-img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; cursor: pointer; }
+      .post-meta { flex: 1; .author-name { font-size: 0.95rem; font-weight: 700; color: $text-dark; margin: 0; } .post-time { font-size: 0.8rem; color: $text-gray; } }
+      .options-btn { color: $text-gray; font-size: 1.2rem; cursor: pointer; }
+    }
+
+    .post-body {
+      padding: 0 16px 16px;
+      .post-link { text-decoration: none; display: block; &:hover .post-title { color: $primary; } }
+      .post-title { font-size: 1.1rem; font-weight: 700; color: $text-dark; margin-bottom: 8px; transition: 0.2s; }
+      .post-desc { font-size: 0.95rem; color: #374151; line-height: 1.5; margin-bottom: 12px; }
+      .post-media { width: 100%; border-radius: 8px; overflow: hidden; background: #000; display: flex; justify-content: center; img { max-width: 100%; max-height: 550px; object-fit: contain; } }
+    }
+
+    .post-footer {
+      border-top: 1px solid $border; padding: 4px 16px;
+      .interactions {
+        display: flex; justify-content: space-between;
+        .int-btn {
+          flex: 1; background: none; border: none; padding: 10px; border-radius: 6px; color: $text-gray; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-decoration: none; transition: 0.2s;
+          &:hover { background: #f3f4f6; }
+          &.like.active { color: #e11d48; i { color: #e11d48; } }
+          i { font-size: 1.1rem; }
+        }
+      }
+    }
+  }
+}
+
+// --- Responsive Breakpoints ---
+@media (max-width: 1200px) {
+  .main-layout { grid-template-columns: 260px 1fr; .right-sidebar { display: none; } }
+}
+
+@media (max-width: 768px) {
+  .home-container { padding: 5px; } // تقليل الهوامش في الموبايل
+  .category-sticky-header { top: 60px; .cat-pill { padding: 8px 16px; font-size: 0.85rem; } }
+  .main-layout { grid-template-columns: 1fr; .left-sidebar { display: none; } }
+}
+
+// --- Animation ---
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
