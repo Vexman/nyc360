@@ -1,21 +1,14 @@
 // src/app/pages/Dashboard/pages/posts/models/posts.ts
 
-export enum PostCategory {
-  Art = 0, Community = 1, Culture = 2, Education = 3, Events = 4,
-  Lifestyle = 5, Media = 6, News = 7, Recruitment = 8, Social = 9, Tourism = 10, Tv = 11
-}
-
-export const PostCategoryList = [
-  { id: 1, name: 'Art' }, { id: 2, name: 'Community' }, { id: 3, name: 'Culture' },
-  { id: 4, name: 'Education' }, { id: 5, name: 'Events' }, { id: 6, name: 'Lifestyle' },
-  { id: 7, name: 'Media' }, { id: 8, name: 'News' }, { id: 9, name: 'Recruitment' },
-  { id: 10, name: 'Social' }, { id: 11, name: 'Tourism' }, { id: 12, name: 'TV' }
-];
+// ✅ تم حذف PostCategory و PostCategoryList نهائياً
+// الاعتماد الآن على: src/app/shared/models/category-list.ts
 
 export enum InteractionType {
   Like = 1,
   Dislike = 2
 }
+
+// --- Shared Interfaces ---
 
 export interface PostAttachment {
   id: number;
@@ -25,10 +18,12 @@ export interface PostAttachment {
 
 export interface PostAuthor {
   id: number;
-  username: string;
-  fullName: string;
+  // Fields for compatibility (Admin might use username/fullName, Feed uses name)
+  username?: string;
+  fullName?: string;
+  name?: string; 
   imageUrl?: string;
-  type: number;
+  type?: number;
 }
 
 export interface PostStats {
@@ -39,7 +34,7 @@ export interface PostStats {
   shares: number;
 }
 
-// ✅ تم تغيير الاسم هنا لتجنب التضارب مع DOM Comment
+// ✅ Comment Interface
 export interface PostComment {
   id: number;
   content: string;
@@ -49,23 +44,51 @@ export interface PostComment {
   isReplying?: boolean;
 }
 
+// ✅ Main Post Interface
 export interface Post {
   id: number;
   title: string;
   content: string;
-  imageUrl: string | null;
-  category: number;
+  category: number; // This maps to the ID in CATEGORY_LIST
   createdAt: string;
   
-  author?: PostAuthor | string;
+  // Optional fields
+  imageUrl?: string | null;
+  lastUpdated?: string;
+  sourceType?: number;
+  postType?: number;
+  tags?: string[];
+
+  author?: PostAuthor | string; // Can be object or ID string
   stats?: PostStats;
-  comments?: PostComment[]; // ✅ تحديث هنا أيضاً
+  comments?: PostComment[];
   attachments?: PostAttachment[];
   
   currentUserInteraction?: InteractionType | null; 
-  userInteraction?: InteractionType | null;
+  userInteraction?: InteractionType | null; // Helper for UI state
 }
 
+// --- 🔥 NEW INTERFACES (For Home News Feed) ---
+
+export interface InterestGroup {
+  category: number;
+  posts: Post[];
+}
+
+export interface CommunitySuggestion {
+  name: string;
+  slug: string;
+}
+
+export interface FeedData {
+  featuredPosts: Post[];
+  interestGroups: InterestGroup[];
+  discoveryPosts: Post[];
+  suggestedCommunities: CommunitySuggestion[];
+  trendingTags: string[];
+}
+
+// --- Generic API Response ---
 export interface ApiResponse<T> {
   isSuccess: boolean;
   data: T;

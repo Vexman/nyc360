@@ -1,12 +1,11 @@
-// src/app/pages/Public/pages/posts/post-form/post-form.ts
-
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router'; // RouterLink removed if not used in template imports
 import { Observable } from 'rxjs';
 import { PostsService } from '../services/posts';
-import { PostCategoryList } from '../models/posts';
+// ✅ 1. Import the shared CATEGORY_LIST instead of PostCategoryList
+import { CATEGORY_LIST } from '../../../../../pages/models/category-list';
 
 @Component({
   selector: 'app-post-form',
@@ -27,7 +26,9 @@ export class PostFormComponent implements OnInit {
   postId: number | null = null;
   isLoading = false;
   isSubmitting = false;
-  categories = PostCategoryList;
+  
+  // ✅ 2. Use the shared list
+  categories = CATEGORY_LIST;
   
   selectedFile: File | null = null;
   imagePreview: string | null = null;
@@ -88,7 +89,7 @@ export class PostFormComponent implements OnInit {
     this.isSubmitting = true;
     const formData = this.form.value;
 
-    // ✅ الحل: وضع الملف في مصفوفة لأن السيرفس يتوقع File[]
+    // Put file in array as service expects File[]
     const filesToSend = this.selectedFile ? [this.selectedFile] : undefined;
 
     let request$: Observable<any>;

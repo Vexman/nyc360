@@ -1,124 +1,68 @@
-// --- Design Variables ---
-$bg-body: #F7F9FA; // خلفية الصفحة الفاتحة
+// --- Variables ---
+$bg-body: #F7F9FA;
 $text-dark: #0F1419;
 $text-light: #536471;
-$blue-accent: #2C8B9E; // اللون الأزرق المميز في التصميم
-$sidebar-header: #2E8598; // لون خلفية الهيدر في الـ Sidebar
+$blue-accent: #2C8B9E;
+$sidebar-header: #2E8598;
 $white: #ffffff;
 $radius: 16px;
 
 .page-container {
-  background-color: $bg-body;
-  min-height: 100vh;
-  padding: 40px 20px;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  display: flex;
-  justify-content: center;
+  background-color: $bg-body; min-height: 100vh; padding: 40px 20px;
+  font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center;
 }
 
 .content-grid {
-  display: grid;
-  grid-template-columns: 1fr 350px; // تقسيم الصفحة: محتوى + عمود جانبي
-  gap: 30px;
-  width: 100%;
-  max-width: 1200px;
-
-  @media (max-width: 992px) {
-    grid-template-columns: 1fr; // عمود واحد للموبايل
-  }
+  display: grid; grid-template-columns: 1fr 350px; gap: 30px;
+  width: 100%; max-width: 1200px;
+  @media (max-width: 992px) { grid-template-columns: 1fr; }
 }
 
-// --- Left Column Styles ---
+// --- Main Column ---
 .main-column {
   
   .featured-media {
-    width: 100%;
-    border-radius: $radius;
-    overflow: hidden;
-    margin-bottom: 20px;
-    background: #000;
+    width: 100%; border-radius: $radius; overflow: hidden; margin-bottom: 20px; background: #000;
     img { width: 100%; height: auto; display: block; object-fit: contain; max-height: 500px; }
   }
 
-  // Meta Row & Menu Button
   .meta-row {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
-    color: $text-light; font-size: 0.9rem; position: relative;
-
+    display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: $text-light; font-size: 0.9rem;
     .author-info {
       display: flex; align-items: center; gap: 10px;
-      .author-icon-bg { 
-        width: 40px; height: 40px; background: #D1F2EB; color: #000; 
-        border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
-      }
+      .author-icon-bg { width: 40px; height: 40px; background: #D1F2EB; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
       .author-name { font-weight: 700; color: $text-dark; font-size: 1rem; }
     }
-    .divider { font-size: 0.8rem; color: #ccc; }
-    
-    // 🔥 Dropdown Menu Styles
     .more-options-wrapper {
       margin-left: auto; position: relative;
-      
-      .icon-btn-ghost {
-        background: #E4E6EB; border: none; width: 32px; height: 32px;
-        border-radius: 50%; cursor: pointer; color: $text-dark;
-        display: flex; align-items: center; justify-content: center;
-        &:hover { background: #d0d2d6; }
-      }
-
+      .icon-btn-ghost { background: #E4E6EB; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; &:hover { background: #d0d2d6; } }
       .dropdown-menu-custom {
-        position: absolute; top: 120%; right: 0; 
-        background: white; border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-        padding: 5px; min-width: 160px; z-index: 100;
-        border: 1px solid #eee;
-
-        .menu-item {
-          display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 15px;
-          color: $text-dark; font-weight: 600; font-size: 0.9rem; cursor: pointer;
-          transition: background 0.2s; border-radius: 4px;
-          
-          &:hover { background: #f7f9fa; }
-          &.text-danger { color: #dc3545; &:hover { background: #fff5f5; } }
-          i { font-size: 1.1rem; }
-        }
+        position: absolute; top: 120%; right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 5px; min-width: 160px; z-index: 100; border: 1px solid #eee;
+        .menu-item { display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: $text-dark; font-weight: 600; cursor: pointer; border-radius: 4px; &:hover { background: #f7f9fa; } &.text-danger { color: #dc3545; } }
       }
     }
   }
 
   .tags-row {
     display: flex; gap: 8px; margin-bottom: 15px;
-    .tag-pill {
-      padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-      &.dark { background: #536471; color: white; }
-      &.blue { background: $blue-accent; color: white; }
-    }
+    .tag-pill { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; &.dark { background: #536471; color: white; } &.blue { background: $blue-accent; color: white; } }
   }
 
-  .article-title {
-    font-size: 2rem; font-weight: 800; line-height: 1.3; color: $text-dark; margin-bottom: 20px;
-  }
-
-  .article-body {
-    font-size: 1.1rem; line-height: 1.7; color: #333; margin-bottom: 40px;
-  }
+  .article-title { font-size: 2rem; font-weight: 800; line-height: 1.3; color: $text-dark; margin-bottom: 20px; }
+  .article-body { font-size: 1.1rem; line-height: 1.7; color: #333; margin-bottom: 40px; }
 
   // --- Comments ---
   .comments-section-modern {
-    background: $white; padding: 30px; border-radius: $radius; 
-    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    background: $white; padding: 30px; border-radius: $radius; box-shadow: 0 2px 10px rgba(0,0,0,0.02);
 
     .comment-input-area {
-      background: #F5F7F9; padding: 20px; border-radius: 12px;
+      background: #F5F7F9; padding: 10px 20px; border-radius: 12px;
       display: flex; gap: 15px; margin-bottom: 20px; align-items: center;
       .current-user-avatar { width: 40px; height: 40px; border-radius: 50%; }
       .input-wrapper {
-        flex: 1;
-        input {
-          width: 100%; background: transparent; border: none; 
-          font-size: 0.95rem; outline: none; color: $text-dark;
-          &::placeholder { color: $text-light; }
-        }
+        flex: 1; display: flex; align-items: center; gap: 10px;
+        input { flex: 1; background: transparent; border: none; font-size: 0.95rem; outline: none; color: $text-dark; padding: 10px 0; }
+        .send-btn { background: none; border: none; color: $blue-accent; font-size: 1.2rem; cursor: pointer; transition: 0.2s; &:hover { transform: scale(1.1); } &:disabled { color: #ccc; cursor: default; } }
       }
     }
 
@@ -126,86 +70,100 @@ $radius: 16px;
 
     .comment-item-modern {
       display: flex; gap: 15px; margin-bottom: 25px;
-      .comment-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+      .comment-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; &.small { width: 30px; height: 30px; } }
       .comment-content {
         flex: 1;
         .comment-author { font-size: 0.95rem; font-weight: 700; margin: 0 0 4px 0; color: $text-dark; }
         .comment-text { font-size: 0.95rem; margin: 0 0 8px 0; color: #444; line-height: 1.4; }
         .comment-actions {
           display: flex; gap: 20px;
-          .act-btn {
-            background: none; border: none; font-size: 0.8rem; font-weight: 600; color: $text-light;
-            cursor: pointer; display: flex; align-items: center; gap: 5px; 
-            &:hover { color: $blue-accent; }
-          }
+          .act-btn { background: none; border: none; font-size: 0.8rem; font-weight: 600; color: $text-light; cursor: pointer; display: flex; align-items: center; gap: 5px; &:hover { color: $blue-accent; } }
         }
+        
         .reply-input-box {
-           margin-top: 10px; 
-           input { width: 100%; padding: 8px 12px; border: 1px solid #eee; border-radius: 6px; background: #fafafa; }
+           margin-top: 10px; display: flex; align-items: center; background: #fafafa; border: 1px solid #eee; border-radius: 6px; padding: 5px 10px;
+           input { flex: 1; border: none; background: transparent; padding: 8px; outline: none; font-size: 0.9rem; }
+           .send-btn-small { background: none; border: none; color: $blue-accent; cursor: pointer; font-size: 1rem; }
+        }
+
+        .nested-replies { 
+           margin-top: 15px; 
+           border-left: 2px solid #eee; 
+           padding-left: 15px; 
+           
+           .reply-item {
+             margin-bottom: 15px; 
+             // No avatar styling here, just content
+             .comment-content {
+               .comment-author { font-size: 0.9rem; color: #555; }
+               .comment-text { font-size: 0.9rem; color: #666; }
+             }
+           }
         }
       }
     }
   }
 }
 
-// --- Right Column (Sidebar) Styles ---
+// --- Sidebar & Modal ---
 .sidebar-column {
-  
-  .sidebar-card {
-    background: $white; border-radius: $radius; overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 20px;
-  }
-
-  // Profile Card (Blue Header)
+  .sidebar-card { background: $white; border-radius: $radius; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 20px; }
   .profile-card {
     .card-header-blue {
-      background-color: $sidebar-header; padding: 15px 20px; height: 70px; 
-      display: flex; justify-content: space-between; align-items: flex-start;
-      
-      .icon-box { 
-        background: white; width: 40px; height: 40px; border-radius: 8px; 
-        display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 10px; // Offset to overlap
-      }
-      .btn-follow {
-        background: rgba(255,255,255,0.25); color: white; border: none;
-        padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
-        &:hover { background: white; color: $sidebar-header; }
-      }
+      background-color: $sidebar-header; padding: 15px 20px; height: 70px; display: flex; justify-content: space-between; align-items: flex-start;
+      .icon-box { background: white; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-top: 10px; }
+      .btn-follow { background: rgba(255,255,255,0.25); color: white; border: none; padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; cursor: pointer; &:hover { background: white; color: $sidebar-header; } }
     }
     .card-body {
-      padding: 30px 20px 20px; // Extra top padding for overlap
-      .hub-info {
-        margin-bottom: 20px;
-        h4 { font-size: 1.1rem; font-weight: 800; margin: 0 0 5px 0; display: flex; align-items: center; gap: 5px; }
-        p { font-size: 0.85rem; color: $text-light; line-height: 1.4; }
-      }
-      .stats-row {
-        display: flex; gap: 25px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee;
-        .stat { display: flex; flex-direction: column; strong { font-size: 1.1rem; color: $text-dark; } span { font-size: 0.75rem; color: $text-light; } }
-      }
-      .links-list {
-        .link-item { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: $text-light; margin-bottom: 8px; font-weight: 600; }
-      }
+      padding: 30px 20px 20px;
+      .hub-info { margin-bottom: 20px; h4 { font-size: 1.1rem; font-weight: 800; margin: 0 0 5px 0; display: flex; align-items: center; gap: 5px; } p { font-size: 0.85rem; color: $text-light; } }
+      .stats-row { display: flex; gap: 25px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; .stat { display: flex; flex-direction: column; strong { font-size: 1.1rem; color: $text-dark; } span { font-size: 0.75rem; color: $text-light; } } }
+      .links-list .link-item { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: $text-light; margin-bottom: 8px; font-weight: 600; }
+    }
+  }
+  .related-posts {
+    padding: 20px; .sidebar-title { font-size: 1rem; font-weight: 800; margin-bottom: 15px; color: $text-dark; }
+    .related-list .related-item {
+        display: flex; gap: 10px; cursor: pointer; margin-bottom: 15px;
+        .rel-img { width: 60px; height: 60px; background: #eee; border-radius: 8px; flex-shrink: 0; background-size: cover; }
+        .rel-info { display: flex; flex-direction: column; justify-content: center; h5 { font-size: 0.85rem; font-weight: 700; margin: 0 0 4px 0; color: $text-dark; } span { font-size: 0.7rem; color: $text-light; } &:hover h5 { color: $blue-accent; } }
+    }
+  }
+}
+
+// 🔥 Modal Styles 🔥
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); z-index: 1000;
+  display: flex; justify-content: center; align-items: center;
+}
+.modal-card {
+  background: white; width: 90%; max-width: 450px; border-radius: 12px; padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out;
+
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+    h3 { font-size: 1.2rem; font-weight: 700; color: $text-dark; margin: 0; }
+    .close-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: $text-light; }
+  }
+
+  .modal-body {
+    .modal-desc { font-size: 0.95rem; color: $text-light; margin-bottom: 15px; }
+    .radio-group label {
+      display: block; padding: 10px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.2s;
+      input { margin-right: 10px; }
+      &:hover { background: #f7f9fa; border-color: #ddd; }
     }
   }
 
-  // Related Posts
-  .related-posts {
-    padding: 20px;
-    .sidebar-title { font-size: 1rem; font-weight: 800; margin-bottom: 15px; color: $text-dark; }
-    .related-list {
-      display: flex; flex-direction: column; gap: 15px;
-      .related-item {
-        display: flex; gap: 10px; cursor: pointer;
-        .rel-img { width: 60px; height: 60px; background: #eee; border-radius: 8px; flex-shrink: 0; background-size: cover; }
-        .rel-info {
-          display: flex; flex-direction: column; justify-content: center;
-          h5 { font-size: 0.85rem; font-weight: 700; margin: 0 0 4px 0; line-height: 1.3; color: $text-dark; }
-          span { font-size: 0.7rem; color: $text-light; }
-        }
-        &:hover h5 { color: $blue-accent; }
-      }
-    }
+  .modal-footer {
+    display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;
+    .btn-cancel { background: transparent; border: none; color: $text-light; font-weight: 600; padding: 8px 16px; cursor: pointer; }
+    .btn-submit { background: $blue-accent; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 700; cursor: pointer; &:disabled { background: #ccc; cursor: default; } }
   }
+}
+
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

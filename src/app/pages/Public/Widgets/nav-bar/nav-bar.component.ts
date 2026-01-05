@@ -37,7 +37,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
     { id: 'news', name: 'News', icon: 'bi-newspaper' },
     { id: 'profession', name: 'Profession', icon: 'bi-briefcase-fill' },
     { id: 'social', name: 'Social', icon: 'bi-globe' },
-    { id: 'tour', name: 'Tour', icon: 'bi-airplane-fill' }
+    { id: 'tour', name: 'Tour', icon: 'bi-airplane-fill' },
+    { id: 'tv', name: 'TV', icon: 'bi-tv-fill' }
   ];
 
   ngOnInit() {

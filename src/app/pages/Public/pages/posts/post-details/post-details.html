@@ -14,8 +14,7 @@
 
       <div class="meta-row">
         <div class="author-info">
-          <div class="author-icon-bg">
-            <i class="bi bi-tv"></i> </div>
+          <div class="author-icon-bg"><i class="bi bi-tv"></i></div>
           <span class="author-name">{{ getAuthorName(post.author) }}</span>
         </div>
         
@@ -36,7 +35,7 @@
             <div class="menu-item text-danger" *ngIf="canEdit" (click)="onDelete()">
               <i class="bi bi-trash"></i> <span>Delete Post</span>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" (click)="openReportModal()">
               <i class="bi bi-flag"></i> <span>Report Post</span>
             </div>
           </div>
@@ -56,7 +55,10 @@
         <div class="comment-input-area">
           <img [src]="getAuthorAvatar(post.author)" class="current-user-avatar">
           <div class="input-wrapper">
-            <input type="text" placeholder="what are your thoughts" [(ngModel)]="newCommentContent" (keydown.enter)="submitComment()">
+            <input type="text" placeholder="What are your thoughts?" [(ngModel)]="newCommentContent" (keydown.enter)="submitComment()">
+            <button class="send-btn" (click)="submitComment()" [disabled]="!newCommentContent.trim()">
+              <i class="bi bi-send-fill"></i>
+            </button>
           </div>
         </div>
 
@@ -78,8 +80,21 @@
               </div>
 
               <div class="reply-input-box" *ngIf="activeReplyId === comment.id">
-                <input #replyInput type="text" placeholder="Reply..." (keydown.enter)="submitReply(comment, replyInput.value)">
+                <input #replyInput type="text" placeholder="Write a reply..." (keydown.enter)="submitReply(comment, replyInput.value)">
+                <button class="send-btn-small" (click)="submitReply(comment, replyInput.value)">
+                  <i class="bi bi-send-fill"></i>
+                </button>
               </div>
+
+              <div class="nested-replies" *ngIf="comment.replies?.length">
+                <div class="comment-item-modern reply-item" *ngFor="let reply of comment.replies">
+                  <div class="comment-content">
+                    <h5 class="comment-author">{{ getAuthorName(reply.author) }}</h5>
+                    <p class="comment-text">{{ reply.content }}</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -87,9 +102,7 @@
 
     </main>
 
-
     <aside class="sidebar-column">
-      
       <div class="sidebar-card profile-card">
         <div class="card-header-blue">
           <div class="icon-box"><i class="bi bi-tv"></i></div>
@@ -100,12 +113,10 @@
             <h4>{{ getAuthorName(post.author) }} <i class="bi bi-patch-check-fill text-primary"></i></h4>
             <p>Your hub for city transit updates, news, and commuting discussions.</p>
           </div>
-          
           <div class="stats-row">
             <div class="stat"><strong>124K</strong> <span>Posts</span></div>
             <div class="stat"><strong>4.2M</strong> <span>Followers</span></div>
           </div>
-
           <div class="links-list">
              <div class="link-item"><i class="bi bi-globe"></i> Public Community</div>
              <div class="link-item"><i class="bi bi-calendar"></i> Created Jan 24, 2019</div>
@@ -117,15 +128,38 @@
         <h4 class="sidebar-title">Related Posts</h4>
         <div class="related-list">
           <div class="related-item" *ngFor="let item of relatedPosts">
-            <div class="rel-img"></div> <div class="rel-info">
+            <div class="rel-info">
               <h5>{{ item.title }}</h5>
               <span>{{ item.comments }} comment • {{ item.time }}</span>
             </div>
           </div>
         </div>
       </div>
-
     </aside>
 
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showReportModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Report Post</h3>
+      <button class="close-btn" (click)="closeReportModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">Why are you reporting this post?</p>
+      
+      <div class="radio-group">
+        <label><input type="radio" name="reason" [(ngModel)]="reportReason" value="Spam"> Spam or misleading</label>
+        <label><input type="radio" name="reason" [(ngModel)]="reportReason" value="Hate Speech"> Hate speech or symbols</label>
+        <label><input type="radio" name="reason" [(ngModel)]="reportReason" value="Harassment"> Harassment or bullying</label>
+        <label><input type="radio" name="reason" [(ngModel)]="reportReason" value="Violence"> Violence or dangerous organizations</label>
+        <label><input type="radio" name="reason" [(ngModel)]="reportReason" value="Other"> Other</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeReportModal()">Cancel</button>
+      <button class="btn-submit" (click)="submitReport()" [disabled]="!reportReason">Submit</button>
+    </div>
   </div>
 </div>

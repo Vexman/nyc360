@@ -2,21 +2,47 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { ApiResponse, Post, InteractionType, PostComment } from '../models/posts'; // ✅
+// تأكد من إضافة FeedData هنا في الاستيراد
+import { ApiResponse, Post, InteractionType, PostComment, FeedData } from '../models/posts';
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class PostsService {
   private http = inject(HttpClient);
+  
+  // الروابط الأساسية
   private baseUrl = `${environment.apiBaseUrl}/posts`;
+  private feedUrl = `${environment.apiBaseUrl}/feeds/all/home`; // الرابط الجديد
 
-  // ... (باقي الدوال كما هي) ...
+  // =================================================================
+  // 1. NEW METHOD: For Home Page (News Feed Layout)
+  // =================================================================
+  getPostsFeed(): Observable<ApiResponse<FeedData>> {
+    return this.http.get<ApiResponse<FeedData>>(this.feedUrl);
+  }
 
-  // --- Read ---
-  getAllPosts(category?: number, page: number = 1, pageSize: number = 10): Observable<ApiResponse<Post[]>> {
-    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
-    if (category !== undefined && category !== null) params = params.set('category', category);
+  // =================================================================
+  // 2. EXISTING METHODS: For Admin Panel & CRUD
+  // =================================================================
+
+  // --- Read List (Updated for Search & Category Filtering) ---
+  getAllPosts(category?: number, search?: string, page: number = 1, pageSize: number = 10): Observable<ApiResponse<Post[]>> {
+    let params = new HttpParams()
+      .set('page', page)
+      .set('pageSize', pageSize);
+
+    // إضافة الفلتر بالقسم فقط إذا لم يكن "All" (الذي نرمز له بـ -1 أو null)
+    if (category !== undefined && category !== null && category !== -1) {
+      params = params.set('category', category.toString());
+    }
+
+    // إضافة البحث إذا وجد
+    if (search) {
+      params = params.set('search', search);
+    }
+
     return this.http.get<ApiResponse<Post[]>>(`${this.baseUrl}/list`, { params });
   }
 
@@ -28,10 +54,15 @@ export class PostsService {
     const formData = new FormData();
     formData.append('title', data.title);
     formData.append('content', data.content);
-    if (data.category !== null) formData.append('category', data.category.toString());
+    
+    if (data.category !== null) {
+        formData.append('category', data.category.toString());
+    }
+    
     if (files && files.length > 0) {
       files.forEach(file => formData.append('attachments', file));
     }
+    
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/create`, formData);
   }
 
@@ -40,10 +71,15 @@ export class PostsService {
     formData.append('postId', id.toString());
     formData.append('title', data.title);
     formData.append('content', data.content);
-    if (data.category !== null) formData.append('category', data.category.toString());
+    
+    if (data.category !== null) {
+        formData.append('category', data.category.toString());
+    }
+    
     if (files && files.length > 0) {
       files.forEach(file => formData.append('addedAttachments', file));
     }
+    
     return this.http.put<ApiResponse<any>>(`${this.baseUrl}/edit`, formData);
   }
 
@@ -55,7 +91,6 @@ export class PostsService {
     return this.http.put<ApiResponse<any>>(`${this.baseUrl}/${postId}/interact`, { type });
   }
 
-  // ✅ تحديث النوع هنا
   addComment(postId: number, content: string, parentCommentId?: number): Observable<ApiResponse<PostComment>> {
     const body = { 
       postId, 

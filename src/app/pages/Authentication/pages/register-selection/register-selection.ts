@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { trigger, style, animate, transition, query, stagger } from '@angular/animations';
 import { AuthService } from '../../Service/auth'; 
 
@@ -47,7 +47,7 @@ export class RegisterSelectionComponent {
   selectedType: string = ''; 
   isOrganization = false;
   
-  form!: FormGroup; // Use definite assignment assertion
+  form!: FormGroup;
   isLoading = false;
   errorMessage: string | null = null;
 
@@ -58,7 +58,7 @@ export class RegisterSelectionComponent {
     { id: 'organization', title: 'Organization', icon: 'bi-building', desc: 'Business or Non-Profit entity.' }
   ];
 
-  // --- 2. Interests Data (Mapped to Backend Enum IDs) ---
+  // --- 2. Interests Data ---
   interestsList = [
     { id: 0, name: 'Art', icon: 'bi-palette' },
     { id: 1, name: 'Community', icon: 'bi-people' },
@@ -74,7 +74,6 @@ export class RegisterSelectionComponent {
     { id: 11, name: 'TV', icon: 'bi-tv' }
   ];
 
-  // Track selected interest IDs
   selectedInterestIds: number[] = [];
 
   // --- Methods ---
@@ -96,7 +95,6 @@ export class RegisterSelectionComponent {
   initForm() {
     this.selectedInterestIds = [];
     
-    // Common validators
     const passwordValidators = [
       Validators.required, 
       Validators.minLength(6),
@@ -118,8 +116,8 @@ export class RegisterSelectionComponent {
         lastName: ['', [Validators.required, Validators.minLength(2)]],
         username: ['', [Validators.required, Validators.minLength(4)]],
         email: ['', [Validators.required, Validators.email]],
-        password: ['', passwordValidators],
-        terms: [false, Validators.requiredTrue]
+        password: ['', passwordValidators]
+        // ❌ تم إزالة terms لتجنب مشاكل الـ Validation
       });
     }
   }
@@ -147,7 +145,7 @@ export class RegisterSelectionComponent {
   // --- Submission ---
   onSubmit() {
     if (this.form.invalid) {
-      this.form.markAllAsTouched(); // Trigger validation messages
+      this.form.markAllAsTouched(); 
       return;
     }
 
@@ -160,11 +158,9 @@ export class RegisterSelectionComponent {
     this.errorMessage = null;
     
     const formValue = this.form.value;
-    // Don't send 'terms' to backend usually
-    const { terms, ...submitData } = formValue; 
 
     const finalData = { 
-      ...submitData, 
+      ...formValue, 
       interests: this.selectedInterestIds 
     };
 
@@ -175,8 +171,14 @@ export class RegisterSelectionComponent {
       });
     } else {
       const payload = { 
-        ...finalData, 
-        userType: this.selectedType === 'new-yorker' ? 'NewYorker' : 'Visitor' 
+        firstName: formValue.firstName,
+        lastName: formValue.lastName,
+        username: formValue.username,
+        email: formValue.email,
+        password: formValue.password,
+        interests: this.selectedInterestIds,
+        // 🔥🔥 التعديل هنا: إضافة (as ...) لحل مشكلة الـ Type Error 🔥🔥
+        userType: (this.selectedType === 'new-yorker' ? 'NewYorker' : 'Visitor') as 'NewYorker' | 'Visitor'
       };
       
       this.authService.registerNormalUser(payload).subscribe({
@@ -198,7 +200,7 @@ export class RegisterSelectionComponent {
   private handleError(err: any) {
     this.isLoading = false;
     console.error(err);
-    this.errorMessage = 'Network error occurred. Please try again.';
+    this.errorMessage = err.error?.message || 'Network error occurred. Please try again.';
   }
 
   getFormTitle(): string {

@@ -1,162 +1,113 @@
 <div class="home-container">
   
-  <div class="category-sticky-header">
-    <div class="category-scroll-container">
-      <button *ngFor="let cat of categories" 
-              class="cat-pill" 
-              [class.active]="selectedCategoryId === cat.id"
-              (click)="filterByCategory(cat.id)">
-        <i class="bi" [class]="cat.icon"></i>
-        <span>{{ cat.name }}</span>
-      </button>
-    </div>
-  </div>
-
-  <div class="main-layout">
+  <div class="layout-grid">
     
-    <aside class="sidebar left-sidebar">
+    <main class="main-content">
       
-      <div class="widget-card profile-widget">
-        <div class="profile-header"></div>
-        <div class="profile-content">
-          <div class="avatar-icon-wrapper">
-            <i class="bi bi-person-circle"></i>
-          </div>
-          
-          <div class="text-center mt-2" *ngIf="currentUser">
-            <h3 class="user-name">{{ currentUser.fullName || currentUser.username }}</h3>
-            <p class="user-role">{{ currentUser.email }}</p>
-          </div>
-
-          <div class="text-center mt-2" *ngIf="!currentUser">
-            <h3 class="user-name">Welcome Guest</h3>
-            <p class="user-role">Join NYC360 Community</p>
-            <a routerLink="/auth/login" class="btn-login-sm">Login</a>
-          </div>
-
-          <div class="stats-row" *ngIf="currentUser">
-            <div class="stat"><strong>12</strong><span>Posts</span></div>
-            <div class="stat"><strong>1.2k</strong><span>Likes</span></div>
-            <div class="stat"><strong>850</strong><span>Views</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="widget-card nav-widget">
-        <nav class="side-nav">
-          <a routerLink="/public/feed" class="nav-item active"><i class="bi bi-columns-gap"></i> My Feed</a>
-          <a routerLink="/public/nearby" class="nav-item"><i class="bi bi-geo-alt"></i> Nearby</a>
-          <a routerLink="/public/saved" class="nav-item"><i class="bi bi-bookmark"></i> Saved Posts</a>
-          <a routerLink="/public/tags" class="nav-item"><i class="bi bi-hash"></i> Trending Tags</a>
-        </nav>
-      </div>
-
-    </aside>
-
-    <main class="feed-content">
-      
-      <div class="create-post-widget">
-        <div class="input-top">
-          <i class="bi bi-person-circle avatar-icon-sm"></i>
-          <button class="fake-input" routerLink="/admin/posts/create">What's happening in NYC?</button>
-        </div>
-      </div>
-
-      <div *ngIf="isLoading" class="state-widget">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p>Loading Feed...</p>
-      </div>
-
-      <div *ngIf="!isLoading && posts.length === 0" class="state-widget">
-        <i class="bi bi-inbox empty-icon"></i>
-        <h3>No Posts Available</h3>
-        <p>There are no posts in this category yet.</p>
-      </div>
-
-      <div class="post-card fade-in-up" *ngFor="let post of posts">
+      <section class="top-section">
+        <h1 class="page-title">NYC360 Featured Posts</h1>
         
-        <div class="post-header">
-          <div class="author-icon-wrapper">
-             <i class="bi bi-person-circle"></i>
-          </div>
-          
-          <div class="post-meta">
-            <h4 class="author-name">{{ getAuthorName(post.author) }}</h4>
-            <span class="post-time">{{ post.createdAt | date:'mediumDate' }}</span>
-          </div>
-          <a [routerLink]="['/public/posts/details', post.id]" class="options-btn"><i class="bi bi-three-dots"></i></a>
-        </div>
-
-        <div class="post-body">
-          <a [routerLink]="['/public/posts/details', post.id]" class="post-link">
-            <h3 class="post-title">{{ post.title }}</h3>
-            <p class="post-desc">{{ (post.content | slice:0:150) }}{{ post.content.length > 150 ? '...' : '' }}</p>
-          </a>
-
-          <div class="post-media" *ngIf="post.attachments?.length || post.imageUrl">
-            <img *ngIf="post.attachments && post.attachments.length > 0" 
-                 [src]="resolvePostImage(post.attachments[0].url)" loading="lazy">
-            <img *ngIf="(!post.attachments || post.attachments.length === 0) && post.imageUrl" 
-                 [src]="resolvePostImage(post.imageUrl)" loading="lazy">
+        <div class="featured-row">
+          <div class="feat-card" *ngFor="let post of featuredPosts" [routerLink]="['/public/posts/details', post.id]">
+            <img [src]="resolvePostImage(post)" alt="Post Image">
+            <div class="overlay">
+              <span class="badge-pill" [ngClass]="'cat-'+post.category">{{ getCategoryName(post.category) }}</span>
+              <h3>{{ post.title | slice:0:50 }}...</h3>
+              <p>{{ getAuthorName(post.author) }}</p>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div class="post-footer">
-          <div class="interactions">
-            <button class="int-btn like" (click)="toggleLike(post)" 
-                    [class.active]="post.userInteraction === InteractionType.Like">
-              <i class="bi" [class.bi-heart-fill]="post.userInteraction === InteractionType.Like" 
-                 [class.bi-heart]="post.userInteraction !== InteractionType.Like"></i>
-              <span>{{ post.stats?.likes || 0 }}</span>
-            </button>
-
-            <a [routerLink]="['/public/posts/details', post.id]" class="int-btn comment">
-              <i class="bi bi-chat-dots"></i>
-              <span>{{ post.stats?.comments || 0 }}</span>
-            </a>
-            
-            <button class="int-btn share">
-              <i class="bi bi-share"></i>
-              <span>Share</span>
-            </button>
+      <section class="hero-section" *ngIf="heroBanner">
+        <div class="hero-card" [routerLink]="['/public/posts/details', heroBanner.id]">
+          <img [src]="resolvePostImage(heroBanner)" alt="Hero Image">
+    
+          <div class="hero-overlay">
+            <h2>{{ heroBanner.title }}</h2>
+            <p>{{ heroBanner.content | slice:0:120 }}...</p>
           </div>
         </div>
+      </section>
 
+      <div class="category-block" *ngFor="let group of interestGroups">
+        <div class="block-header">
+          <div class="vertical-bar" [ngClass]="'bar-'+group.category"></div>
+          <h2>{{ getCategoryName(group.category) }}</h2>
+        </div>
+        
+        <div class="posts-grid">
+          <div class="std-card" *ngFor="let post of group.posts | slice:0:4" [routerLink]="['/public/posts/details', post.id]">
+            <div class="img-wrapper">
+              <img [src]="resolvePostImage(post)">
+              <div class="bottom-gradient">
+                <h4>{{ post.title | slice:0:60 }}</h4>
+                <small>{{ getCategoryName(post.category) }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
     </main>
 
-    <aside class="sidebar right-sidebar">
+    <aside class="sidebar">
       
-      <div class="widget-card weather-widget">
-        <div class="widget-title">
-          <span>Today in NYC</span> <i class="bi bi-cloud-sun text-warning"></i>
+      <div class="widget weather">
+        <div class="w-head">
+          <span class="sun-icon"><i class="bi bi-brightness-high-fill"></i> Today in NYC360</span>
         </div>
-        <div class="weather-content">
-          <div class="temp-display">
-            <span class="degree">72°</span>
-            <span class="status">Partly Cloudy</span>
+        <div class="w-body">
+          <div class="temp-box">
+            <span class="degree">72F</span>
+            <span class="desc">Partly Cloudy</span>
           </div>
-          <div class="aqi-badge">AQI: 45</div>
+          <div class="aqi-box">
+            <span>AQI:47</span>
+            <span class="good">Good</span>
+          </div>
+        </div>
+        
+        <div class="alert-item yellow">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div class="alert-text">
+            <strong>Gridlock Alert</strong>
+            <span>Midtown traffic moving slow due to UN General Assembly</span>
+          </div>
+        </div>
+        
+        <div class="alert-item blue">
+          <i class="bi bi-cloud-rain-fill"></i>
+          <div class="alert-text">
+            <strong>Rain Expected</strong>
+            <span>Light showers starting around 4 PM</span>
+          </div>
         </div>
       </div>
 
-      <div class="widget-card">
-        <div class="widget-title"><i class="bi bi-graph-up-arrow me-2"></i> Trending Now</div>
-        <div class="tags-list">
-          <span class="trend-tag" *ngFor="let tag of trendingTags">#{{ tag }}</span>
+      <div class="widget">
+        <h3>Trending Now</h3>
+        <div class="tags-container">
+          <span class="tag green">Fashion Sales</span>
+          <span class="tag blue">NYC Scholarship</span>
+          <span class="tag pink">New Year Event</span>
+          <span class="tag purple">Subwaycreation</span>
+          <span class="tag cyan">Sharktank show</span>
+          <span class="tag indigo">basketball champion</span>
         </div>
       </div>
 
-      <div class="widget-card">
-        <div class="widget-title"><i class="bi bi-people-fill me-2"></i> Communities</div>
-        <div class="community-item" *ngFor="let comm of communities">
-          <div class="comm-icon"><i class="bi bi-people"></i></div>
-          <div class="comm-details">
-            <h5>{{ comm.name }}</h5>
-            <small>{{ comm.members }} Members</small>
+      <div class="widget">
+        <h3>Communities For You</h3>
+        <div class="comm-list">
+          <div class="comm-row" *ngFor="let comm of suggestedCommunities | slice:0:3">
+            <div class="c-avatar">BK</div>
+            <div class="c-info">
+              <strong>{{ comm.name }}</strong>
+              <span>2.4k members</span>
+            </div>
+            <button class="join-btn"><i class="bi bi-plus"></i></button>
           </div>
-          <button class="btn-icon-join"><i class="bi bi-plus-lg"></i></button>
         </div>
       </div>
 

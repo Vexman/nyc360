@@ -11,6 +11,7 @@
     </a>
 
     <a routerLink="/about" class="nav-link-item d-none d-md-block">About Us</a>
+    <a *ngIf="isLoggedIn" routerLink="/public/home" class="nav-link-item d-none d-md-block">Home </a>
   </div>
 
   <div class="nav-right">
@@ -47,7 +48,7 @@
   <div class="sidebar-content">
     
     <div class="mobile-links">
-      <a routerLink="/" (click)="toggleMenu()" class="mobile-link">
+      <a *ngIf="isLoggedIn" routerLink="/" (click)="toggleMenu()" class="mobile-link" >
         <i class="bi bi-house"></i> Home
       </a>
       <a routerLink="/about" (click)="toggleMenu()" class="mobile-link">

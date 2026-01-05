@@ -31,6 +31,7 @@ export const routes: Routes = [
   {
     path: 'public',
     component: PublicLayoutComponent,
+    canActivate: [authGuard], // <--- ضيف السطر ده هنا
     children: [
       // Feed & Home
       {

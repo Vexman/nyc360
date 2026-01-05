@@ -4,8 +4,11 @@ import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../Authentication/Service/auth';
-import { InteractionType, Post, PostAuthor, PostCategoryList, PostComment } from '../models/posts';
+// ✅ 1. Remove PostCategoryList from here
+import { InteractionType, Post, PostAuthor, PostComment } from '../models/posts';
 import { PostsService } from '../services/posts';
+// ✅ 2. Import the shared CATEGORY_LIST
+import { CATEGORY_LIST } from '../../../../../pages/models/category-list';
 
 @Component({
   selector: 'app-post-details',
@@ -28,7 +31,9 @@ export class PostDetailsComponent implements OnInit {
   post: Post | null = null;
   isLoading = true;
   errorMessage = '';
-  categories = PostCategoryList;
+  
+  // ✅ 3. Use the shared list
+  categories = CATEGORY_LIST;
   
   currentUserId: string | null = null;
   isAdmin = false;
@@ -36,11 +41,15 @@ export class PostDetailsComponent implements OnInit {
   newCommentContent = '';
   replyInputs: { [key: number]: string } = {};
   activeReplyId: number | null = null;
-
-  // 🔥 متغير للتحكم في ظهور القائمة المنسدلة (Edit/Delete)
+  
+  // Menu Control
   showMenu = false;
 
-  // 🔥 بيانات وهمية للـ Sidebar لتطابق التصميم (يمكنك استبدالها بـ API لاحقاً)
+  // Report Modal Variables
+  showReportModal = false;
+  reportReason = '';
+
+  // Sidebar Mock Data
   relatedPosts = [
     { title: 'New Express Bus Route Added', time: '28min', comments: 480, img: 'assets/images/bus.jpg' },
     { title: 'Subway Expansion Vote Results', time: '4h ago', comments: 2400, img: 'assets/images/train.jpg' },
@@ -68,6 +77,7 @@ export class PostDetailsComponent implements OnInit {
         this.isLoading = false;
         if (res.isSuccess && res.data) {
           this.post = res.data;
+          // Ensure stats object exists
           if (!this.post.stats) this.post.stats = { views: 0, likes: 0, dislikes: 0, comments: 0, shares: 0 };
           if (!this.post.comments) this.post.comments = [];
           if (this.post.currentUserInteraction !== undefined) {
@@ -87,21 +97,31 @@ export class PostDetailsComponent implements OnInit {
   }
 
   // --- Helpers ---
-  
-  // وظيفة لفتح/غلق القائمة
   toggleMenu() {
     this.showMenu = !this.showMenu;
   }
 
-  // إغلاق القائمة عند النقر خارجها (اختياري، يمكن تحسينه بـ Directive)
-  closeMenu() {
+  openReportModal() {
     this.showMenu = false;
+    this.showReportModal = true;
+  }
+
+  closeReportModal() {
+    this.showReportModal = false;
+    this.reportReason = '';
+  }
+
+  submitReport() {
+    if (!this.reportReason.trim()) return;
+    alert('Report submitted successfully!');
+    this.closeReportModal();
   }
 
   getAuthorName(author: PostAuthor | string | undefined): string {
     if (!author) return 'NYC360 User';
     if (typeof author === 'string') return 'User';
-    return author.fullName || author.username || 'User';
+    // Handle both new 'name' and old 'fullName/username' properties
+    return author.name || author.fullName || author.username || 'User';
   }
 
   getAuthorAvatar(author: PostAuthor | string | undefined): string {
@@ -119,6 +139,7 @@ export class PostDetailsComponent implements OnInit {
   }
 
   getCategoryName(id: number): string {
+    // c is automatically typed correctly now because CATEGORY_LIST has a type
     return this.categories.find(c => c.id === id)?.name || 'News';
   }
 
@@ -150,6 +171,7 @@ export class PostDetailsComponent implements OnInit {
           if (!parentComment.replies) parentComment.replies = [];
           parentComment.replies.push(res.data as any);
           if (this.post?.stats) this.post.stats.comments++;
+          
           this.replyInputs[parentComment.id] = ''; 
           this.activeReplyId = null;
         }

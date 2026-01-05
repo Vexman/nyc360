@@ -1,154 +1,113 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../Authentication/Service/auth';
 import { environment } from '../../../../../environments/environment';
 import { PostsService } from '../services/posts';
-import { InteractionType, Post, PostAuthor } from '../models/posts';
+import { Post, FeedData, InterestGroup, CommunitySuggestion, InteractionType, PostAuthor } from '../models/posts';
+import { CATEGORY_LIST } from '../../../../../pages/models/category-list';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './home.html',
   styleUrls: ['./home.scss']
 })
 export class Home implements OnInit {
   
   protected readonly environment = environment;
-  protected readonly InteractionType = InteractionType;
-
   private postsService = inject(PostsService);
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
-  currentUser: any = null;
-  currentUserId: string | null = null;
-  posts: Post[] = [];
+  // Data
+  featuredPosts: Post[] = [];      // الكروت الثلاثة العلوية
+  heroBanner: Post | null = null;  // الكارت العريض (العجلة)
+  interestGroups: InterestGroup[] = []; // الأقسام السفلية (Lifestyle, Events)
+  trendingTags: string[] = [];
+  suggestedCommunities: CommunitySuggestion[] = [];
+  
   isLoading = true;
-  selectedCategoryId: number | null = null;
-
-  // Categories List (Ordered)
-  categories = [
-    { id: null, name: 'All', icon: 'bi-grid-fill' },
-    { id: 1, name: 'Art', icon: 'bi-palette' },
-    // { id: 2, name: 'Community', icon: 'bi-people-fill' },
-    // { id: 3, name: 'Culture', icon: 'bi-bank' },
-    // { id: 4, name: 'Education', icon: 'bi-mortarboard' },
-    // { id: 5, name: 'Events', icon: 'bi-calendar-event' },
-    // { id: 6, name: 'Lifestyle', icon: 'bi-cup-hot' },
-    // { id: 7, name: 'Media', icon: 'bi-collection-play' },
-    // { id: 8, name: 'News', icon: 'bi-newspaper' },
-    // { id: 9, name: 'Recruitment', icon: 'bi-briefcase' },
-    // { id: 10, name: 'Social', icon: 'bi-chat-heart' },
-    // { id: 11, name: 'Tourism', icon: 'bi-airplane' },
-    // { id: 12, name: 'TV', icon: 'bi-tv' }
-  ];
-
-  trendingTags = ['NYC_Events', 'ManhattanArt', 'SubwayUpdates', 'TechSummit'];
-  communities = [
-    { name: 'NYC Tech United', members: '12k', acronym: 'NT' },
-    { name: 'Brooklyn Artists', members: '8.5k', acronym: 'BA' }
-  ];
+  selectedCategoryId: number = -1; 
+  categories = [{ id: -1, name: 'All', icon: 'bi-grid' }, ...CATEGORY_LIST];
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-      this.currentUserId = user?.id;
-    });
-
     this.route.queryParams.subscribe(params => {
-      const catId = params['category'];
-      this.selectedCategoryId = catId ? Number(catId) : null;
-      this.loadPosts();
+      const cat = params['category'];
+      this.selectedCategoryId = cat !== undefined ? +cat : -1;
+      this.loadFeed();
     });
   }
 
-  loadPosts() {
+  loadFeed() {
     this.isLoading = true;
-    this.postsService.getAllPosts(this.selectedCategoryId || undefined).subscribe({
+    this.postsService.getPostsFeed().subscribe({
       next: (res) => {
-        this.isLoading = false;
-        if (res.isSuccess && Array.isArray(res.data)) {
-          // Normalize Data
-          this.posts = res.data.map(p => {
-            if (!p.stats) p.stats = { views: 0, likes: 0, dislikes: 0, comments: 0, shares: 0 };
-            // Sync names
-            if (p.currentUserInteraction !== undefined) p.userInteraction = p.currentUserInteraction;
-            return p;
-          });
-        } else {
-          this.posts = [];
+        if (res.isSuccess && res.data) {
+          this.processData(res.data);
         }
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: () => {
         this.isLoading = false;
-        this.posts = [];
         this.cdr.detectChanges();
       }
     });
   }
 
-  filterByCategory(id: number | null) {
-    this.selectedCategoryId = id;
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { category: id }
-    });
+  processData(data: FeedData) {
+    // 1. Featured Posts: نأخذ أول 3 عناصر للكروت العلوية
+    const allFeatured = (data.featuredPosts || []).map(p => this.normalizePost(p));
+    this.featuredPosts = allFeatured.slice(0, 3);
+
+    // 2. Banner: نأخذ أول عنصر من discoveryPosts ليكون البانر العريض
+    // أو يمكن أخذ العنصر الرابع من الـ Featured إذا لم يوجد discovery
+    if (data.discoveryPosts && data.discoveryPosts.length > 0) {
+      this.heroBanner = this.normalizePost(data.discoveryPosts[0]);
+    } else if (allFeatured.length > 3) {
+      this.heroBanner = allFeatured[3];
+    }
+
+    // 3. باقي الأقسام
+    this.interestGroups = (data.interestGroups || []).map(group => ({
+      ...group,
+      posts: group.posts.map(p => this.normalizePost(p))
+    }));
+
+    this.trendingTags = data.trendingTags || [];
+    this.suggestedCommunities = data.suggestedCommunities || [];
+  }
+
+  private normalizePost(post: Post): Post {
+    if (!post.stats) post.stats = { views: 0, likes: 0, dislikes: 0, comments: 0, shares: 0 };
+    return post;
   }
 
   // --- Helpers ---
-  resolvePostImage(url: string | undefined): string | null {
-    if (!url) return null;
+
+  // حل مشكلة الخطأ 2339 و 2532
+  getAuthorName(author: PostAuthor | string | undefined | null): string {
+    if (!author) return 'NYC360';
+    if (typeof author === 'string') return author;
+    return author.name || author.username || 'NYC360';
+  }
+
+  getCategoryName(id: number): string {
+    const cat = this.categories.find(c => c.id === id);
+    return cat ? cat.name : 'General';
+  }
+
+  resolvePostImage(post: Post): string {
+    const attachment = post.attachments?.[0];
+    const url = attachment?.url || post.imageUrl;
+    
+    if (!url) return 'assets/images/default-placeholder.jpg';
     if (url.includes('@local://')) return `${this.environment.apiBaseUrl3}/${url.replace('@local://', '')}`;
-    if (!url.startsWith('http') && !url.startsWith('data:')) return `${this.environment.apiBaseUrl3}/${url}`;
-    return url;
-  }
-
-  getAuthorName(author: PostAuthor | string | undefined): string {
-    if (!author) return 'NYC360 User';
-    if (typeof author === 'string') return 'NYC360 User';
-    return author.fullName || author.username || 'NYC360 User';
-  }
-
-  getAuthorAvatar(author: PostAuthor | string | undefined): string {
-    if (typeof author === 'object' && author?.imageUrl) {
-      return this.resolvePostImage(author.imageUrl) || 'assets/images/default-avatar.png';
-    }
-    return 'assets/images/default-avatar.png';
-  }
-
-  toggleLike(post: Post) {
-    if (!this.currentUserId) { 
-      alert('Please login to interact');
-      return; 
-    }
-    
-    const oldInteraction = post.userInteraction;
-    const isLiked = post.userInteraction === InteractionType.Like;
-    
-    // Optimistic Update
-    if (isLiked) {
-      post.userInteraction = null;
-      post.currentUserInteraction = null;
-      if(post.stats) post.stats.likes--;
-    } else {
-      if (post.userInteraction === InteractionType.Dislike && post.stats) post.stats.dislikes--;
-      post.userInteraction = InteractionType.Like;
-      post.currentUserInteraction = InteractionType.Like;
-      if(post.stats) post.stats.likes++;
-    }
-
-    this.postsService.interact(post.id, InteractionType.Like).subscribe({
-      error: () => {
-        // Revert
-        post.userInteraction = oldInteraction;
-        post.currentUserInteraction = oldInteraction;
-        if (post.stats) isLiked ? post.stats.likes++ : post.stats.likes--;
-      }
-    });
+    return url.startsWith('http') ? url : `${this.environment.apiBaseUrl3}/${url}`;
   }
 }
