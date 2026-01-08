@@ -1,13 +1,13 @@
-// --- New Variables based on the latest design ---
-$dark-blue: #0A3D91;     // لون الشريط العلوي، والكاتيجوري النشط
-$light-purple: #EFEFF9;  // لون خلفية شريط البحث
+// متغيرات عامة
+$dark-blue: #0A3D91;      
+$light-purple: #EFEFF9;   
 $text-dark: #333333;
-$grey-pill-bg: #F3F5F7;  // لون خلفية الكاتيجوري غير النشط
+$grey-pill-bg: #F3F5F7;   
 $border-color: #E0E0E0;
 
-// Top Dark Blue Line
+// Top Line
 .top-thick-line {
-  height: 5px; // خط أسمك
+  height: 5px; 
   background-color: $dark-blue;
   width: 100%;
 }
@@ -15,10 +15,13 @@ $border-color: #E0E0E0;
 .nav-wrapper {
   background-color: #ffffff;
   border-bottom: 1px solid $border-color;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-/* ================= TOP NAV (Logo, Search, Actions) ================= */
+/* ================= TOP NAV ================= */
 .top-nav {
   display: flex;
   align-items: center;
@@ -32,10 +35,9 @@ $border-color: #E0E0E0;
 .nav-start {
   display: flex; align-items: center; gap: 15px;
   .logo-img { height: 35px; width: auto; }
-  .mobile-toggle { background: none; border: none; font-size: 24px; color: $text-dark; cursor: pointer; }
+  .mobile-toggle { background: none; border: none; font-size: 26px; color: $text-dark; cursor: pointer; padding: 0;}
 }
 
-// New Purple Search Bar Style
 .nav-center {
   flex-grow: 1;
   max-width: 500px; 
@@ -60,7 +62,6 @@ $border-color: #E0E0E0;
 .nav-end {
   display: flex; align-items: center; gap: 20px;
 
-  // Notification Bell
   .notification-btn {
     background: $light-purple;
     border: none;
@@ -70,30 +71,24 @@ $border-color: #E0E0E0;
     color: #555;
     font-size: 20px;
     cursor: pointer;
-    position: relative;
     transition: 0.2s;
+    position: relative;
     &:hover { background-color: darken($light-purple, 5%); color: $dark-blue; }
-
+    
     .notification-dot {
-      position: absolute; top: 8px; right: 8px;
+      position: absolute; top: 10px; right: 10px;
       width: 8px; height: 8px;
-      background-color: red;
+      background-color: #FF3B30;
       border-radius: 50%;
+      border: 1px solid white;
     }
   }
 
-  // User Profile Picture
   .user-profile-link {
     text-decoration: none;
-    .profile-pic {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid $dark-blue;
-    }
+    .profile-icon { color: $dark-blue; transition: 0.2s; &:hover { color: lighten($dark-blue, 10%); } }
   }
 
-  // Login / Signup Buttons (for non-logged in state)
   .btn-login-text { text-decoration: none; color: $text-dark; font-weight: 700; font-size: 14px; }
   .btn-signup-blue {
     background-color: $dark-blue; color: white;
@@ -103,69 +98,181 @@ $border-color: #E0E0E0;
   }
 }
 
-/* ================= CATEGORIES NAV (The Scrollable Part - Blue Style) ================= */
+/* ================= CATEGORIES NAV (Desktop) ================= */
 .categories-nav {
-  padding: 10px 0 15px 0;
-  background-color: #FAFAFA; // لون خلفية فاتح جداً للشريط السفلي
+  padding: 5px 0 15px 0;
+  background-color: #ffffff;
   
   .cat-scroller {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     overflow-x: auto;
     padding: 0 20px;
-    scrollbar-width: none; -ms-overflow-style: none;
+    scrollbar-width: none; 
     &::-webkit-scrollbar { display: none; }
     @media(min-width: 1200px) { justify-content: center; }
   }
 
-  // The Grey Pill (Inactive)
-  .cat-pill-grey {
+  .cat-pill {
     display: flex; align-items: center; gap: 8px;
     background-color: $grey-pill-bg;
     color: #555;
-    padding: 8px 18px;
-    border-radius: 20px; // حواف دائرية بالكامل
+    padding: 8px 16px;
+    border-radius: 20px;
     text-decoration: none;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700; 
     white-space: nowrap;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease; // Faster transition for snappy hover
+    border: 1px solid transparent; 
 
-    i { font-size: 16px; }
-
-    &:hover {
-      background-color: darken($grey-pill-bg, 5%);
-      color: $dark-blue;
-    }
-
-    // Active State (Dark Blue Background + White Text)
-    &.active-cat-blue {
-      background-color: $dark-blue;
-      color: white !important;
-      box-shadow: 0 2px 8px rgba(10, 61, 145, 0.25);
-    }
+    i { font-size: 16px; transition: color 0.2s ease; }
+    
+    // Generic hover if no color class applied (fallback)
+    &:hover { background-color: darken($grey-pill-bg, 5%); }
   }
+}
+
+/* ================= COLORS CONFIG ================= */
+$c-all: #0A3D91;
+$c-community: #FF7043;
+$c-culture: #D32F2F;
+$c-education: #01579B;
+$c-events: #8E24AA;
+$c-health: #29B6F6;
+$c-lifestyle: #7CB342;
+$c-legal: #1A237E;
+$c-news: #424242;
+$c-profession: #00695C;
+$c-social: #00838F;
+$c-tour: #FBC02D;
+$c-tv: #1565C0;
+
+// MIXIN FOR DESKTOP (Hover + Active)
+@mixin apply-color($color) {
+  // Apply bg color on both Active AND Hover
+  &.active-cat, &:hover {
+    background-color: $color !important; // Force color on hover
+    color: white !important;
+    box-shadow: 0 4px 10px rgba($color, 0.3);
+    border-color: $color;
+    i { color: white !important; }
+  }
+}
+
+.cat-pill {
+  &.all { @include apply-color($c-all); }
+  &.community { @include apply-color($c-community); }
+  &.culture { @include apply-color($c-culture); }
+  &.education { @include apply-color($c-education); }
+  &.events { @include apply-color($c-events); }
+  &.health { @include apply-color($c-health); }
+  &.lifestyle { @include apply-color($c-lifestyle); }
+  &.legal { @include apply-color($c-legal); }
+  &.news { @include apply-color($c-news); }
+  &.profession { @include apply-color($c-profession); }
+  &.social { @include apply-color($c-social); }
+  &.tour { @include apply-color($c-tour); }
+  &.tv { @include apply-color($c-tv); }
 }
 
 /* ================= MOBILE SIDEBAR ================= */
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1040; display: none; &.show { display: block; } }
 
 .sidebar-menu {
-  position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: white; z-index: 1050; transform: translateX(-100%); transition: transform 0.3s; display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; width: 300px; height: 100vh; background: white; z-index: 1050; 
+  transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  display: flex; flex-direction: column;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+
   &.open { transform: translateX(0); }
 
-  .sidebar-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; .brand { font-size: 20px; font-weight: 800; span { color: $dark-blue; } } .close-btn { border: none; background: none; font-size: 20px; } }
+  .sidebar-header { 
+    padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; 
+    .brand { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; span { color: $dark-blue; } } 
+    .close-btn { border: none; background: none; font-size: 22px; color: #777; cursor: pointer; } 
+  }
 
   .sidebar-content {
-    padding: 20px; overflow-y: auto; flex: 1;
-    .mobile-search-purple { display: flex; align-items: center; background: $light-purple; padding: 10px; border-radius: 8px; margin-bottom: 20px; i { margin-right: 10px; color: #7F7F7F; } input { border: none; background: transparent; width: 100%; outline: none; } }
-    .mobile-user-info { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; .mobile-avatar { width: 40px; height: 40px; border-radius: 50%; } .username { font-weight: 700; } }
-    .menu-label { font-size: 12px; color: #999; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; }
-    .mobile-categories-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 30px; .mobile-cat-item { font-size: 13px; color: #555; text-decoration: none; display: flex; align-items: center; gap: 6px; i { color: $dark-blue; } } }
+    padding: 20px 25px; overflow-y: auto; flex: 1;
+
+    .mobile-search-purple { 
+      display: flex; align-items: center; background: $light-purple; padding: 12px 15px; border-radius: 12px; margin-bottom: 25px; 
+      i { margin-right: 12px; color: #7F7F7F; font-size: 18px; } 
+      input { border: none; background: transparent; width: 100%; outline: none; font-size: 15px; } 
+    }
+
+    .mobile-user-info { 
+      display: flex; align-items: center; gap: 12px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; cursor: pointer;
+      .user-details { display: flex; flex-direction: column; }
+      .welcome { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+      .username { font-weight: 700; font-size: 16px; color: $text-dark; } 
+    }
+
+    .menu-label { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 15px; }
+    
+    // --- MOBILE RECTANGLE LIST ---
+    .mobile-categories-list { 
+      display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;
+      
+      .mobile-cat-item { 
+        display: flex; align-items: center; 
+        padding: 12px 15px; 
+        background-color: #f9f9f9; 
+        border-radius: 12px; 
+        text-decoration: none; 
+        color: #444; 
+        transition: all 0.2s ease;
+        border-left: 4px solid transparent;
+        cursor: pointer; // Ensure pointer on hover
+
+        .icon-box {
+          width: 32px; height: 32px; 
+          display: flex; align-items: center; justify-content: center;
+          border-radius: 8px; background-color: white; 
+          margin-right: 15px; color: #666; font-size: 16px;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+          transition: all 0.2s;
+        }
+
+        .text { font-weight: 600; font-size: 15px; flex-grow: 1; }
+        .arrow { font-size: 12px; color: #ccc; transition: all 0.2s; }
+
+        // MIXIN FOR MOBILE (Hover + Active)
+        @mixin mobile-active($bg-color) {
+          // Apply bg color on both Active AND Hover
+          &.active-mobile-cat, &:hover {
+            background-color: $bg-color !important;
+            border-left-color: rgba(0,0,0,0.2); 
+            color: white !important;
+            box-shadow: 0 4px 12px rgba($bg-color, 0.4);
+
+            .icon-box { background-color: rgba(255,255,255,0.2) !important; color: white !important; }
+            .arrow { color: rgba(255,255,255,0.7); transform: translateX(5px); }
+          }
+        }
+
+        // Apply Colors to Mobile Items
+        &.all { @include mobile-active($c-all); }
+        &.community { @include mobile-active($c-community); }
+        &.culture { @include mobile-active($c-culture); }
+        &.education { @include mobile-active($c-education); }
+        &.events { @include mobile-active($c-events); }
+        &.health { @include mobile-active($c-health); }
+        &.lifestyle { @include mobile-active($c-lifestyle); }
+        &.legal { @include mobile-active($c-legal); }
+        &.news { @include mobile-active($c-news); }
+        &.profession { @include mobile-active($c-profession); }
+        &.social { @include mobile-active($c-social); }
+        &.tour { @include mobile-active($c-tour); }
+        &.tv { @include mobile-active($c-tv); }
+      } 
+    }
+    
     .mobile-actions {
-      .btn-signup-mobile { display: block; text-align: center; background: $dark-blue; color: white; padding: 12px; border-radius: 6px; text-decoration: none; font-weight: 700; margin-bottom: 10px; }
-      .btn-logout-mobile, .btn-login-mobile { width: 100%; padding: 10px; border: 1px solid #eee; background: none; border-radius: 6px; font-weight: 600; }
+      .btn-signup-mobile { display: block; text-align: center; background: $dark-blue; color: white; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: 700; margin-bottom: 10px; box-shadow: 0 4px 10px rgba($dark-blue, 0.3); }
+      .btn-logout-mobile, .btn-login-mobile { width: 100%; padding: 12px; border: 1px solid #eee; background: white; border-radius: 12px; font-weight: 600; color: $text-dark; display: block; text-align: center; text-decoration: none; }
     }
   }
 }

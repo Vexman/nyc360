@@ -20,7 +20,7 @@ export interface PostStats {
   shares: number;
 }
 
-// --- Feed Post (For Discussions/Featured) ---
+// --- Feed Post ---
 export interface CommunityPost {
   id: number;
   title: string;
@@ -33,23 +33,23 @@ export interface CommunityPost {
   tags?: string[];
 }
 
-// --- Community Suggestion (The Cards) ---
+// --- Community Suggestion (Matches your JSON Data item) ---
 export interface CommunitySuggestion {
   id: number;
   name: string;
   slug: string;
   description: string;
-  avatarUrl: string; // اسم الملف فقط من الباك اند
+  avatarUrl: string; // Matches JSON
   type: number;
   memberCount: number;
-  isPrivate: boolean;
+  isPrivate: boolean; // Matches JSON
   
-  // حقول للتحكم في الواجهة (UI State)
+  // UI State (Not from API, added locally)
   isJoined?: boolean;
   isLoadingJoin?: boolean;
 }
 
-// --- API Response Structures ---
+// --- Feed Response ---
 export interface FeedResponse {
   isSuccess: boolean;
   data: CommunityPost[];
@@ -61,10 +61,17 @@ export interface CommunityHomeData {
   suggestions: CommunitySuggestion[];
 }
 
+// --- ✅ Generic API Response (Updated strictly for your JSON) ---
 export interface ApiResponse<T> {
   isSuccess: boolean;
   data: T;
   error: { code: string; message: string } | null;
+  
+  // Pagination Fields (Root level in your JSON)
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+  totalPages?: number;
 }
 
 // Join Request Body

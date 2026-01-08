@@ -1,8 +1,5 @@
 // src/app/pages/Dashboard/pages/posts/models/posts.ts
 
-// ✅ تم حذف PostCategory و PostCategoryList نهائياً
-// الاعتماد الآن على: src/app/shared/models/category-list.ts
-
 export enum InteractionType {
   Like = 1,
   Dislike = 2
@@ -18,7 +15,6 @@ export interface PostAttachment {
 
 export interface PostAuthor {
   id: number;
-  // Fields for compatibility (Admin might use username/fullName, Feed uses name)
   username?: string;
   fullName?: string;
   name?: string; 
@@ -34,7 +30,6 @@ export interface PostStats {
   shares: number;
 }
 
-// ✅ Comment Interface
 export interface PostComment {
   id: number;
   content: string;
@@ -44,40 +39,40 @@ export interface PostComment {
   isReplying?: boolean;
 }
 
-// ✅ Main Post Interface
 export interface Post {
   id: number;
   title: string;
   content: string;
-  category: number; // This maps to the ID in CATEGORY_LIST
+  category: number;
   createdAt: string;
-  
-  // Optional fields
   imageUrl?: string | null;
   lastUpdated?: string;
   sourceType?: number;
   postType?: number;
   tags?: string[];
-
-  author?: PostAuthor | string; // Can be object or ID string
+  author?: PostAuthor | string;
   stats?: PostStats;
   comments?: PostComment[];
   attachments?: PostAttachment[];
-  
   currentUserInteraction?: InteractionType | null; 
-  userInteraction?: InteractionType | null; // Helper for UI state
+  userInteraction?: InteractionType | null;
 }
-
-// --- 🔥 NEW INTERFACES (For Home News Feed) ---
 
 export interface InterestGroup {
   category: number;
   posts: Post[];
 }
 
+// ✅ تعديل هنا: إضافة ID وحقول الحالة للواجهة
 export interface CommunitySuggestion {
+  id: number;          // ضروري لعمل Join
   name: string;
   slug: string;
+  memberCount?: number; // لعرض عدد الأعضاء
+  
+  // UI States
+  isJoined?: boolean;
+  isLoadingJoin?: boolean;
 }
 
 export interface FeedData {
@@ -88,17 +83,12 @@ export interface FeedData {
   trendingTags: string[];
 }
 
-// --- Tag Page Response Alias ---
-// في صفحة التاج، البيانات العائدة هي مصفوفة بوستات
 export type TagPostsResponse = Post[];
 
-// --- Generic API Response (Updated for Root Pagination) ---
 export interface ApiResponse<T> {
   isSuccess: boolean;
   data: T;
   error: { code: string; message: string } | null;
-
-  // ✅ Pagination Fields (Added optional fields to handle List/Tags endpoints)
   page?: number;
   pageSize?: number;
   totalCount?: number;

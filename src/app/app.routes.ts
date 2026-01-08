@@ -61,6 +61,10 @@ export const routes: Routes = [
       { 
         path: 'community/:slug', 
         loadComponent: () => import('../app/pages/Public/pages/communities/pages/community-profile/community-profile').then(m => m.CommunityProfileComponent) 
+      },      
+      { 
+        path: 'discover', 
+        loadComponent: () => import('../app/pages/Public/pages/communities/pages/community-discovery/community-discovery').then(m => m.CommunityDiscoveryComponent) 
       },
 
 

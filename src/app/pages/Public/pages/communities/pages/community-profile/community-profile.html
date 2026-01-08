@@ -1,129 +1,143 @@
-<div class="fb-wrapper" *ngIf="community">
+<div class="community-wrapper" *ngIf="community">
   
-  <div class="fb-header">
-    <div class="cover-photo" [style.backgroundImage]="'url(' + resolveCommunityImage(community.coverUrl) + ')'">
+  <div class="community-header">
+    <div class="cover-container">
+      <div class="cover-image" [style.backgroundImage]="'url(' + resolveCommunityImage(community.coverUrl) + ')'"></div>
+      <div class="overlay-gradient"></div>
     </div>
 
     <div class="header-content container">
-      <div class="profile-layout">
-        <div class="profile-pic">
+      <div class="info-row">
+        <div class="logo-box">
           <img [src]="resolveCommunityImage(community.imageUrl)" alt="Community Logo">
         </div>
         
-        <div class="profile-info">
-          <div class="name-section">
-            <h1>{{ community.name }}</h1>
-            <span class="privacy-badge"><i class="bi bi-globe"></i> Public group · {{ community.memberCount }} members</span>
-          </div>
-          
-          <div class="action-buttons">
-            <button class="btn-primary" (click)="isJoined = !isJoined" [class.joined]="isJoined">
-              <i class="bi" [ngClass]="isJoined ? 'bi-check-lg' : 'bi-plus-lg'"></i> 
-              {{ isJoined ? 'Joined' : 'Join Group' }}
-            </button>
-            <button class="btn-secondary"><i class="bi bi-share-fill"></i> Share</button>
-          </div>
+        <div class="text-details">
+          <h1>{{ community.name }}</h1>
+          <p class="meta">
+            <i class="bi bi-globe-americas"></i> Public Community &bull; {{ community.memberCount }} Members
+          </p>
+        </div>
+
+        <div class="action-box">
+          <button class="btn-join" (click)="isJoined = !isJoined" [class.joined]="isJoined">
+            <i class="bi" [ngClass]="isJoined ? 'bi-check-lg' : 'bi-person-plus-fill'"></i> 
+            {{ isJoined ? 'Joined' : 'Join Community' }}
+          </button>
+          <button class="btn-share"><i class="bi bi-share-fill"></i></button>
         </div>
       </div>
 
-      <div class="fb-tabs">
-        <a [class.active]="activeTab === 'discussion'" (click)="activeTab = 'discussion'">Discussion</a>
-        <a [class.active]="activeTab === 'members'" (click)="loadMembers()">Members</a>
-  
+      <div class="nav-tabs">
+        <button [class.active]="activeTab === 'discussion'" (click)="activeTab = 'discussion'">Discussion</button>
+        <button [class.active]="activeTab === 'members'" (click)="loadMembers()">Members</button>
+        <button [class.active]="activeTab === 'about'" (click)="activeTab = 'about'">About</button>
+        <button *ngIf="isOwner" [class.active]="activeTab === 'requests'" (click)="activeTab = 'requests'">
+          Requests <span class="badge-dot"></span>
+        </button>
       </div>
     </div>
   </div>
 
-  <div class="fb-body container">
+  <div class="community-body container">
     
-    <aside class="left-rail">
-      <div class="card intro-card">
-        <h3>About</h3>
-        <p>{{ community.description || 'No description provided.' }}</p>
-        <div class="info-row">
-          <i class="bi bi-globe"></i>
-          <div><strong>Public</strong><span>Anyone can see who's in the group.</span></div>
+    <aside class="side-panel">
+      <div class="widget about-widget">
+        <h3>About Community</h3>
+        <p class="desc">{{ community.description || 'Welcome to our community! Join the conversation.' }}</p>
+        <div class="stat-row">
+          <div class="stat"><strong>{{ community.memberCount }}</strong> <span>Members</span></div>
+          <div class="stat"><strong>{{ posts.length }}</strong> <span>Posts</span></div>
         </div>
-        <div class="info-row">
-          <i class="bi bi-eye-fill"></i>
-          <div><strong>Visible</strong><span>Anyone can find this group.</span></div>
-        </div>
+        <hr>
+        <div class="meta-item"><i class="bi bi-calendar3"></i> Created in 2026</div>
       </div>
     </aside>
 
-    <main class="feed-rail">
+    <main class="main-content">
       
       <ng-container *ngIf="activeTab === 'discussion'">
-        
-    
+        <div class="create-post-box">
+          <div class="input-trigger">
+            <i class="bi bi-pencil-square"></i>
+            <span>Start a discussion...</span>
+          </div>
+        </div>
 
         <ng-container *ngIf="posts.length > 0; else emptyState">
-          <div class="card post-card" *ngFor="let post of posts">
-            <div class="post-header">
-              <div class="author-img"><i class="bi bi-person-circle"></i></div>
-              <div class="meta">
-                <span class="name">{{ getAuthorName(post.author) }}</span>
-                <span class="time">{{ post.createdAt | date:'mediumDate' }}</span>
+          <div class="feed-card" *ngFor="let post of posts">
+            <div class="card-head">
+              <img [src]="'assets/images/default-avatar.png'" class="u-avatar"> 
+              <div class="u-info">
+                <h5>{{ getAuthorName(post.author) }}</h5>
+                <small>{{ post.createdAt | date:'mediumDate' }}</small>
               </div>
             </div>
-            <div class="post-content"><p>{{ post.content }}</p></div>
-            <div class="post-image" *ngIf="post.attachments && post.attachments.length > 0">
-              <img [src]="resolvePostImage(post.attachments[0].url)" alt="Post Media">
+            <div class="card-body">
+              <p>{{ post.content }}</p>
+              <div class="media-preview" *ngIf="post.attachments && post.attachments.length > 0">
+                <img [src]="resolvePostImage(post.attachments[0].url)">
+              </div>
             </div>
-            <div class="post-stats">
-              <div class="likes"><i class="bi bi-hand-thumbs-up-fill icon-blue"></i> {{ post.stats.likes }}</div>
-              <div class="comments-shares"><span>{{ post.stats.comments }} Comments</span></div>
-            </div>
-            <div class="divider"></div>
-            <div class="post-actions">
-              <button><i class="bi bi-hand-thumbs-up"></i> Like</button>
-              <button><i class="bi bi-chat-left"></i> Comment</button>
-              <button><i class="bi bi-share"></i> Share</button>
+            <div class="card-foot">
+              <div class="interactions">
+                <span><i class="bi bi-heart"></i> {{ post.stats.likes }}</span>
+                <span><i class="bi bi-chat"></i> {{ post.stats.comments }}</span>
+              </div>
+              <div class="actions">
+                <button><i class="bi bi-heart"></i> Like</button>
+                <button><i class="bi bi-chat"></i> Comment</button>
+              </div>
             </div>
           </div>
         </ng-container>
 
         <ng-template #emptyState>
-          <div class="card empty-card">
-            <div class="empty-icon"><i class="bi bi-postcard-heart"></i></div>
-            <h3>No posts yet</h3>
-            <p>Be the first to start a conversation!</p>
+          <div class="empty-feed">
+            <i class="bi bi-chat-square-quote"></i>
+            <h3>Start the Conversation</h3>
+            <p>No posts yet. Be the first to share something!</p>
           </div>
         </ng-template>
-
       </ng-container>
 
       <ng-container *ngIf="activeTab === 'members'">
-        <div class="card members-card">
-          <div class="card-header">
-            <h3>Members · {{ community.memberCount }}</h3>
-            <div class="search-member">
-              <i class="bi bi-search"></i>
-              <input type="text" placeholder="Find a member">
-            </div>
+        <div class="members-section">
+          <div class="section-head">
+            <h3>Community Members</h3>
+            <span class="count">{{ members.length }} members</span>
           </div>
 
-          <div class="members-grid" *ngIf="!isMembersLoading; else membersLoader">
-            <div class="member-item" *ngFor="let member of members">
-              <div class="mem-avatar">
-                <img [src]="resolveUserAvatar(member.avatarUrl)" alt="User">
-              </div>
-              <div class="mem-info">
-                <h4>{{ member.name || 'Unknown User' }}</h4>
-                <div class="badges">
-                  <span class="role-badge" *ngIf="member.role !== 'Member'">{{ member.role }}</span>
-                  <span class="join-date">Joined {{ member.joinedAt | date:'MMM y' }}</span>
+          <div class="members-list" *ngIf="!isMembersLoading; else loader">
+            <div class="member-row" *ngFor="let member of members">
+              
+              <div class="mem-left">
+                <img [src]="resolveUserAvatar(member.avatarUrl)" class="mem-avatar">
+                <div class="mem-info">
+                  <h4>{{ member.name || 'Unknown User' }}</h4>
+                  <div class="badges">
+                    <span class="role-badge" [class.admin]="member.role === 'Admin' || member.role === 'Owner'">
+                      {{ member.role }}
+                    </span>
+                    <span class="joined-date">Joined {{ member.joinedAt | date:'MMM yyyy' }}</span>
+                  </div>
                 </div>
               </div>
-              </div>
-            
-            <div *ngIf="members.length === 0" class="no-members">No members found.</div>
-          </div>
 
-          <ng-template #membersLoader>
-            <div class="loader-padding"><div class="spinner-sm"></div></div>
-          </ng-template>
+              <div class="mem-actions" *ngIf="isOwner && member.userId !== ownerId">
+                <button class="btn-remove" (click)="onRemoveMember(member.userId)" title="Remove Member">
+                  <i class="bi bi-person-x-fill"></i> Remove
+                </button>
+              </div>
+
+            </div>
+          </div>
+          <ng-template #loader><div class="spinner-center"><div class="spinner"></div></div></ng-template>
         </div>
+      </ng-container>
+
+      <ng-container *ngIf="activeTab === 'requests' && isOwner">
+        <app-community-requests [communityId]="community.id"></app-community-requests>
       </ng-container>
 
     </main>

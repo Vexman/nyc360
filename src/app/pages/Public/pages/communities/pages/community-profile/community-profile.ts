@@ -2,13 +2,15 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../../../environments/environment';
+import { AuthService } from '../../../../../Authentication/Service/auth';
+import { CommunityRequestsComponent } from '../community-requests/community-requests';
 import { CommunityProfileService } from '../../services/community-profile';
 import { CommunityDetails, CommunityMember, Post } from '../../models/community-profile';
 
 @Component({
   selector: 'app-community-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CommunityRequestsComponent],
   templateUrl: './community-profile.html',
   styleUrls: ['./community-profile.scss']
 })
@@ -16,6 +18,7 @@ export class CommunityProfileComponent implements OnInit {
   
   private route = inject(ActivatedRoute);
   private profileService = inject(CommunityProfileService);
+  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
   protected readonly environment = environment;
 
@@ -23,21 +26,19 @@ export class CommunityProfileComponent implements OnInit {
   community: CommunityDetails | null = null;
   posts: Post[] = [];
   members: CommunityMember[] = [];
-  
-  slug: string = '';
+  ownerId: number = 0;
   
   // UI State
-  activeTab: string = 'discussion'; // 'discussion' | 'members' | 'about'
+  activeTab: string = 'discussion';
   isLoading = false;
   isMembersLoading = false;
   isJoined = false;
+  isOwner = false;
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.slug = params.get('slug') || '';
-      if (this.slug) {
-        this.loadData(this.slug);
-      }
+      const slug = params.get('slug');
+      if (slug) this.loadData(slug);
     });
   }
 
@@ -48,7 +49,9 @@ export class CommunityProfileComponent implements OnInit {
         this.isLoading = false;
         if (res.isSuccess && res.data) {
           this.community = res.data.community;
-          
+          this.ownerId = res.data.ownerId;
+          this.checkOwnership(); 
+
           if (res.data.posts && Array.isArray(res.data.posts.data)) {
             this.posts = res.data.posts.data;
           } else {
@@ -57,20 +60,24 @@ export class CommunityProfileComponent implements OnInit {
         }
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error(err);
+      error: () => {
         this.isLoading = false;
         this.cdr.detectChanges();
       }
     });
   }
 
+  checkOwnership() {
+    const currentUser = this.authService.currentUser$.value;
+    if (currentUser && this.ownerId) {
+      this.isOwner = (currentUser.id === this.ownerId); 
+    }
+  }
+
   loadMembers() {
     if (!this.community) return;
-    
     this.activeTab = 'members';
     this.isMembersLoading = true;
-
     this.profileService.getCommunityMembers(this.community.id).subscribe({
       next: (res) => {
         this.isMembersLoading = false;
@@ -78,16 +85,28 @@ export class CommunityProfileComponent implements OnInit {
           this.members = res.data;
         }
         this.cdr.detectChanges();
-      },
-      error: () => {
-        this.isMembersLoading = false;
-        this.cdr.detectChanges();
       }
     });
   }
 
-  // --- Image Helpers ---
+  // ✅ New: Remove Member
+  onRemoveMember(memberId: number) {
+    if (!this.community || !confirm('Are you sure you want to remove this member?')) return;
 
+    this.profileService.removeMember(this.community.id, memberId).subscribe({
+      next: (res) => {
+        if (res.isSuccess) {
+          this.members = this.members.filter(m => m.userId !== memberId);
+          alert('Member removed successfully.');
+        } else {
+          alert('Failed to remove member.');
+        }
+      },
+      error: () => alert('Network error.')
+    });
+  }
+
+  // --- Image Helpers ---
   resolveCommunityImage(url?: string): string {
     if (!url) return 'assets/images/placeholder-cover.jpg';
     if (url.includes('http')) return url;
@@ -100,9 +119,8 @@ export class CommunityProfileComponent implements OnInit {
     return `${environment.apiBaseUrl2}/${url}`;
   }
 
-  // ✅ تم التعديل هنا: قراءة صور الأعضاء من مجلد 'avatars'
   resolveUserAvatar(url?: string | null): string {
-    if (!url) return 'assets/images/default-avatar.png';
+    if (!url) return 'assets/images/default-avatar.png'; // ✅ Fallback icon
     if (url.includes('http')) return url;
     return `${environment.apiBaseUrl2}/avatars/${url}`; 
   }

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { 
-  ApiResponse, Post, FeedData, InteractionType, PostComment, TagPostsResponse 
+  ApiResponse, Post, FeedData, InteractionType, PostComment
 } from '../models/posts';
 
 @Injectable({
@@ -12,9 +12,9 @@ import {
 export class PostsService {
   private http = inject(HttpClient);
   
-  // الروابط الأساسية
   private baseUrl = `${environment.apiBaseUrl}/posts`;
   private feedUrl = `${environment.apiBaseUrl}/feeds/all/home`;
+  private communitiesUrl = `${environment.apiBaseUrl}/communities`; 
 
   // =================================================================
   // 1. NEW METHODS: For Home Page & Tags (Public View)
@@ -31,26 +31,29 @@ export class PostsService {
       .set('Page', page)
       .set('PageSize', pageSize);
       
-    // Encode tag to handle spaces and special characters safely
     return this.http.get<ApiResponse<Post[]>>(`${this.baseUrl}/tags/${encodeURIComponent(tag)}`, { params });
+  }
+
+  // ✅ FIXED: Join Community
+  // الآن تستقبل ID (رقم) بدلاً من Slug، وترسل CommunityId في الـ Body
+  joinCommunity(id: number): Observable<ApiResponse<any>> {
+    const body = { CommunityId: id }; 
+    return this.http.post<ApiResponse<any>>(`${this.communitiesUrl}/join`, body);
   }
 
   // =================================================================
   // 2. EXISTING METHODS: For Admin Panel & CRUD
   // =================================================================
 
-  // --- Read List (Updated for Search & Category Filtering) ---
   getAllPosts(category?: number, search?: string, page: number = 1, pageSize: number = 10): Observable<ApiResponse<Post[]>> {
     let params = new HttpParams()
       .set('page', page)
       .set('pageSize', pageSize);
 
-    // إضافة الفلتر بالقسم فقط إذا لم يكن "All" (الذي نرمز له بـ -1 أو null)
     if (category !== undefined && category !== null && category !== -1) {
       params = params.set('category', category.toString());
     }
 
-    // إضافة البحث إذا وجد
     if (search) {
       params = params.set('search', search);
     }

@@ -1,5 +1,7 @@
 <nav class="nav-wrapper">
   
+  <div class="top-thick-line"></div>
+
   <div class="top-nav">
     
     <div class="nav-start">
@@ -10,6 +12,7 @@
       <a routerLink="/" class="logo-area">
         <img src="image_0_0.jpg" alt="NYC360" class="logo-img"> 
       </a>
+
     </div>
 
     <div class="nav-center d-none d-lg-block">
@@ -40,12 +43,17 @@
     </div>
   </div>
 
-  <div class="categories-nav">
+  <div class="categories-nav d-none d-lg-block">
     <div class="cat-scroller">
+      <a routerLink="/public/home" routerLinkActive="active-cat" class="cat-pill all">
+        <i class="bi bi-grid-fill"></i> All
+      </a>
+
       <a *ngFor="let cat of categories" 
          [routerLink]="[cat.route]" 
-         routerLinkActive="active-cat-blue"
-         class="cat-pill-grey">
+         routerLinkActive="active-cat"
+         [class]="'cat-pill ' + cat.id"> 
+         
          <i [class]="'bi ' + cat.icon"></i>
          <span>{{ cat.name }}</span>
       </a>
@@ -64,24 +72,36 @@
 
   <div class="sidebar-content">
     
-    <div class="mobile-search-purple">
-      <i class="bi bi-search"></i>
-      <input type="text" placeholder="Search...">
-    </div>
 
-    <div *ngIf="isLoggedIn" class="mobile-user-info" [routerLink]="['/profile', currentUsername]" (click)="toggleMenu()" style="cursor: pointer;">
-      <i class="bi bi-person-circle" style="font-size: 2rem; margin-right: 10px;"></i>
-      <span class="username">Hi, {{ currentUsername }}</span>
+
+    <div *ngIf="isLoggedIn" class="mobile-user-info" [routerLink]="['/profile', currentUsername]" (click)="toggleMenu()">
+      <i class="bi bi-person-circle" style="font-size: 2rem; color: #0A3D91;"></i>
+      <div class="user-details">
+        <span class="welcome">Welcome back,</span>
+        <span class="username">{{ currentUsername }}</span>
+      </div>
     </div>
 
     <p class="menu-label">Categories</p>
-    <div class="mobile-categories-grid">
+    
+    <div class="mobile-categories-list">
+      <a routerLink="/public/home" 
+         (click)="toggleMenu()"
+         routerLinkActive="active-mobile-cat"
+         class="mobile-cat-item all">
+         <div class="icon-box"><i class="bi bi-grid-fill"></i></div>
+         <span class="text">All</span>
+         <i class="bi bi-chevron-right arrow"></i>
+      </a>
+
       <a *ngFor="let cat of categories" 
          [routerLink]="[cat.route]" 
          (click)="toggleMenu()"
          routerLinkActive="active-mobile-cat"
-         class="mobile-cat-item">
-        <i [class]="'bi ' + cat.icon"></i> {{ cat.name }}
+         [class]="'mobile-cat-item ' + cat.id">
+        <div class="icon-box"><i [class]="'bi ' + cat.icon"></i></div>
+        <span class="text">{{ cat.name }}</span>
+        <i class="bi bi-chevron-right arrow"></i>
       </a>
     </div>
 

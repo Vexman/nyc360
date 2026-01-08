@@ -22,7 +22,10 @@
       <section class="hero-section" *ngIf="heroBanner">
         <div class="hero-card" [routerLink]="['/public/posts/details', heroBanner.id]">
           <img [src]="resolvePostImage(heroBanner)" alt="Hero Image">
-    
+          <div class="play-icon">
+            <i class="bi bi-play-fill"></i>
+          </div>
+  
           <div class="hero-overlay">
             <h2>{{ heroBanner.title }}</h2>
             <p>{{ heroBanner.content | slice:0:120 }}...</p>
@@ -49,6 +52,37 @@
         </div>
       </div>
 
+      <div class="highlights-section" *ngIf="highlightedPosts.length > 0">
+        <div class="block-header">
+           <div class="vertical-bar" style="background: #29B6F6;"></div>
+           <h2>Top Stories</h2>
+        </div>
+
+        <div class="horizontal-cards-list">
+          <div class="horizontal-card" *ngFor="let post of highlightedPosts" [routerLink]="['/public/posts/details', post.id]">
+            
+            <div class="h-img-wrapper">
+              <span class="h-badge">{{ getCategoryName(post.category) }}</span>
+              <img [src]="resolvePostImage(post)" alt="Post Image">
+            </div>
+
+            <div class="h-content">
+              <h2 class="h-title">{{ post.title }}</h2>
+              <p class="h-desc">{{ post.content | slice:0:150 }}...</p>
+              
+              <div class="h-footer">
+                <div class="h-author">
+                  <img [src]="getAuthorImage(post.author)" class="auth-img">
+                  <span class="auth-name">{{ getAuthorName(post.author) }}</span>
+                  <span class="post-time">{{ post.createdAt | date:'shortTime' }}</span>
+                </div>
+                <span class="read-more">Read More <i class="bi bi-arrow-right"></i></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
     </main>
 
     <aside class="sidebar">
@@ -59,7 +93,7 @@
         </div>
         <div class="w-body">
           <div class="temp-box">
-            <span class="degree">72F</span>
+            <span class="degree">72°</span>
             <span class="desc">Partly Cloudy</span>
           </div>
           <div class="aqi-box">
@@ -103,13 +137,34 @@
       <div class="widget">
         <h3>Communities For You</h3>
         <div class="comm-list">
-          <div class="comm-row" *ngFor="let comm of suggestedCommunities | slice:0:3">
-            <div class="c-avatar">BK</div>
+          <div class="comm-row" *ngFor="let comm of suggestedCommunities">
+            <div class="c-avatar">{{ comm.name.charAt(0) | uppercase }}</div>
             <div class="c-info">
               <strong>{{ comm.name }}</strong>
-              <span>2.4k members</span>
+              <span>{{ comm.memberCount || 0 }} members</span>
             </div>
-            <button class="join-btn"><i class="bi bi-plus"></i></button>
+            
+            <button class="join-btn" 
+                    [class.joined]="comm.isJoined" 
+                    (click)="onJoinCommunity(comm)"
+                    [disabled]="comm.isLoadingJoin || comm.isJoined">
+              <ng-container *ngIf="!comm.isLoadingJoin && !comm.isJoined">
+                  <i class="bi bi-plus-lg"></i>
+              </ng-container>
+              
+              <ng-container *ngIf="comm.isLoadingJoin">
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              </ng-container>
+              
+              <ng-container *ngIf="comm.isJoined">
+                  <i class="bi bi-check-lg"></i>
+              </ng-container>
+            </button>
+
+          </div>
+          
+          <div class="comm-row" *ngIf="suggestedCommunities.length === 0">
+             <p style="font-size: 12px; color: #999;">No suggestions available.</p>
           </div>
         </div>
       </div>
@@ -117,4 +172,18 @@
     </aside>
 
   </div>
+
+  <div class="toast-container">
+    <div class="custom-toast" *ngFor="let toast of toasts" [ngClass]="toast.type" (click)="removeToast(toast.id)">
+        <div class="toast-icon">
+            <i class="bi bi-check-circle-fill" *ngIf="toast.type === 'success'"></i>
+            <i class="bi bi-x-circle-fill" *ngIf="toast.type === 'error'"></i>
+            <i class="bi bi-info-circle-fill" *ngIf="toast.type === 'info'"></i>
+        </div>
+        <div class="toast-content">
+            <span>{{ toast.message }}</span>
+        </div>
+    </div>
+  </div>
+
 </div>

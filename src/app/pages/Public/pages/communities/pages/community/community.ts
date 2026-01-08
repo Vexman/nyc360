@@ -41,13 +41,11 @@ export class CommunityComponent implements OnInit {
           // 2. Feed Posts
           const allPosts = res.data.feed?.data || [];
           if (allPosts.length > 0) {
-            // أول بوست نعتبره المميز (Featured)
             this.featuredPost = allPosts[0];
-            // الباقي للنقاشات (Discussions)
             this.posts = allPosts.slice(1);
           }
         }
-        this.cdr.detectChanges(); // تحديث فوري
+        this.cdr.detectChanges();
       },
       error: () => {
         this.isLoading = false;
@@ -56,22 +54,30 @@ export class CommunityComponent implements OnInit {
     });
   }
 
+  // دالة الانضمام (تم التأكد من إرسال ID)
   joinCommunity(comm: CommunitySuggestion) {
-    if (comm.isJoined) return; // منع الضغط مرتين
+    if (comm.isJoined) return; // منع التكرار
 
-    comm.isLoadingJoin = true; // إظهار لودينج على الزر
+    comm.isLoadingJoin = true; // تفعيل اللودينج
     
+    // نمرر comm.id (رقم) للسيرفس
     this.communityService.joinCommunity(comm.id).subscribe({
       next: (res) => {
         comm.isLoadingJoin = false;
         if (res.isSuccess) {
-          comm.isJoined = true; // تغيير الزر إلى "Joined"
-          comm.memberCount++; // زيادة العداد وهمياً للمستخدم
+          comm.isJoined = true; // تغيير الحالة لـ Joined
+          comm.memberCount++; // زيادة العداد
+          
+          alert('You have joined the community successfully!');
+        } else {
+          // في حال وجود خطأ من الباك اند (مثل "أنت منضم بالفعل")
+          console.error('Join Error:', res.error);
         }
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         comm.isLoadingJoin = false;
+        console.error('Network Error:', err);
         this.cdr.detectChanges();
       }
     });
@@ -79,19 +85,15 @@ export class CommunityComponent implements OnInit {
 
   // --- Image Resolvers ---
 
-  // 1. صور الكوميونتي (من مجلد communities)
   resolveCommunityAvatar(url?: string): string {
     if (!url) return 'assets/images/default-group.png';
     if (url.includes('http')) return url;
-    // هنا نوجه المسار للمجلد الصحيح
     return `${environment.apiBaseUrl2}/communities/${url}`;
   }
 
-  // 2. صور المقالات والمرفقات (عام)
   resolvePostImage(url?: string): string {
-    if (!url) return 'assets/images/nyc-city.jpg'; // صورة احتياطية
+    if (!url) return 'assets/images/nyc-city.jpg';
     if (url.includes('http')) return url;
-    // افتراضياً المرفقات تكون في مجلد attachments أو root
     return `${environment.apiBaseUrl2}/${url}`; 
   }
 }
