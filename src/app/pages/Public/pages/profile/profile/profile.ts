@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 import { ProfileService } from '../service/profile';
@@ -9,11 +9,12 @@ import {
   UserProfileData, UpdateBasicProfileDto, AddEducationDto, UpdateEducationDto,
   AddPositionDto, UpdatePositionDto, Education, Position, SocialPlatform, SocialLinkDto 
 } from '../models/profile';
+import { Post } from '../../posts/models/posts';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule ,RouterLink],
   providers: [DatePipe],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
@@ -30,9 +31,15 @@ export class ProfileComponent implements OnInit {
 
   // --- State ---
   user: UserProfileData | null = null;
+  savedPosts: Post[] = []; 
+  
+  // Track current profile username for reloading
+  currentUsername: string = '';
+
   isLoading = true;
+  isSavedLoading = false; 
   isOwner = false;
-  activeTab = 'posts'; // Default Tab
+  activeTab = 'posts'; 
   isSaving = false;
   
   // --- Forms ---
@@ -79,7 +86,7 @@ export class ProfileComponent implements OnInit {
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       headline: ['', [Validators.required, Validators.maxLength(100)]],
       bio: ['', [Validators.maxLength(500)]],
-      locationId: [0] // Hidden or Dropdown
+      locationId: [0] 
     });
 
     // Education Form
@@ -118,6 +125,9 @@ export class ProfileComponent implements OnInit {
       this.isOwner = (currentUser?.username?.toLowerCase() === targetUsername.toLowerCase());
     }
 
+    // ✅ FIX: Ensure targetUsername is a string (handle null)
+    this.currentUsername = targetUsername || '';
+
     if (targetUsername) this.loadProfile(targetUsername);
     else this.isLoading = false;
   }
@@ -133,6 +143,32 @@ export class ProfileComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => this.isLoading = false
+    });
+  }
+
+  // Switch Tab Logic
+  switchTab(tab: string) {
+    this.activeTab = tab;
+    if (tab === 'saved' && this.isOwner) {
+      this.loadSavedPosts();
+    }
+  }
+
+  // Load Saved Posts API
+  loadSavedPosts() {
+    this.isSavedLoading = true;
+    this.profileService.getSavedPosts().subscribe({
+      next: (res) => {
+        this.isSavedLoading = false;
+        if (res.isSuccess) {
+          this.savedPosts = res.data || [];
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isSavedLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -152,7 +188,7 @@ export class ProfileComponent implements OnInit {
       lastName: this.user.profile.lastName,
       headline: this.user.profile.headline,
       bio: this.user.profile.bio,
-      locationId: this.user.profile.locationId || 1 // Default to 1 if null
+      locationId: this.user.profile.locationId || 1 
     });
     this.modalState.basic = true;
   }
@@ -164,7 +200,6 @@ export class ProfileComponent implements OnInit {
     }
     this.isSaving = true;
     
-    // Map to DTO (PascalCase)
     const dto: UpdateBasicProfileDto = {
       FirstName: this.basicForm.value.firstName,
       LastName: this.basicForm.value.lastName,
@@ -178,7 +213,7 @@ export class ProfileComponent implements OnInit {
         this.isSaving = false;
         if (res.isSuccess) {
           this.modalState.basic = false;
-          this.loadProfile(this.user!.profile.firstName); // Reload to reflect changes
+          this.reload(); 
         }
       },
       error: () => this.isSaving = false
@@ -210,7 +245,6 @@ export class ProfileComponent implements OnInit {
     this.isSaving = true;
     const val = this.eduForm.value;
     
-    // DTO Mapping
     if (this.isEditMode && this.selectedItemId) {
       const dto: UpdateEducationDto = {
         EducationId: this.selectedItemId,
@@ -294,7 +328,7 @@ export class ProfileComponent implements OnInit {
   
   openEditSocial(link: any) {
     this.isEditMode = true;
-    this.selectedItemId = link.id || link.linkId; // Handle both id names
+    this.selectedItemId = link.id || link.linkId; 
     this.socialForm.patchValue({
       platform: link.platform,
       url: link.url
@@ -325,8 +359,11 @@ export class ProfileComponent implements OnInit {
     if (!this.isOwner) return;
     const file = event.target.files[0];
     if (file) {
-      this.profileService.uploadAvatar(file).subscribe(res => {
-        if(res.isSuccess) this.reload();
+      this.profileService.uploadAvatar(file).subscribe({
+        next: (res) => {
+          if(res.isSuccess) this.reload();
+        },
+        error: (err) => console.error('Avatar upload failed', err)
       });
     }
   }
@@ -335,15 +372,19 @@ export class ProfileComponent implements OnInit {
     if (!this.isOwner) return;
     const file = event.target.files[0];
     if (file) {
-      this.profileService.uploadCover(file).subscribe(res => {
-        if(res.isSuccess) this.reload();
+      this.profileService.uploadCover(file).subscribe({
+        next: (res) => {
+          if(res.isSuccess) this.reload();
+        },
+        error: (err) => console.error('Cover upload failed', err)
       });
     }
   }
 
   // --- Helpers ---
   reload() {
-    if(this.user) this.loadProfile(this.user.profile.firstName);
+    // Reload using currentUsername
+    if(this.currentUsername) this.loadProfile(this.currentUsername);
   }
 
   handleResponse(res: any, modalKey: keyof typeof this.modalState) {
@@ -377,6 +418,32 @@ export class ProfileComponent implements OnInit {
     if (!url) return 'assets/images/default-cover.jpg';
     if (url.includes('http') || url.startsWith('data:')) return url;
     return `${environment.apiBaseUrl2}/covers/${url}`; 
+  }
+
+  // Helper for Post Images in Feed/Saved
+  resolvePostImage(post: Post): string {
+    if (post.attachments && post.attachments.length > 0) {
+      const url = post.attachments[0].url;
+      if (url.includes('http')) return url;
+      return `${environment.apiBaseUrl3}/${url}`;
+    }
+    return 'assets/images/default-post.jpg'; 
+  }
+
+  // Helper for Author Image
+  getAuthorImage(author: any): string {
+    if (author && typeof author === 'object' && author.imageUrl) {
+        if (author.imageUrl.includes('http')) return author.imageUrl;
+        return `${environment.apiBaseUrl2}/avatars/${author.imageUrl}`;
+    }
+    return 'assets/images/default-avatar.png';
+  }
+
+  // Helper for Author Name
+  getAuthorName(author: any): string {
+    if (!author) return 'Unknown';
+    if (typeof author === 'string') return author;
+    return author.name || author.username || 'NYC360 User';
   }
 
   get displayName() { return this.user ? `${this.user.profile.firstName} ${this.user.profile.lastName}` : ''; }

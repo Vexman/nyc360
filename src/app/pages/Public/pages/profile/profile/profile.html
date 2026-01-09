@@ -39,10 +39,10 @@
       </div>
 
       <div class="profile-tabs">
-        <a [class.active]="activeTab === 'posts'" (click)="activeTab = 'posts'">Posts</a>
-        <a [class.active]="activeTab === 'interests'" (click)="activeTab = 'interests'">Interests</a>
-        <a [class.active]="activeTab === 'about'" (click)="activeTab = 'about'">About</a>
-        <a [class.active]="activeTab === 'saved'" (click)="activeTab = 'saved'">Saved</a>
+        <a [class.active]="activeTab === 'posts'" (click)="switchTab('posts')">Posts</a>
+        <a [class.active]="activeTab === 'interests'" (click)="switchTab('interests')">Interests</a>
+        <a [class.active]="activeTab === 'about'" (click)="switchTab('about')">About</a>
+        <a *ngIf="isOwner" [class.active]="activeTab === 'saved'" (click)="switchTab('saved')">Saved</a>
       </div>
     </div>
 
@@ -53,7 +53,7 @@
            <div class="feed-card create-post" *ngIf="isOwner">
               <div class="cp-row">
                 <img [src]="resolveImage(user.imageUrl)" class="sm-avatar">
-                <div class="fake-input">What's on your mind?</div>
+                <div class="fake-input" routerLink="/public/posts/create">What's on your mind?</div>
               </div>
            </div>
            
@@ -159,11 +159,41 @@
          </div>
       </div>
       
-      <div *ngSwitchCase="'saved'" class="tab-placeholder">
-        <div class="empty-state">
-          <i class="bi bi-bookmark"></i>
-          <h3>Saved Items</h3>
-          <p>No saved items yet.</p>
+      <div *ngSwitchCase="'saved'" class="tab-posts">
+        <div class="feed-grid">
+          
+          <div *ngIf="isSavedLoading" class="loading-center" style="height: 200px;">
+             <div class="spinner"></div>
+          </div>
+
+          <ng-container *ngIf="!isSavedLoading">
+             <div class="feed-card post-card" *ngFor="let post of savedPosts">
+                <div class="post-header" style="padding: 16px; display: flex; align-items: center; gap: 10px;">
+                   <img [src]="getAuthorImage(post.author)" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                   <div style="flex: 1;">
+                      <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700;">{{ getAuthorName(post.author) }}</h4>
+                      <small style="color: #666;">{{ post.createdAt | date:'mediumDate' }}</small>
+                   </div>
+                   <i class="bi bi-bookmark-fill" style="color: #003366;" title="Saved"></i>
+                </div>
+
+                <div class="post-img-container" *ngIf="post.attachments && post.attachments.length > 0">
+                   <img [src]="resolvePostImage(post)" class="post-main-img">
+                </div>
+
+                <div class="post-body">
+                   <h2>{{ post.title }}</h2>
+                   <p>{{ post.content | slice:0:200 }}{{ post.content.length > 200 ? '...' : '' }}</p>
+                </div>
+             </div>
+
+             <div *ngIf="savedPosts.length === 0" class="empty-state">
+                <i class="bi bi-bookmark"></i>
+                <h3>No Saved Items</h3>
+                <p>You haven't saved any posts yet.</p>
+             </div>
+          </ng-container>
+
         </div>
       </div>
 

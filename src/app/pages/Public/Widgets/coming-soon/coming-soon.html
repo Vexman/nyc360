@@ -40,10 +40,10 @@
     <div class="notify-section">
       <p>Be the first to know when we go live:</p>
       
-      <div class="input-group" *ngIf="!isSubscribed; else successMsg">
+      <!-- <div class="input-group" *ngIf="!isSubscribed; else successMsg">
         <input type="email" placeholder="Enter your email address" [(ngModel)]="email">
         <button (click)="onNotify()">Notify Me</button>
-      </div>
+      </div> -->
 
       <ng-template #successMsg>
         <div class="success-message">

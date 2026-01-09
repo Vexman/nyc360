@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { AuthService } from '../../Service/auth'; // تأكد من المسار الصحيح للخدمة
+import { LoginService } from '../../Service/login-service';
 
 @Component({
   selector: 'app-verify-otp',
@@ -28,10 +29,9 @@ export class VerifyOtpComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private authService = inject(AuthService);
+private loginService = inject(LoginService);  // --- State ---
 
-  // --- State ---
-  // 3. تعريف المتغير form لحل مشكلة Property 'form' does not exist
+
   form!: FormGroup; 
   email = '';
   isLoading = false;
@@ -60,7 +60,7 @@ export class VerifyOtpComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.authService.login2FA(this.email, this.form.value.code).subscribe({
+    this.loginService.verify2FA(this.email, this.form.value.code).subscribe({
       next: (res) => {
         this.isLoading = false;
         if (res.isSuccess) {

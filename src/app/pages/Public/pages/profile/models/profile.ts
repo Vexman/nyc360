@@ -1,5 +1,5 @@
-// src/app/pages/Public/pages/profile/models/profile.models.ts
-import { Post } from "../../posts/models/posts";
+// src/app/pages/Public/pages/profile/models/profile.ts
+import { Post } from "../../posts/models/posts"; // Ensure this path is correct based on your project structure
 
 export enum UserType {
   Normal = 0, Organization = 1, Admin = 2
@@ -9,16 +9,16 @@ export enum SocialPlatform {
   Facebook = 0, Twitter = 1, Instagram = 2, LinkedIn = 3, Github = 4, Youtube = 5, Website = 6, Other = 7
 }
 
-// --- Display Models (From GET Response) ---
+// --- Display Models ---
 export interface UserSocialLink {
-  id?: number; // Some APIs return Id, others LinkId
+  id?: number; 
   linkId?: number; 
   platform: SocialPlatform;
   url: string;
 }
 
 export interface Position {
-  id: number; // Mapped from backend (PositionId)
+  id: number;
   title: string;
   company: string;
   startDate: string;
@@ -27,7 +27,7 @@ export interface Position {
 }
 
 export interface Education {
-  id: number; // Mapped from backend (EducationId)
+  id: number;
   school: string;
   degree: string;
   fieldOfStudy?: string;
@@ -66,7 +66,7 @@ export interface UserProfileData {
   profile: ProfileDetails;
 }
 
-// --- Request DTOs (Strictly PascalCase if API requires it, or mapped in Service) ---
+// --- Request DTOs ---
 export interface UpdateBasicProfileDto {
   FirstName: string;
   LastName: string;

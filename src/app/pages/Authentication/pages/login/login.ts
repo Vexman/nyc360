@@ -1,10 +1,12 @@
+// src/app/pages/Authentication/pages/login/login.component.ts
+
 import { Component, inject, OnInit, AfterViewInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { trigger, style, animate, transition } from '@angular/animations'; // Import animation
-import { AuthService } from '../../Service/auth';
+import { trigger, style, animate, transition } from '@angular/animations'; 
 import { LoginRequest } from '../../models/auth';
+import { LoginService } from '../../Service/login-service';
 
 declare var google: any;
 
@@ -14,7 +16,7 @@ declare var google: any;
   imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
-  animations: [ // Add this block
+  animations: [
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(20px)' }),
@@ -24,8 +26,9 @@ declare var google: any;
   ]
 })
 export class LoginComponent implements OnInit, AfterViewInit {
-  // ... (نفس الكود اللي عندك في ملف الـ TS، فقط تأكد من جزء الـ animations بالأعلى)
-  private authService = inject(AuthService);
+  
+  // ✅ Inject LoginService instead of AuthService for login actions
+  private loginService = inject(LoginService); 
   private router = inject(Router);
   private ngZone = inject(NgZone); 
 
@@ -56,11 +59,13 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.ngZone.run(() => {
       this.isLoading = true;
       this.errorMessage = null;
-      this.authService.loginWithGoogleBackend(response.credential).subscribe({
+      
+      // ✅ Use LoginService
+      this.loginService.loginWithGoogle(response.credential).subscribe({
         next: (res) => {
           this.isLoading = false;
           if (res.isSuccess) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/']); // Navigate to home/dashboard
           } else {
             this.errorMessage = res.error?.message || 'Google login failed.';
           }
@@ -76,12 +81,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
   onSubmit() {
     this.isLoading = true;
     this.errorMessage = null;
-    this.authService.login(this.loginData).subscribe({
+
+    // ✅ Use LoginService
+    this.loginService.login(this.loginData).subscribe({
       next: (response) => {
         this.isLoading = false;
         if (response.isSuccess) {
           if (response.data.twoFactorRequired) {
-            this.router.navigate(['/verify-otp'], { queryParams: { email: this.loginData.email } });
+            this.router.navigate(['/auth/verify-otp'], { queryParams: { email: this.loginData.email } });
           } else {
             this.router.navigate(['/public/home']); 
           }

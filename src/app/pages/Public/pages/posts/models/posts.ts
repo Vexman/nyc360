@@ -17,7 +17,7 @@ export interface PostAuthor {
   id: number;
   username?: string;
   fullName?: string;
-  name?: string; 
+  name?: string; // ✅ Added based on API Response
   imageUrl?: string;
   type?: number;
 }
@@ -54,8 +54,15 @@ export interface Post {
   stats?: PostStats;
   comments?: PostComment[];
   attachments?: PostAttachment[];
+  
+  // Interaction & State
   currentUserInteraction?: InteractionType | null; 
-  userInteraction?: InteractionType | null;
+  userInteraction?: InteractionType | null; // For UI mapping
+  
+  // ✅ Backend Field
+  isSavedByUser?: boolean; 
+  // ✅ UI State Field
+  isSaved?: boolean; 
 }
 
 export interface InterestGroup {
@@ -63,14 +70,11 @@ export interface InterestGroup {
   posts: Post[];
 }
 
-// ✅ تعديل هنا: إضافة ID وحقول الحالة للواجهة
 export interface CommunitySuggestion {
-  id: number;          // ضروري لعمل Join
+  id: number;          
   name: string;
   slug: string;
-  memberCount?: number; // لعرض عدد الأعضاء
-  
-  // UI States
+  memberCount?: number; 
   isJoined?: boolean;
   isLoadingJoin?: boolean;
 }
@@ -82,8 +86,6 @@ export interface FeedData {
   suggestedCommunities: CommunitySuggestion[];
   trendingTags: string[];
 }
-
-export type TagPostsResponse = Post[];
 
 export interface ApiResponse<T> {
   isSuccess: boolean;

@@ -1,6 +1,6 @@
 // src/app/pages/Public/pages/profile/services/profile.service.ts
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import {
@@ -8,6 +8,7 @@ import {
   AddEducationDto, UpdateEducationDto, AddPositionDto, UpdatePositionDto,
   SocialLinkDto, Toggle2FADto
 } from '../models/profile';
+import { Post } from '../../posts/models/posts';
 
 @Injectable({
   providedIn: 'root'
@@ -15,21 +16,24 @@ import {
 export class ProfileService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiBaseUrl}/users`;
+  private postsBaseUrl = `${environment.apiBaseUrl}/posts`;
 
   // 1. GET Full Profile
   getProfile(username: string): Observable<ApiResponse<UserProfileData>> {
     return this.http.get<ApiResponse<UserProfileData>>(`${this.baseUrl}/profile/${encodeURIComponent(username)}`);
   }
 
-  // 2. Images (Multipart)
+  // ✅ 2. Images (Multipart) - Fixed & Verified
   uploadAvatar(file: File): Observable<ApiResponse<string>> {
     const formData = new FormData();
-    formData.append('Avatar', file);
+    // Key must match API: "Avatar"
+    formData.append('Avatar', file); 
     return this.http.post<ApiResponse<string>>(`${this.baseUrl}/profile/avatar`, formData);
   }
 
   uploadCover(file: File): Observable<ApiResponse<string>> {
     const formData = new FormData();
+    // Key must match API: "Cover"
     formData.append('Cover', file);
     return this.http.post<ApiResponse<string>>(`${this.baseUrl}/profile/cover`, formData);
   }
@@ -78,5 +82,13 @@ export class ProfileService {
   toggle2FA(enable: boolean): Observable<ApiResponse<void>> {
     const body: Toggle2FADto = { Enable: enable };
     return this.http.post<ApiResponse<void>>(`${this.baseUrl}/me/toggle-2fa`, body);
+  }
+
+  // 8. GET Saved Posts
+  getSavedPosts(page: number = 1, pageSize: number = 20): Observable<ApiResponse<Post[]>> {
+    const params = new HttpParams()
+      .set('Page', page)
+      .set('PageSize', pageSize);
+    return this.http.get<ApiResponse<Post[]>>(`${this.postsBaseUrl}/saved`, { params });
   }
 }

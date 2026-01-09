@@ -2,6 +2,7 @@
 $bg-color: #F5F7FA;
 $card-bg: #FFFFFF;
 $text-dark: #1A1A1A;
+$primary-orange: #FF7F50; // اللون بتاعك
 $radius: 16px;
 $font-family: 'Inter', sans-serif;
 
@@ -24,12 +25,51 @@ $font-family: 'Inter', sans-serif;
   gap: 30px;
   max-width: 1400px;
   margin: 0 auto;
+  align-items: start; // يخلي ال sidebar ميتمددش مع المحتوى
 }
 
 // --- Main Content Styles ---
 .main-content {
   .page-title {
     font-size: 24px; font-weight: 800; color: $text-dark; margin-bottom: 20px;
+  }
+}
+
+// ✅ Common Save Button Style
+.save-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+  i {
+    font-size: 16px;
+    color: #666;
+    transition: color 0.2s;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    background: #fff;
+    i { color: #333; }
+  }
+
+  &.saved {
+    background: #fff;
+    i {
+      color: $primary-orange; // Orange when saved
+    }
   }
 }
 
@@ -204,52 +244,66 @@ $font-family: 'Inter', sans-serif;
 }
 
 // =======================
-// Responsive Breakpoints (Updated)
+// ✅ Responsive Breakpoints (Updated)
 // =======================
 
-// Tablet (Less than 1200px and down to 768px)
+// Large Desktops (No changes mostly)
 @media (max-width: 1200px) {
     .category-block .posts-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
+// Tablets & Smaller Laptops
 @media (max-width: 992px) {
-  .layout-grid { grid-template-columns: 1fr; }
-  .sidebar { display: none; } // Keep hidden to focus on feed as per user request
+  .layout-grid { 
+    grid-template-columns: 1fr; // Make layout single column
+  }
+  
+  // Don't hide sidebar, move it down but keep it visible
+  .sidebar {
+    display: flex; // Show it
+    margin-top: 30px;
+  }
+  
   .featured-row { grid-template-columns: repeat(2, 1fr); }
   .category-block .posts-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-// Mobile (Less than 768px)
+// Mobile Phones
 @media (max-width: 768px) {
-  .home-container { padding: 15px; } // Reduced padding for mobile
+  .home-container { padding: 15px; } 
   
   .featured-row { 
     grid-template-columns: 1fr; 
-    .feat-card { height: 200px; }
+    .feat-card { height: 240px; } // Taller for better touch target
   }
 
   .hero-section .hero-card { 
-      height: 250px; // Smaller hero on mobile
+      height: 280px; 
       .play-icon { width: 50px; height: 50px; font-size: 24px; }
-      .hero-overlay { padding: 20px; h2 { font-size: 20px; } p { display: none; } } // Hide desc on small screens
+      .hero-overlay { padding: 20px; h2 { font-size: 20px; } p { display: none; } } 
   }
 
   .category-block {
      .posts-grid { 
-        grid-template-columns: 1fr; // Single column feed
-        .std-card { height: 240px; }
+       grid-template-columns: 1fr; 
+       .std-card { height: 260px; }
      }
   }
 
+  // Fix Horizontal cards on mobile to stack
   .highlights-section {
     .horizontal-cards-list .horizontal-card { 
         flex-direction: column; height: auto; 
+        
         .h-img-wrapper { width: 100%; height: 200px; min-width: auto; }
-        .h-content { padding: 20px; .h-title { font-size: 18px; } }
+        .h-content { 
+          padding: 20px; 
+          .h-title { font-size: 18px; } 
+        }
     }
   }
 
-  // Toast on Mobile: Center Top
+  // Toast center on mobile
   .toast-container {
       top: 10px; left: 50%; right: auto; transform: translateX(-50%); width: 90%;
       align-items: center;
