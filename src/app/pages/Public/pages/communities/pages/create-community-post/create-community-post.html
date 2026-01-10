@@ -24,7 +24,7 @@
       <textarea 
         class="main-input" 
         rows="5" 
-        placeholder="What's happening in your community?"
+        placeholder="What's happening?"
         [(ngModel)]="content">
       </textarea>
 
@@ -37,7 +37,7 @@
 
       <div class="tags-container" *ngIf="tags.length > 0">
         <span class="tag-chip" *ngFor="let tag of tags; let i = index">
-          <i class="bi bi-geo-alt-fill"></i> {{ tag }}
+          <i class="bi bi-hash"></i> {{ tag }}
           <button (click)="removeTag(i)">&times;</button>
         </span>
       </div>
@@ -50,27 +50,18 @@
             <input type="file" multiple hidden accept="image/*" (change)="onImageSelected($event)">
           </label>
 
-          <div class="location-search-wrapper">
-             <div class="search-input-box">
-                <i class="bi bi-geo-alt text-danger"></i>
+          <div class="tag-input-wrapper">
+             <div class="input-box">
+                <i class="bi bi-hash text-primary"></i>
                 <input 
                   type="text" 
-                  placeholder="Tag a location..." 
-                  [value]="locationQuery"
-                  (input)="onSearchInput($event)">
-             </div>
-
-             <div class="search-dropdown" *ngIf="showLocationDropdown && locationResults.length > 0">
-                <div 
-                  class="dropdown-item" 
-                  *ngFor="let loc of locationResults" 
-                  (click)="selectLocation(loc)">
-                   <div class="icon"><i class="bi bi-geo-alt"></i></div>
-                   <div class="text">
-                      <span class="main-text">{{ loc.neighborhood }}</span>
-                      <span class="sub-text">{{ loc.borough }} - {{ loc.zipCode }}</span>
-                   </div>
-                </div>
+                  placeholder="Add tags..." 
+                  [(ngModel)]="currentTagInput"
+                  (keyup)="onTagKeyup($event)">
+                
+                <button class="btn-add-tag" *ngIf="currentTagInput.trim().length > 0" (click)="addTag()">
+                  <i class="bi bi-plus"></i>
+                </button>
              </div>
           </div>
 

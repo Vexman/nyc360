@@ -29,8 +29,8 @@ export class Home implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   // Data
-  featuredPosts: Post[] = [];      // Top 3 cards
-  heroBanner: Post | null = null;   // The big card below them
+  featuredPosts: Post[] = [];      
+  heroBanner: Post | null = null;   
   interestGroups: InterestGroup[] = []; 
   trendingTags: string[] = [];
   suggestedCommunities: CommunitySuggestion[] = [];
@@ -95,6 +95,7 @@ export class Home implements OnInit {
     });
   }
 
+  // Helper check (Used mainly for Hero selection logic)
   private hasValidImage(post: Post): boolean {
     if (post.imageUrl && post.imageUrl.trim() !== '') return true;
     if (post.attachments && post.attachments.length > 0) {
@@ -106,33 +107,33 @@ export class Home implements OnInit {
 
   processData(data: FeedData) {
     const rawFeatured = data.featuredPosts || [];
-    const validFeatured = rawFeatured.filter(p => this.hasValidImage(this.normalizePost(p)));
     
-    // 1. Top 3 Small Cards (Featured)
-    this.featuredPosts = validFeatured.slice(0, 3);
+    // ✅ 1. Featured Section: Take exactly 4 items (Image logic handled in resolvePostImage)
+    this.featuredPosts = rawFeatured.map(p => this.normalizePost(p)).slice(0, 4);
 
-    // 2. Hero Banner (The Big Card Below)
-    // First try discoveryPosts, if empty try the 4th featured post
+    // Hero Banner Logic (Must have an image to be a hero)
     const rawDiscovery = data.discoveryPosts || [];
     const validDiscovery = rawDiscovery.filter(p => this.hasValidImage(this.normalizePost(p)));
+    const validFeatured = rawFeatured.filter(p => this.hasValidImage(this.normalizePost(p)));
 
     if (validDiscovery.length > 0) {
       this.heroBanner = validDiscovery[0];
-    } else if (validFeatured.length > 3) {
-      this.heroBanner = validFeatured[3]; // Fallback to 4th featured post if available
+    } else if (validFeatured.length > 4) { 
+      this.heroBanner = validFeatured[4]; 
     } else {
-        this.heroBanner = null; // Hide if no data
+        this.heroBanner = null; 
     }
 
-    // 3. Interest Groups
+    // Interest Groups Logic
     this.interestGroups = (data.interestGroups || []).map(group => {
       const validGroupPosts = group.posts
         .map(p => this.normalizePost(p))
-        .filter(p => this.hasValidImage(p));
+        .filter(p => this.hasValidImage(p)); 
+        
       return { ...group, posts: validGroupPosts };
     }).filter(g => g.posts.length > 0);
 
-    // 4. Highlighted Posts (Horizontal)
+    // Highlights Logic
     this.highlightedPosts = [];
     this.interestGroups.forEach(group => {
       if (group.posts.length > 0) {
@@ -194,6 +195,7 @@ export class Home implements OnInit {
   }
   removeToast(id: number) { this.toasts = this.toasts.filter(t => t.id !== id); this.cdr.detectChanges(); }
 
+  // Helpers
   private normalizePost(post: any): Post {
     if (!post.stats) post.stats = { views: 0, likes: 0, dislikes: 0, comments: 0, shares: 0 };
     if (post.isSaved === undefined) post.isSaved = (post.isSavedByUser === true);
@@ -206,23 +208,44 @@ export class Home implements OnInit {
     return author.name || author.username || 'NYC360';
   }
 
-  getAuthorImage(author: PostAuthor | string | undefined | null): string {
-    if (typeof author === 'object' && author?.imageUrl) {
-        if (author.imageUrl.includes('http')) return author.imageUrl;
-        return `${this.environment.apiBaseUrl3}/${author.imageUrl}`;
-    }
-    return 'assets/images/default-avatar.png';
-  }
-
   getCategoryName(id: number): string {
     const cat = this.categories.find(c => c.id === id);
     return cat ? cat.name : 'General';
   }
 
+  // ============================================
+  // 🔥 دوال معالجة الصور (الذكية)
+  // ============================================
+
+  getAuthorImage(author: PostAuthor | string | undefined | null): string {
+    if (typeof author === 'object' && author?.imageUrl) {
+        let url = author.imageUrl;
+        // لو الرابط لينك خارجي رجعه زي ما هو
+        if (url.startsWith('http') || url.startsWith('https')) return url;
+        
+        // لو الرابط محلي، ضيف مسار السيرفر
+        return `${this.environment.apiBaseUrl3}/${url}`;
+    }
+    return 'assets/images/default-avatar.png';
+  }
+
   resolvePostImage(post: Post): string {
     const attachment = post.attachments?.[0];
-    const url = attachment?.url || post.imageUrl;
-    if (url && url.includes('@local://')) return `${this.environment.apiBaseUrl3}/${url.replace('@local://', '')}`;
-    return url && url.startsWith('http') ? url : `${this.environment.apiBaseUrl3}/${url}`;
+    let url = attachment?.url || post.imageUrl;
+
+    // 1. لو مفيش صورة، رجع صورة احتياطية (Placeholder)
+    if (!url || url.trim() === '') return 'assets/images/placeholder-news.jpg';
+
+    // 2. تنظيف المسار من @local://
+    url = url.replace('@local://', '');
+
+    // 3. 🔥 الفحص الذكي:
+    // لو الرابط بيبدأ بـ http يعني ده لينك خارجي -> رجعه زي ما هو
+    if (url.startsWith('http') || url.startsWith('https')) {
+        return url;
+    }
+
+    // 4. لو الرابط مش http يعني ده اسم ملف محلي -> ضيف مسار السيرفر والفولدر posts
+    return `${this.environment.apiBaseUrl3}/${url}`;
   }
 }

@@ -2,8 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { CommunityPostService, LocationSearchResult } from '../../services/community-post';
-import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { CommunityPostService } from '../../services/community-post';
 
 @Component({
   selector: 'app-create-community-post',
@@ -21,15 +20,12 @@ export class CreateCommunityPostComponent implements OnInit {
 
   // Data
   communityId: number = 0;
-  title: string = '';        // ✅ Added Title
+  title: string = '';
   content: string = '';
   
-  // Tags & Location Logic
-  tags: string[] = [];       // ✅ Tags array to send to backend
-  locationQuery: string = '';
-  locationResults: LocationSearchResult[] = [];
-  showLocationDropdown = false;
-  searchSubject = new Subject<string>(); // For Debouncing
+  // Tags Logic (Manual String Tags)
+  tags: string[] = [];
+  currentTagInput: string = ''; 
 
   // Images
   images: File[] = [];
@@ -39,57 +35,29 @@ export class CreateCommunityPostComponent implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) this.communityId = +id;
-
-    // ✅ Setup Live Search with Debounce
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap(query => {
-        if (!query || query.length < 2) return [];
-        return this.postService.searchLocations(query);
-      })
-    ).subscribe({
-      next: (res: any) => {
-        if (Array.isArray(res.data)) {
-          this.locationResults = res.data;
-          this.showLocationDropdown = true;
-        } else {
-          this.locationResults = [];
-        }
-      },
-      error: () => this.locationResults = []
-    });
   }
 
-  // --- Location Search ---
-  onSearchInput(event: any) {
-    const val = event.target.value;
-    this.locationQuery = val;
-    if (val.length >= 2) {
-      this.searchSubject.next(val);
-    } else {
-      this.showLocationDropdown = false;
+  // --- Tags Management ---
+  addTag() {
+    const val = this.currentTagInput.trim();
+    if (val && !this.tags.includes(val)) {
+      this.tags.push(val);
+      this.currentTagInput = ''; // تفريغ الحقل
     }
   }
 
-  selectLocation(loc: LocationSearchResult) {
-    // هنضيف اسم المكان كـ تاج (Tag)
-    // وممكن نضيفه للكود او العنوان
-    const locTag = loc.neighborhood || loc.borough;
-    if (!this.tags.includes(locTag)) {
-      this.tags.push(locTag);
+  onTagKeyup(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // منع سطر جديد
+      this.addTag();
     }
-    
-    // Reset Search
-    this.locationQuery = '';
-    this.showLocationDropdown = false;
   }
 
   removeTag(index: number) {
     this.tags.splice(index, 1);
   }
 
-  // --- Images ---
+  // --- Images Management ---
   onImageSelected(event: any) {
     if (event.target.files && event.target.files.length > 0) {
       const files = Array.from(event.target.files) as File[];
@@ -121,20 +89,20 @@ export class CreateCommunityPostComponent implements OnInit {
       communityId: this.communityId,
       title: this.title,
       content: this.content,
-      tags: this.tags, // ✅ Sending Locations inside Tags
+      tags: this.tags,        // إرسال التاجات كنصوص
       attachments: this.images
     }).subscribe({
       next: (res) => {
         this.isPosting = false;
         if (res.isSuccess) {
-          this.locationService.back();
+          this.locationService.back(); // العودة للصفحة السابقة عند النجاح
         } else {
           alert(res.error?.message || 'Failed to create post');
         }
       },
       error: () => {
         this.isPosting = false;
-        alert('Network error');
+        alert('Network error, please try again.');
       }
     });
   }
