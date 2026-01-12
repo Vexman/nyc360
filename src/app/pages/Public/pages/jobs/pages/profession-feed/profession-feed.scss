@@ -1,0 +1,31 @@
+$primary-green: #00695C; 
+$bg-mint: #E0F2F1;
+$radius: 16px;
+$font-header: 'Merriweather', serif;
+
+.profession-feed-page { background: #fcfdfd; min-height: 100vh; }
+.merriweather-font { font-family: $font-header; color: #2c2c2c; }
+
+.page-header {
+  background: $bg-mint; padding: 80px 20px;
+  h1 { font-size: 3.5rem; color: #3c6e61; }
+  p { color: #5a8a7d; font-size: 1.2rem; }
+}
+
+.btn-view-all {
+  font-weight: 700; color: #5a8a7d; text-decoration: none; border: 1.5px solid #ddd;
+  padding: 8px 24px; border-radius: 50px; font-size: 0.85rem;
+  transition: 0.3s;
+  &:hover { border-color: $primary-green; color: $primary-green; }
+  &.text-white { border-color: rgba(255,255,255,0.4); &:hover { border-color: #fff; } }
+}
+
+.hiring-section {
+  background: #2D8A6D; border-radius: $radius; 
+  @media (max-width: 768px) { padding: 30px 20px; }
+}
+
+.job-card-white {
+  background: #fff; border-radius: 12px; cursor: pointer; transition: 0.3s;
+  &:hover { transform: translateY(-5px); }
+}

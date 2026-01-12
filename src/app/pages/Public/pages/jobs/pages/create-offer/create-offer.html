@@ -1,0 +1,135 @@
+<div class="create-offer-page">
+  <header class="page-header">
+    <div class="container">
+      <small>NYC360 PROFESSION</small>
+      <h1>New Job Opportunity</h1>
+      <p>Fill out all fields to publish your job offer.</p>
+    </div>
+  </header>
+
+  <div class="container form-container">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      
+      <div class="form-card">
+        <h3><i class="bi bi-briefcase-fill"></i> Position Details</h3>
+        
+        <div class="form-group">
+          <label>Job Title <span class="req">*</span></label>
+          <input type="text" formControlName="title" placeholder="e.g. Senior Software Engineer">
+          <div class="err" *ngIf="form.get('title')?.touched && form.get('title')?.invalid">Job Title is required (min 5 characters).</div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Employment Type</label>
+              <select formControlName="employmentType">
+                <option [value]="0">Full-time</option>
+                <option [value]="1">Part-time</option>
+                <option [value]="2">Contract</option>
+                <option [value]="3">Internship</option>
+                <option [value]="4">Freelance</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Work Arrangement</label>
+              <select formControlName="workArrangement">
+                <option [value]="0">On-site</option>
+                <option [value]="1">Remote</option>
+                <option [value]="2">Hybrid</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Experience Level</label>
+              <select formControlName="employmentLevel">
+                <option [value]="1">Junior</option>
+                <option [value]="2">Mid-Level</option>
+                <option [value]="3">Senior-Mid</option>
+                <option [value]="4">Senior</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card green-accent">
+        <h3><i class="bi bi-geo-alt-fill"></i> Location & Salary</h3>
+        
+        <div class="form-group search-container">
+          <label>Job Location <span class="req">*</span></label>
+          <div class="input-icon">
+            <i class="bi bi-search"></i>
+            <input type="text" [formControl]="locationSearchControl" placeholder="Search neighborhood...">
+            <div class="loader" *ngIf="isSearchingLocation"></div>
+          </div>
+          <div class="err" *ngIf="form.get('locationId')?.touched && form.get('locationId')?.invalid">Please select a location from the search results.</div>
+          
+          <div class="search-dropdown" *ngIf="showLocationResults">
+            <div class="result-item" *ngFor="let loc of locationResults" (click)="selectLocation(loc)">
+              <strong>{{ loc.neighborhood }}</strong>
+              <span>{{ loc.borough }}, {{ loc.zipCode }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Min Salary (USD)</label>
+              <input type="number" formControlName="salaryMin" placeholder="0">
+              <div class="err" *ngIf="form.get('salaryMin')?.touched && form.get('salaryMin')?.invalid">Salary is required.</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Max Salary (USD)</label>
+              <input type="number" formControlName="salaryMax" placeholder="0">
+              <div class="err" *ngIf="form.get('salaryMax')?.touched && form.get('salaryMax')?.invalid">Salary is required.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3><i class="bi bi-card-text"></i> Job Description</h3>
+        
+        <div class="form-group">
+          <label>General Description <span class="req">*</span></label>
+          <textarea formControlName="description" rows="4" placeholder="Overview of the role..."></textarea>
+          <div class="err" *ngIf="form.get('description')?.touched && form.get('description')?.invalid">Description is required.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Key Responsibilities <span class="req">*</span></label>
+          <textarea formControlName="responsibilities" rows="4" placeholder="List the daily tasks..."></textarea>
+          <div class="err" *ngIf="form.get('responsibilities')?.touched && form.get('responsibilities')?.invalid">Responsibilities are required.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Requirements <span class="req">*</span></label>
+          <textarea formControlName="requirements" rows="4" placeholder="Skills, education, etc..."></textarea>
+          <div class="err" *ngIf="form.get('requirements')?.touched && form.get('requirements')?.invalid">Requirements are required.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Benefits <span class="req">*</span></label>
+          <textarea formControlName="benefits" rows="3" placeholder="Insurance, equity, etc..."></textarea>
+          <div class="err" *ngIf="form.get('benefits')?.touched && form.get('benefits')?.invalid">Benefits are required.</div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <button type="button" class="btn-cancel" routerLink="/public/profession">Cancel</button>
+        <button type="submit" class="btn-create" [disabled]="isSubmitting">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isSubmitting ? 'Posting...' : 'Create Job Offer' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

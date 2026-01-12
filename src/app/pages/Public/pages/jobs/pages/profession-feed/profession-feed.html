@@ -1,0 +1,73 @@
+<div class="profession-feed-page">
+  
+  <header class="page-header">
+    <div class="container text-center">
+      <small class="text-uppercase tracking-wider">Welcome at NYC360</small>
+      <h1 class="merriweather-font display-4 fw-bold my-3">Profession</h1>
+      <p class="lead mx-auto" style="max-width: 650px;">
+        Opportunities, career insights, and professional life in New York City.
+      </p>
+    </div>
+  </header>
+
+  <div class="container py-5" *ngIf="!isLoading && feedData">
+    
+    <section class="mb-5" *ngIf="feedData.heroArticle">
+      <app-article-hero
+        [image]="getArticleImage(feedData.heroArticle)"
+        [title]="feedData.heroArticle.title"
+        [description]="feedData.heroArticle.content"
+        [metaText]="'Published: ' + (feedData.heroArticle.createdAt | date:'MMM d, y')"
+        [link]="['/public/post-details', feedData.heroArticle.id]"
+        [customColor]="'#00695C'">
+      </app-article-hero>
+    </section>
+
+    <section class="mt-5" *ngIf="feedData.careerArticles && feedData.careerArticles.length > 0">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="merriweather-font h3 border-start border-4 border-success ps-3">Career Path Articles</h2>
+        <a routerLink="#" class="btn-view-all">View All</a>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6" *ngFor="let article of feedData.careerArticles">
+          <app-article-grid-card
+            [image]="getArticleImage(article)"
+            [title]="article.title"
+            [description]="article.content"
+            [link]="['/public/post-details', article.id]"
+            [customColor]="'#26A69A'">
+          </app-article-grid-card>
+        </div>
+      </div>
+    </section>
+
+    <section class="hiring-section mt-5 p-5 shadow-lg">
+      <div class="d-flex justify-content-between align-items-center mb-4 text-white">
+        <h2 class="merriweather-font h3 m-0">Hiring News</h2>
+        <a routerLink="/public/profession/jobs" class="btn-view-all text-white border-white">View All</a>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6" *ngFor="let job of feedData.hiringNews">
+          <div class="job-card-white shadow-sm" [routerLink]="['/public/job-profile', job.id]">
+            <div class="p-4">
+              <h4 class="fw-bold mb-3">"{{ job.companyName }} is expanding their NYC office"</h4>
+              <p class="text-secondary small mb-4">
+                Explore the latest roles and career opportunities at {{ job.companyName }}.
+              </p>
+              <div class="d-flex align-items-center text-success fw-bold small">
+                See Open Roles <i class="bi bi-arrow-right ms-2"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="text-center py-5" *ngIf="feedData.careerArticles?.length === 0">
+        <p class="text-muted italic">No career articles available at the moment.</p>
+    </div>
+
+  </div>
+</div>
