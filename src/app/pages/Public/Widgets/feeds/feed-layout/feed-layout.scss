@@ -1,179 +1,239 @@
-:host {
-  // الألوان اللي طلبتها
-  --primary-color: #ff7f50;      // $primary-orange
-  --primary-hover: #e66a3c;      // $primary-hover
-  --bg-header: #fff0e6;          // $bg-header
-  --text-dark: #2c2c2c;          // $text-dark
-  --text-gray: #666;             // $text-gray
-  --white: #ffffff;              // $white
-  --radius: 16px;                // $radius
-  --font-header: 'Merriweather', serif;
-  --font-body: 'Inter', sans-serif;
+// 1. Variables
+$font-header: 'Merriweather', serif;
+$font-body: 'Inter', sans-serif;
+$primary: var(--primary-color, #ff7f50); // Dynamic Color
+$dark: #1f2937;
+$gray: #6b7280;
+$light: #f3f4f6;
+$white: #ffffff;
+$radius: 16px;
 
+// 2. Mixins & Animations (Moved to Top)
+@mixin shimmer {
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background-size: 1000px 100%;
+}
+
+@keyframes shimmer { 
+  0% { background-position: -1000px 0; } 
+  100% { background-position: 1000px 0; } 
+}
+
+// 3. Global Host Styles
+:host {
   display: block;
   min-height: 100vh;
-  background-color: #f8f9fa;
-  font-family: var(--font-body);
-  padding-bottom: 80px;
+  background-color: #f9fafb; // Very light gray bg
+  font-family: $font-body;
+  padding-bottom: 100px;
 }
 
-.feed-container {
-  max-width: 1200px;
+.feed-layout-container {
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 30px 20px;
+  padding: 40px 20px;
 }
 
-// Title
-.page-title {
-  font-family: var(--font-header);
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--text-dark);
-  margin-bottom: 1.5rem;
+// 4. Header & Floating Search
+.header-section {
   position: relative;
-  display: inline-block;
-  &::after {
-    content: ''; position: absolute; bottom: 0; left: 0; width: 60px; height: 6px; background: var(--primary-color); border-radius: 3px;
+  margin-bottom: 60px;
+  text-align: center;
+
+  .page-title {
+    font-family: $font-header;
+    font-size: 3rem;
+    font-weight: 900;
+    color: $dark;
+    margin-bottom: 30px;
+    letter-spacing: -1px;
   }
-}
 
-// Search
-.search-wrapper {
-  position: sticky; top: 20px; z-index: 50;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(0,0,0,0.08);
-  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
-  border-radius: 50px;
-  padding: 8px 10px;
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 40px;
+  .search-floater {
+    position: sticky; // Sticky Magic
+    top: 20px;
+    z-index: 100;
+    
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px); // Glassmorphism
+    -webkit-backdrop-filter: blur(12px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+    
+    border-radius: 50px;
+    padding: 8px;
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s ease;
 
-  .input-group {
-    flex: 1; display: flex; align-items: center; padding: 0 20px;
-    border-right: 1px solid #eee;
-    &:last-child { border-right: none; }
-    i { color: #9ca3af; font-size: 1.2rem; margin-right: 10px; }
-    input { 
-      width: 100%; border: none; background: transparent; outline: none; font-size: 1rem; 
-      &::placeholder { color: #9ca3af; }
+    &:focus-within {
+      transform: translateY(-2px);
+      box-shadow: 0 25px 50px -10px rgba(var(--primary-color), 0.15);
+      border-color: rgba($primary, 0.3);
     }
-  }
 
-  .btn-search {
-    width: 45px; height: 45px; border-radius: 50%; border: none;
-    background: var(--primary-color); color: white; cursor: pointer; transition: transform 0.2s;
-    &:hover { transform: scale(1.1); background: var(--primary-hover); }
-    i { font-size: 1.2rem; }
-  }
-}
-
-.dropdown-list {
-  position: absolute; top: 120%; left: 20px; width: 90%;
-  background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); overflow: hidden; z-index: 100;
-  .item { padding: 12px 20px; cursor: pointer; &:hover { background: var(--bg-header); color: var(--primary-color); } }
-}
-
-.posts-grid {
-  display: grid; gap: 25px;
-  grid-template-columns: 1fr;
-  @media (min-width: 768px) { grid-template-columns: repeat(2, 1fr); }
-  @media (min-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
-}
-
-// --- CARD STYLES ---
-.card {
-  background: var(--white);
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid #f0f0f0;
-  display: flex; flex-direction: column;
-  transition: all 0.3s ease;
-  height: 100%;
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-    border-color: rgba(255, 127, 80, 0.2);
-  }
-
-  .card-header {
-    padding: 16px; display: flex; align-items: center; gap: 12px;
-    
-    .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--bg-header); }
-    
-    .meta { 
-      flex: 1; display: flex; flex-direction: column;
-      .name { font-weight: 700; font-size: 0.9rem; color: var(--text-dark); }
-      .date { font-size: 0.75rem; color: var(--text-gray); }
-    }
-    
-    // Badges Container
-    .badges-container {
-      display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
+    .search-box, .location-box {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      position: relative;
       
-      .badge-pill {
-        font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-        padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px;
-        display: inline-block;
-        // Background color comes from HTML binding
-      }
-
-      .badge-type {
-        background: #f3f4f6; color: #555; font-size: 0.6rem;
-      }
-
-      .badge-text {
-        font-size: 0.7rem; color: #999; display: flex; align-items: center; gap: 3px;
-        i { color: var(--primary-color); font-size: 0.75rem; }
+      i { font-size: 1.1rem; margin-right: 12px; }
+      input {
+        width: 100%; border: none; background: transparent; outline: none;
+        font-size: 1rem; color: $dark; font-weight: 500;
+        &::placeholder { color: #9ca3af; font-weight: 400; }
       }
     }
-  }
 
-  // With Image
-  &.has-image {
-    .card-img-wrapper {
-      height: 200px; width: 100%; overflow: hidden; position: relative;
-      img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-      &:hover img { transform: scale(1.05); }
-      .shared-label { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; }
-    }
-    .card-body { padding: 16px; .title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; line-height: 1.4; font-family: var(--font-header); color: var(--text-dark); } }
-  }
+    .divider { width: 1px; height: 30px; background: #e5e7eb; }
 
-  // Text Only (Special Design)
-  &.text-only {
-    background: linear-gradient(135deg, var(--white) 0%, #fafafa 100%);
-    border-left: 5px solid var(--primary-color);
-    .card-body { 
-      padding: 24px 20px; flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative;
+    .btn-go {
+      background: $dark; color: white; border: none;
+      width: 48px; height: 48px; border-radius: 50%;
+      font-weight: 700; cursor: pointer; transition: 0.2s;
+      &:hover { background: $primary; transform: scale(1.05); }
     }
-    .title {
-      font-family: var(--font-header); font-size: 1.35rem; font-weight: 800; color: var(--primary-color); margin-bottom: 15px; line-height: 1.3;
-    }
-    .text-content { font-size: 1rem; color: var(--text-dark); line-height: 1.6; opacity: 0.9; }
-    &::after {
-      content: '"'; position: absolute; bottom: 10px; right: 20px;
-      font-size: 80px; font-family: serif; color: var(--primary-color); opacity: 0.06; pointer-events: none;
+
+    // Dropdown
+    .loc-dropdown {
+      position: absolute; top: 120%; left: 0; width: 100%;
+      background: white; border-radius: 12px; padding: 10px;
+      border: 1px solid #eee;
+      .loc-item {
+        padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+        &:hover { background: #f3f4f6; color: $primary; }
+      }
     }
   }
 }
 
-// Pagination & Skeleton
-.pagination {
-  margin-top: 50px; display: flex; justify-content: center; gap: 8px;
-  button {
-    width: 40px; height: 40px; border-radius: 8px; border: 1px solid #eee; background: white; cursor: pointer; font-weight: 600; color: #555; transition: 0.2s;
-    &:hover:not(:disabled) { border-color: var(--primary-color); color: var(--primary-color); }
-    &.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+// 5. Grid System
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 30px;
+  
+  // Empty State
+  .empty-state {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 80px 0;
+    .icon-box { font-size: 3rem; color: #d1d5db; margin-bottom: 20px; }
+    h3 { font-family: $font-header; font-size: 1.5rem; color: $dark; margin-bottom: 10px; }
+    button { background: transparent; border: 1px solid #d1d5db; padding: 8px 20px; border-radius: 20px; cursor: pointer; &:hover { border-color: $primary; color: $primary; } }
+  }
+}
+
+// 6. PROFESSIONAL CARDS
+.feed-card {
+  background: $white;
+  border-radius: $radius;
+  overflow: hidden;
+  border: 1px solid transparent; // for hover transition
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column;
+  height: 100%;
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    .card-title { color: $primary; }
+    .read-more { background: $primary; color: white; border-color: $primary; }
+  }
+
+  // A. Image Card Style
+  &.has-image {
+    .card-media {
+      height: 220px; position: relative; overflow: hidden;
+      img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+      .category-badge {
+        position: absolute; top: 15px; right: 15px;
+        color: white; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+        padding: 4px 10px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+    }
+    &:hover .card-media img { transform: scale(1.05); }
+    .card-content { padding: 20px; }
+  }
+
+  // B. Text Only Card Style
+  &.text-card {
+    border: 1px solid #f3f4f6;
+    .card-content {
+      padding: 30px;
+      position: relative;
+      height: 100%; display: flex; flex-direction: column;
+      
+      .accent-line {
+        width: 40px; height: 4px; border-radius: 2px; margin-bottom: 20px;
+      }
+      
+      .card-title { font-size: 1.4rem; line-height: 1.35; margin-bottom: 15px; }
+      
+      .card-excerpt { 
+        font-family: serif; font-size: 1.05rem; color: #555; line-height: 1.6; margin-bottom: 20px; flex-grow: 1;
+      }
+    }
+  }
+
+  // Common Inner Elements
+  .card-meta {
+    font-size: 0.75rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+    .dot { margin: 0 5px; }
+  }
+
+  .card-title {
+    font-family: $font-header; font-size: 1.25rem; font-weight: 800; color: $dark; margin-bottom: 10px; line-height: 1.3; transition: 0.2s;
+  }
+
+  .card-footer {
+    margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f3f4f6; padding-top: 15px;
+    
+    .author {
+      display: flex; align-items: center; gap: 8px;
+      img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+      span { font-size: 0.85rem; font-weight: 600; color: $dark; }
+    }
+
+    .read-more {
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; color: $dark; transition: 0.2s;
+    }
+  }
+}
+
+// 7. Pagination
+.pagination-wrapper {
+  margin-top: 60px; display: flex; justify-content: center; align-items: center; gap: 20px;
+  
+  .page-btn {
+    border: none; background: white; font-weight: 600; color: $dark; cursor: pointer; padding: 10px 20px; border-radius: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s;
+    &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     &:disabled { opacity: 0.5; cursor: default; }
   }
+  
+  .pages {
+    display: flex; gap: 8px;
+    button {
+      width: 40px; height: 40px; border-radius: 12px; border: none; background: transparent; color: $gray; font-weight: 600; cursor: pointer; transition: 0.2s;
+      &.active { background: $dark; color: white; box-shadow: 0 5px 15px -5px rgba(0,0,0,0.3); }
+      &:hover:not(.active) { background: #e5e7eb; }
+    }
+  }
 }
 
+// 8. Skeleton Styles (Using the defined mixin)
 .skeleton-card {
-  height: 350px; background: white; border-radius: 16px; padding: 20px;
-  .sk-head { display: flex; gap: 10px; margin-bottom: 20px; .av {width:40px;height:40px;border-radius:50%;background:#f0f0f0;} .ln {height:10px;flex:1;background:#f0f0f0;margin-top:15px;border-radius:4px;} }
-  .sk-box { height: 180px; background:#f0f0f0; border-radius:8px; margin-bottom:15px; }
-  .sk-txt { height:10px; width:80%; background:#f0f0f0; margin-bottom:8px; }
-  * { animation: pulse 1.5s infinite; }
+  background: white; border-radius: $radius; height: 400px; padding: 20px; border: 1px solid #f3f4f6;
+  .sk-img { height: 200px; background: #f3f4f6; border-radius: 12px; margin-bottom: 20px; @include shimmer; }
+  .sk-body {
+    .sk-line { height: 12px; background: #f3f4f6; border-radius: 4px; margin-bottom: 12px; @include shimmer; }
+  }
 }
-@keyframes pulse { 0% {opacity:0.6} 50% {opacity:1} 100% {opacity:0.6} }

@@ -60,7 +60,7 @@ navLinks = Object.values(CATEGORY_THEMES);
       topLinks: [
         { label: 'Feed', route: '/public/feed/housing' },
         { label: 'Properties', route: '/public/housing/properties' },
-        { label: 'Agents', route: '/public/housing/agents' }
+        { label: 'Agents', route: '/public/initiatives/housing' }
       ]
     }, 
     { 
@@ -68,7 +68,7 @@ navLinks = Object.values(CATEGORY_THEMES);
       topLinks: [
         { label: 'Feed', route: '/public/health/feed' },
         { label: 'Directors', route: '/public/health/directors' },
-        { label: 'Initiatives', route: '/public/health/initiatives' }
+        { label: 'Initiatives', route: '/public/initiatives/health' }
       ]
     }, 
     { 
@@ -76,7 +76,7 @@ navLinks = Object.values(CATEGORY_THEMES);
       topLinks: [
         { label: 'Feed', route: '/public/lifestyle/feed' },
         { label: 'Trends', route: '/public/lifestyle/trends' },
-        { label: 'Tips', route: '/public/lifestyle/tips' }
+        { label: 'Tips', route: '/public/initiatives/lifestyle' }
       ]
     }, 
     { 
@@ -84,7 +84,7 @@ navLinks = Object.values(CATEGORY_THEMES);
       topLinks: [
         { label: 'Feed', route: '/public/legal/feed' },
         { label: 'Consult', route: '/public/legal/consult' },
-        { label: 'Library', route: '/public/legal/library' }
+        { label: 'Library', route: '/public/initiatives/legal' }
       ]
     }, 
     { 
@@ -92,7 +92,7 @@ navLinks = Object.values(CATEGORY_THEMES);
       topLinks: [
         { label: 'Feed', route: '/public/feed/news' },
         { label: 'Latest', route: '/public/news/latest' },
-        { label: 'initiatives', route: '/public/Transportation/news' }
+        { label: 'initiatives', route: '/public/initiatives/news' }
       ]
     }, 
     { 
@@ -109,7 +109,7 @@ navLinks = Object.values(CATEGORY_THEMES);
       topLinks: [
         { label: 'Feed', route: '/public/social/feed' },
         { label: 'Campaigns', route: '/public/social/campaigns' },
-        { label: 'initiatives', route: '/public/social/volunteer' }
+        { label: 'initiatives', route: '/public/initiatives/social' }
       ]
     }, 
     { 
@@ -123,9 +123,9 @@ navLinks = Object.values(CATEGORY_THEMES);
     { 
       id: 'tv', name: 'TV', icon: 'bi-tv-fill', route: '/public/category/tv',
       topLinks: [
-        { label: 'Feed', route: '/public/tv/feed' },
+        { label: 'Feed', route: '/public/feed/tv' },
         { label: 'Live', route: '/public/tv/live' },
-        { label: 'Series', route: '/public/tv/series' }
+        { label: 'initiatives', route: '/public/initiatives/tv' }
       ]
     } 
   ];

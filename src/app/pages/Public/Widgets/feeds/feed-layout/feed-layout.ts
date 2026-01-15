@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -6,21 +6,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PostsService } from '../services/posts';
 
-// --- 1. تعريف الـ Enum والـ Themes زي ما طلبت بالظبط ---
-export enum CategoryEnum {
-  Community = 0,
-  Culture = 1,
-  Education = 2,
-  Housing = 3,
-  Health = 4,
-  Legal = 5,
-  Lifestyle = 6,
-  News = 7,
-  Professions = 8,
-  Social = 9,
-  Transportation = 10,
-  Tv = 11
-}
+// --- Enums & Themes ---
+export enum CategoryEnum { Community = 0, Culture = 1, Education = 2, Housing = 3, Health = 4, Legal = 5, Lifestyle = 6, News = 7, Professions = 8, Social = 9, Transportation = 10, Tv = 11 }
 
 export const CATEGORY_THEMES: any = {
   [CategoryEnum.Community]: { color: '#ff7f50', label: 'Community' },
@@ -42,20 +29,19 @@ export const CATEGORY_THEMES: any = {
   templateUrl: './feed-layout.html',
   styleUrls: ['./feed-layout.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule]
+  imports: [CommonModule, FormsModule, RouterModule],
+  // ⚡ PERFORMANCE BOOST: استراتيجية التحديث اليدوي
+  changeDetection: ChangeDetectionStrategy.OnPush 
 })
 export class FeedLayoutComponent implements OnInit, OnDestroy {
-  // Data
   posts: any[] = [];
   locations: any[] = [];
   loading = true;
   
-  // Pagination
+  // Pagination & Filters
   totalCount: number = 0;
   totalPages: number = 0;
   pagesArray: number[] = [];
-  
-  // Filters
   currentCategory: number = 0;
   pageTitle: string = '';
   searchQuery: string = '';
@@ -63,7 +49,6 @@ export class FeedLayoutComponent implements OnInit, OnDestroy {
   currentPage: number = 1;
   pageSize: number = 9; 
 
-  // Subjects
   private searchSubject = new Subject<string>();
   private locationSearch$ = new Subject<string>();
   private subscriptions: Subscription[] = [];
@@ -71,52 +56,48 @@ export class FeedLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private postsService: PostsService,
-    private el: ElementRef
+    private el: ElementRef,
+    private cdr: ChangeDetectorRef // لتحديث الواجهة يدوياً
   ) {
-    // Live Search
-    const searchSub = this.searchSubject.pipe(
-      debounceTime(400), 
-      distinctUntilChanged()
-    ).subscribe(searchText => {
-      this.searchQuery = searchText;
-      this.currentPage = 1;
-      this.loadPosts(); 
-    });
-    this.subscriptions.push(searchSub);
-
-    // Location Search
-    const locSub = this.locationSearch$.pipe(
-      debounceTime(400), distinctUntilChanged()
-    ).subscribe(term => this.fetchLocations(term));
-    this.subscriptions.push(locSub);
+    // إعداد البحث المباشر
+    this.subscriptions.push(
+      this.searchSubject.pipe(debounceTime(400), distinctUntilChanged()).subscribe(txt => {
+        this.searchQuery = txt;
+        this.currentPage = 1;
+        this.loadPosts(); 
+      }),
+      this.locationSearch$.pipe(debounceTime(400), distinctUntilChanged()).subscribe(term => this.fetchLocations(term))
+    );
   }
 
   ngOnInit(): void {
-    const routeSub = this.route.data.subscribe(data => {
-      this.currentCategory = data['categoryEnum'];
-      this.pageTitle = data['title'];
-      
-      // لو القسم الحالي ليه لون معين، نستخدمه كـ Theme للصفحة
-      const themeInfo = CATEGORY_THEMES[this.currentCategory];
-      const themeColor = themeInfo ? themeInfo.color : '#ff7f50';
-      
-      this.applyTheme(themeColor);
-      this.resetFilters();
-      this.loadPosts();
-    });
-    this.subscriptions.push(routeSub);
+    this.subscriptions.push(
+      this.route.data.subscribe(data => {
+        this.currentCategory = data['categoryEnum'];
+        this.pageTitle = data['title'];
+        const theme = CATEGORY_THEMES[this.currentCategory] || { color: '#333' };
+        this.applyTheme(theme.color);
+        this.resetFilters();
+        this.loadPosts();
+      })
+    );
   }
 
   ngOnDestroy(): void { this.subscriptions.forEach(sub => sub.unsubscribe()); }
 
+  // ⚡ دالة التتبع لتحسين أداء ngFor (الحل للمشكلة السابقة)
+  trackByPostId(index: number, item: any): number {
+    return item.id;
+  }
+
   applyTheme(color: string) {
-    if(this.el && this.el.nativeElement) {
-        this.el.nativeElement.style.setProperty('--primary-color', color);
-    }
+    if(this.el?.nativeElement) this.el.nativeElement.style.setProperty('--primary-color', color);
   }
 
   loadPosts() {
     this.loading = true;
+    this.cdr.markForCheck(); // إظهار السكيلتون
+    
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
 
     const params = {
@@ -136,26 +117,25 @@ export class FeedLayoutComponent implements OnInit, OnDestroy {
           this.generatePageArray();
         }
         this.loading = false;
+        this.cdr.markForCheck(); // تحديث البيانات
       },
-      error: () => this.loading = false
+      error: () => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
-  // --- Core Mapping Logic ---
+  // --- معالجة البيانات ---
   private mapAndSortPosts(rawPosts: any[]): any[] {
     const mapped = rawPosts.map(post => {
       const isShared = !!post.parentPost;
-      
       let displayImage = null;
       if (post.attachments?.length > 0) displayImage = post.attachments[0].url;
       else if (post.parentPost?.attachments?.length > 0) displayImage = post.parentPost.attachments[0].url;
 
-      // 1. استخراج بيانات القسم (الاسم واللون)
       const catTheme = CATEGORY_THEMES[post.category] || { label: 'General', color: '#999' };
       
-      // 2. استخراج نوع البوست
-      const postTypeName = this.getPostTypeName(post.postType, post.sourceType);
-
       return {
         ...post,
         ui: { 
@@ -167,28 +147,20 @@ export class FeedLayoutComponent implements OnInit, OnDestroy {
           content: post.content,
           sharedTitle: isShared ? post.parentPost.title : null,
           sharedContent: isShared ? post.parentPost.content : null,
-          
-          // UI Data (Colors & Labels)
           locationName: post.location?.neighborhood || post.location?.city,
           categoryName: catTheme.label,
-          categoryColor: catTheme.color, // اللون الخاص بالقسم
-          postTypeName: postTypeName
+          categoryColor: catTheme.color,
+          postTypeName: this.getPostTypeName(post.postType, post.sourceType)
         }
       };
     });
 
-    // الترتيب: الصور تظهر الأول
-    return mapped.sort((a, b) => {
-      const aHasImg = a.ui.displayImage ? 1 : 0;
-      const bHasImg = b.ui.displayImage ? 1 : 0;
-      return bHasImg - aHasImg;
-    });
+    // ترتيب الصور أولاً
+    return mapped.sort((a, b) => (b.ui.displayImage ? 1 : 0) - (a.ui.displayImage ? 1 : 0));
   }
 
   getPostTypeName(postType: number, sourceType: number): string {
-    if (sourceType === 2) return 'RSS Article';
-    if (postType === 1) return 'News';
-    return 'Post';
+    return sourceType === 2 ? 'Article' : (postType === 1 ? 'News' : 'Post');
   }
 
   generatePageArray() {
@@ -198,8 +170,7 @@ export class FeedLayoutComponent implements OnInit, OnDestroy {
         if (this.currentPage === 1) end = 3;
         else if (this.currentPage === this.totalPages) start = this.totalPages - 2;
     } else { start = 1; end = this.totalPages; }
-    this.pagesArray = [];
-    for (let i = start; i <= end; i++) this.pagesArray.push(i);
+    this.pagesArray = Array.from({length: (end - start) + 1}, (_, i) => start + i);
   }
 
   changePage(page: number) {
@@ -209,24 +180,19 @@ export class FeedLayoutComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Actions
   onSearchInput(event: any) { this.searchSubject.next(event.target.value); }
   onLocationType(term: string) { if(term.length > 2) this.locationSearch$.next(term); }
-  
   fetchLocations(term: string) {
     this.postsService.searchLocations(term).subscribe((res: any) => {
-      if(res.isSuccess) this.locations = res.data;
+      if(res.isSuccess) { this.locations = res.data; this.cdr.markForCheck(); }
     });
   }
-
   selectLocation(locId: number) {
     this.selectedLocationId = locId;
+    this.locations = [];
     this.currentPage = 1;
     this.loadPosts();
   }
-
-  resetFilters() {
-    this.searchQuery = '';
-    this.selectedLocationId = null;
-    this.currentPage = 1;
-  }
+  resetFilters() { this.searchQuery = ''; this.selectedLocationId = null; this.currentPage = 1; }
 }
