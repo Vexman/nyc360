@@ -4,14 +4,14 @@ import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { AuthService } from '../../Service/auth';
-import { ForgotPasswordRequest } from '../../models/auth';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink], // Use ReactiveFormsModule
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './forgot-password.html',
-  styleUrls: ['../login/login.scss'], // Reuse unified styles
+  styleUrls: ['../login/login.scss'],
   animations: [
     trigger('fadeInUp', [
       transition(':enter', [
@@ -24,40 +24,42 @@ import { ForgotPasswordRequest } from '../../models/auth';
 export class ForgotPasswordComponent {
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
+  private toastService = inject(ToastService);
 
-  // Use Reactive Forms for consistency
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]]
   });
 
   isLoading = false;
-  successMessage = '';
-  errorMessage = '';
 
   onSubmit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.toastService.warning('Please enter a valid email.');
+      return;
+    }
 
     this.isLoading = true;
-    this.successMessage = '';
-    this.errorMessage = '';
 
-    const requestData: ForgotPasswordRequest = { email: this.form.value.email };
-
-    this.authService.forgotPassword(requestData).subscribe({
+    this.authService.forgotPassword({ email: this.form.value.email }).subscribe({
       next: (res) => {
         this.isLoading = false;
         if (res.isSuccess) {
-          this.successMessage = 'Password reset link sent! Check your inbox.';
+          this.toastService.success('Reset link sent to your inbox.');
           this.form.reset();
         } else {
-          this.errorMessage = res.error?.message || 'Something went wrong.';
+          this.toastService.error(res.error?.message || 'Action failed.');
         }
       },
-      error: (err) => {
+      error: () => {
         this.isLoading = false;
-        this.errorMessage = 'Network error. Please try again.';
-        console.error('Forgot Password Error:', err);
+        this.toastService.error('Network error.');
       }
     });
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.form.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
   }
 }

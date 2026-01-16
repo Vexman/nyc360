@@ -5,6 +5,16 @@ export enum InteractionType {
   Dislike = 2
 }
 
+export enum FlagReasonType {
+  Spam = 1,
+  HateSpeech = 2,
+  Harassment = 3,
+  InappropriateContent = 4,
+  ScamOrFraud = 5,
+  ViolationOfPolicy = 6,
+  Other = 7
+}
+
 // --- Shared Interfaces ---
 
 export interface PostAttachment {
@@ -54,15 +64,15 @@ export interface Post {
   stats?: PostStats;
   comments?: PostComment[];
   attachments?: PostAttachment[];
-  
+
   // Interaction & State
-  currentUserInteraction?: InteractionType | null; 
+  currentUserInteraction?: InteractionType | null;
   userInteraction?: InteractionType | null; // For UI mapping
-  
+
   // ✅ Backend Field
-  isSavedByUser?: boolean; 
+  isSavedByUser?: boolean;
   // ✅ UI State Field
-  isSaved?: boolean; 
+  isSaved?: boolean;
 }
 
 export interface InterestGroup {
@@ -71,10 +81,10 @@ export interface InterestGroup {
 }
 
 export interface CommunitySuggestion {
-  id: number;          
+  id: number;
   name: string;
   slug: string;
-  memberCount?: number; 
+  memberCount?: number;
   isJoined?: boolean;
   isLoadingJoin?: boolean;
 }

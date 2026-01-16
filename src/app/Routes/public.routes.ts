@@ -14,6 +14,7 @@ export const PUBLIC_ROUTES: Routes = [
       { path: 'posts/details/:id', loadComponent: () => import('../pages/Public/pages/posts/post-details/post-details').then(m => m.PostDetailsComponent) },
       { path: 'posts/tags/:tag', loadComponent: () => import('../pages/Public/pages/posts/tag-posts/tag-posts').then(m => m.TagPostsComponent) },
       { path: 'posts/create', loadComponent: () => import('../pages/Public/pages/posts/post-form/post-form').then(m => m.PostFormComponent) },
+      { path: 'posts/edit/:id', loadComponent: () => import('../pages/Public/pages/posts/post-form/post-form').then(m => m.PostFormComponent) },
 
       // Community
       { path: 'community', loadComponent: () => import('../pages/Public/pages/communities/pages/community/community').then(m => m.CommunityComponent) },

@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../Service/auth';
 import { trigger, style, animate, transition } from '@angular/animations';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-confirm-email',
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './confirm-email.html',
-  styleUrls: ['../login/login.scss'], // Reuse shared styles + specific overrides
+  styleUrls: ['../login/login.scss'],
   animations: [
     trigger('fadeInUp', [
       transition(':enter', [
@@ -20,14 +21,14 @@ import { trigger, style, animate, transition } from '@angular/animations';
   ]
 })
 export class ConfirmEmailComponent implements OnInit {
-  
+
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   isLoading = true;
-  isSuccess = false;
-  errorMessage = '';
+  isConfirmed = false;
 
   ngOnInit() {
     this.processConfirmation();
@@ -38,35 +39,28 @@ export class ConfirmEmailComponent implements OnInit {
     let token = this.route.snapshot.queryParamMap.get('token');
 
     if (!email || !token) {
-      this.handleError('Invalid Link. Missing email or token.');
+      this.toastService.error('Invalid link parameters.');
+      this.isLoading = false;
       return;
     }
 
-    // Fix token encoding issue
     token = token.replace(/ /g, '+');
 
     this.authService.confirmEmail({ email, token }).subscribe({
       next: (res) => {
         this.isLoading = false;
-        
         if (res.isSuccess) {
-          this.isSuccess = true;
-          // Auto-redirect
-          setTimeout(() => this.router.navigate(['/auth/login']), 5000);
+          this.isConfirmed = true;
+          this.toastService.success('Email confirmed successfully!');
+          setTimeout(() => this.router.navigate(['/auth/login']), 3000);
         } else {
-          this.handleError(res.error?.message || 'Verification failed. Please try logging in.');
+          this.toastService.error(res.error?.message || 'Verification failed.');
         }
       },
-      error: (err) => {
-        console.error('Confirmation Error:', err);
-        this.handleError('Link expired or invalid. Please login to request a new one.');
+      error: () => {
+        this.isLoading = false;
+        this.toastService.error('Confirmation link expired or invalid.');
       }
     });
-  }
-
-  private handleError(msg: string) {
-    this.isLoading = false;
-    this.isSuccess = false;
-    this.errorMessage = msg;
   }
 }

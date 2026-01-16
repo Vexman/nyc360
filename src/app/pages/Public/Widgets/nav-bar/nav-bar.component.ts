@@ -43,7 +43,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      id: 'culture', name: 'Culture', icon: 'bi-mask', route: '/public/category/culture',
+      id: 'culture', name: 'Culture', icon: 'bi-masks', route: '/public/category/culture',
       topLinks: [
         { label: 'Feed', route: '/public/feed/culture' },
         { label: 'Exhibitions', route: '/public/culture/exhibitions' },
@@ -51,7 +51,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      id: 'education', name: 'Education', icon: 'bi-journal-bookmark-fill', route: '/public/category/education',
+      id: 'education', name: 'Education', icon: 'bi-book-fill', route: '/public/category/education',
       topLinks: [
         { label: 'Feed', route: '/public/feed/education' },
         { label: 'Courses', route: '/public/education/courses' },
@@ -59,7 +59,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      id: 'Housing', name: 'Housing', icon: 'bi-house-door-fill', route: '/public/category/housing',
+      id: 'Housing', name: 'Housing', icon: 'bi-calendar-event-fill', route: '/public/category/housing',
       topLinks: [
         { label: 'Feed', route: '/public/feed/housing' },
         { label: 'Properties', route: '/public/housing/properties' },
@@ -83,7 +83,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      id: 'legal', name: 'Legal', icon: 'bi-bank2', route: '/public/category/legal',
+      id: 'legal', name: 'Legal', icon: 'bi-balance-scale', route: '/public/category/legal',
       topLinks: [
         { label: 'Feed', route: '/public/feed/legal' },
         { label: 'Consult', route: '/public/legal/consult' },
@@ -108,7 +108,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      id: 'social', name: 'Social', icon: 'bi-globe', route: '/public/category/social',
+      id: 'social', name: 'Social', icon: 'bi-globe-americas', route: '/public/category/social',
       topLinks: [
         { label: 'Feed', route: '/public/feed/social' },
         { label: 'Campaigns', route: '/public/social/campaigns' },

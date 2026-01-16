@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
+import { environment } from '../../../../../environments/environment';
 import { PostsService } from '../services/posts';
 import { CATEGORY_LIST } from '../../../../../pages/models/category-list';
 import { ToastService } from '../../../../../shared/services/toast.service';
@@ -22,6 +23,8 @@ export class PostFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toastService = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
+  protected readonly environment = environment;
 
   form: FormGroup;
   isEditMode = false;
@@ -43,6 +46,8 @@ export class PostFormComponent implements OnInit {
 
   selectedFiles: File[] = [];
   imagePreviews: string[] = [];
+  existingAttachments: any[] = [];
+  removedAttachmentIds: number[] = [];
 
   // -- Search Logic: Location --
   locationSearch$ = new Subject<string>();
@@ -144,6 +149,11 @@ export class PostFormComponent implements OnInit {
     this.selectedTags.splice(index, 1);
   }
 
+  removeExistingFile(index: number, id: number) {
+    this.existingAttachments.splice(index, 1);
+    this.removedAttachmentIds.push(id);
+  }
+
   // --- Attachments ---
   onFileSelect(event: any) {
     if (event.target.files && event.target.files.length > 0) {
@@ -154,6 +164,7 @@ export class PostFormComponent implements OnInit {
         const reader = new FileReader();
         reader.onload = (e: any) => {
           this.imagePreviews.push(e.target.result);
+          this.cdr.detectChanges(); // Use CDR if needed, adding import if not there
         };
         reader.readAsDataURL(file);
       });
@@ -171,7 +182,7 @@ export class PostFormComponent implements OnInit {
     this.postsService.getPostById(id).subscribe({
       next: (res: any) => {
         this.isLoading = false;
-        if (res.isSuccess) {
+        if (res.isSuccess && res.data) {
           const post = res.data;
           this.form.patchValue({
             title: post.title,
@@ -182,9 +193,21 @@ export class PostFormComponent implements OnInit {
           });
 
           if (post.location) this.selectedLocation = post.location;
-          // Map tags if available (assuming post.tags is array of strings or objects, adjusting logic accordingly)
-          // Since create expects IDs, we need objects. If existing API returns strings, user might need to re-select tags or we mock them.
-          // For now left empty on edit to avoid conflicts until Edit API spec is clearer.
+
+          // Map tags
+          if (post.tags && Array.isArray(post.tags)) {
+            this.selectedTags = post.tags.map((t: any) => {
+              if (typeof t === 'object') return t;
+              return { id: 0, name: t };
+            });
+          }
+
+          // Map attachments
+          if (post.attachments && Array.isArray(post.attachments)) {
+            this.existingAttachments = [...post.attachments];
+          } else if (post.imageUrl) {
+            this.existingAttachments = [{ id: 0, url: post.imageUrl }];
+          }
         }
       },
       error: () => {
@@ -226,7 +249,7 @@ export class PostFormComponent implements OnInit {
     let request$: Observable<any>;
 
     if (this.isEditMode && this.postId) {
-      request$ = this.postsService.updatePost(this.postId, formData, this.selectedFiles);
+      request$ = this.postsService.updatePost(this.postId, formData, this.selectedFiles, this.removedAttachmentIds);
     } else {
       request$ = this.postsService.createPost(formData, this.selectedFiles);
     }
@@ -247,6 +270,13 @@ export class PostFormComponent implements OnInit {
         this.toastService.error('Network error occurred. Please try again.');
       }
     });
+  }
+
+  resolveImageUrl(url: string | undefined | null): string {
+    if (!url) return 'assets/images/placeholder.jpg';
+    if (url.includes('@local://')) return `${this.environment.apiBaseUrl3 || this.environment.apiBaseUrl}/${url.replace('@local://', '')}`;
+    if (!url.startsWith('http') && !url.startsWith('data:')) return `${this.environment.apiBaseUrl}/${url}`;
+    return url;
   }
 
   goBack() {

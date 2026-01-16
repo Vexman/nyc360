@@ -3,15 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../Service/auth';
-import { ResetPasswordRequest } from '../../models/auth';
 import { trigger, style, animate, transition } from '@angular/animations';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './reset-password.html',
-  styleUrls: ['../login/login.scss'], // Reuse shared styles + overrides
+  styleUrls: ['../login/login.scss'],
   animations: [
     trigger('fadeInUp', [
       transition(':enter', [
@@ -22,17 +22,16 @@ import { trigger, style, animate, transition } from '@angular/animations';
   ]
 })
 export class ResetPasswordComponent implements OnInit {
-  
+
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
 
   resetForm: FormGroup;
   isLoading = false;
-  successMessage = '';
-  errorMessage = '';
-  
+
   emailParam: string | null = null;
   tokenParam: string | null = null;
 
@@ -52,45 +51,49 @@ export class ResetPasswordComponent implements OnInit {
     }
 
     if (!this.emailParam || !this.tokenParam) {
-      this.errorMessage = 'Invalid link. Please request a new password reset.';
+      this.toastService.error('Invalid link. Please request a new password reset.');
       this.resetForm.disable();
     }
   }
 
   onSubmit() {
-    if (this.resetForm.invalid) return;
+    if (this.resetForm.invalid) {
+      this.resetForm.markAllAsTouched();
+      return;
+    }
 
     const { newPassword, confirmPassword } = this.resetForm.value;
-    
+
     if (newPassword !== confirmPassword) {
-      this.errorMessage = 'Passwords do not match.';
+      this.toastService.error('Passwords do not match.');
       return;
     }
 
     this.isLoading = true;
-    this.errorMessage = '';
 
-    const requestData: ResetPasswordRequest = {
+    this.authService.resetPassword({
       email: this.emailParam!,
       token: this.tokenParam!,
       newPassword: newPassword
-    };
-
-    this.authService.resetPassword(requestData).subscribe({
+    }).subscribe({
       next: (res) => {
         this.isLoading = false;
         if (res.isSuccess) {
-          this.successMessage = 'Password reset successful!';
-          setTimeout(() => this.router.navigate(['/auth/login']), 3000);
+          this.toastService.success('Password reset successful! Redirecting...');
+          setTimeout(() => this.router.navigate(['/auth/login']), 2000);
         } else {
-          this.errorMessage = res.error?.message || 'Failed to reset password.';
+          this.toastService.error(res.error?.message || 'Failed to reset password.');
         }
       },
-      error: (err) => {
+      error: () => {
         this.isLoading = false;
-        console.error(err);
-        this.errorMessage = 'Network error or expired token.';
+        this.toastService.error('Network error or expired token.');
       }
     });
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.resetForm.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
   }
 }

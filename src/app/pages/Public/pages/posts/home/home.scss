@@ -19,6 +19,35 @@ $font-family: 'Inter', sans-serif;
   min-height: 100vh;
 }
 
+.no-data-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px;
+  background: white;
+  border-radius: $radius;
+  @include card-shadow;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+
+  i {
+    font-size: 48px;
+    color: #ccc;
+  }
+
+  h3 {
+    font-size: 20px;
+    color: $text-dark;
+    font-weight: 700;
+  }
+
+  p {
+    color: #777;
+    font-size: 14px;
+  }
+}
+
 .layout-grid {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -703,80 +732,7 @@ $font-family: 'Inter', sans-serif;
   }
 }
 
-// Toast System
-.toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  pointer-events: none;
-}
 
-.custom-toast {
-  pointer-events: auto;
-  min-width: 300px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 16px;
-  animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  cursor: pointer;
-  border-left: 5px solid transparent;
-
-  .toast-icon {
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-  }
-
-  .toast-content {
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-  }
-
-  &.success {
-    border-left-color: #2E7D32;
-
-    .toast-icon {
-      color: #2E7D32;
-    }
-  }
-
-  &.error {
-    border-left-color: #C62828;
-
-    .toast-icon {
-      color: #C62828;
-    }
-  }
-
-  &.info {
-    border-left-color: #0277BD;
-
-    .toast-icon {
-      color: #0277BD;
-    }
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
 
 // 5. Text Only Section (Professional Clean Design)
 .text-only-section {

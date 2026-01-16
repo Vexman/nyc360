@@ -43,7 +43,7 @@ export class PostsService {
   // =================================================================
   // Matches the endpoint: POST /api/posts/{postId}/report
   reportPost(postId: number, reason: number, details: string): Observable<ApiResponse<any>> {
-    const body = { reason, details };
+    const body = { Reason: reason, Details: details };
     return this.http.post<ApiResponse<any>>(`${this.baseUrl2}/${postId}/report`, body);
   }
 

@@ -1,19 +1,17 @@
-// src/app/pages/Authentication/pages/login/login.component.ts
-
 import { Component, inject, OnInit, AfterViewInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { trigger, style, animate, transition } from '@angular/animations'; 
-import { LoginRequest } from '../../models/auth';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { trigger, style, animate, transition } from '@angular/animations';
 import { LoginService } from '../../Service/login-service';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 declare var google: any;
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule],
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
   animations: [
@@ -26,17 +24,26 @@ declare var google: any;
   ]
 })
 export class LoginComponent implements OnInit, AfterViewInit {
-  
-  // ✅ Inject LoginService instead of AuthService for login actions
-  private loginService = inject(LoginService); 
+
+  private loginService = inject(LoginService);
   private router = inject(Router);
-  private ngZone = inject(NgZone); 
+  private ngZone = inject(NgZone);
+  private fb = inject(FormBuilder);
+  private toastService = inject(ToastService);
 
-  loginData: LoginRequest = { email: '', password: '' };
+  loginForm!: FormGroup;
   isLoading = false;
-  errorMessage: string | null = null;
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.initForm();
+  }
+
+  initForm() {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
 
   ngAfterViewInit() {
     this.initializeGoogleButton();
@@ -45,7 +52,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   initializeGoogleButton() {
     if (typeof google !== 'undefined') {
       google.accounts.id.initialize({
-        client_id: '124220032804-65up6tfjkjvch75p1k0skmou7csqi3c1.apps.googleusercontent.com', 
+        client_id: '124220032804-65up6tfjkjvch75p1k0skmou7csqi3c1.apps.googleusercontent.com',
         callback: (response: any) => this.handleGoogleLogin(response)
       });
       google.accounts.id.renderButton(
@@ -58,48 +65,58 @@ export class LoginComponent implements OnInit, AfterViewInit {
   handleGoogleLogin(response: any) {
     this.ngZone.run(() => {
       this.isLoading = true;
-      this.errorMessage = null;
-      
-      // ✅ Use LoginService
+
       this.loginService.loginWithGoogle(response.credential).subscribe({
         next: (res) => {
           this.isLoading = false;
           if (res.isSuccess) {
-            this.router.navigate(['/']); // Navigate to home/dashboard
+            this.toastService.success('Logged in successfully with Google');
+            this.router.navigate(['/']);
           } else {
-            this.errorMessage = res.error?.message || 'Google login failed.';
+            this.toastService.error(res.error?.message || 'Google login failed.');
           }
         },
         error: (err) => {
           this.isLoading = false;
-          this.errorMessage = 'Network error.';
+          this.toastService.error('Network error.');
         }
       });
     });
   }
 
   onSubmit() {
-    this.isLoading = true;
-    this.errorMessage = null;
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      this.toastService.warning('Please fill in the form correctly.');
+      return;
+    }
 
-    // ✅ Use LoginService
-    this.loginService.login(this.loginData).subscribe({
+    this.isLoading = true;
+    const loginData = this.loginForm.value;
+
+    this.loginService.login(loginData).subscribe({
       next: (response) => {
         this.isLoading = false;
         if (response.isSuccess) {
+          this.toastService.success('Welcome back!');
           if (response.data.twoFactorRequired) {
-            this.router.navigate(['/auth/verify-otp'], { queryParams: { email: this.loginData.email } });
+            this.router.navigate(['/auth/verify-otp'], { queryParams: { email: loginData.email } });
           } else {
-            this.router.navigate(['/public/home']); 
+            this.router.navigate(['/public/home']);
           }
         } else {
-          this.errorMessage = response.error?.message || 'Login failed.';
+          this.toastService.error(response.error?.message || 'Login failed.');
         }
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = 'Network error.';
+        this.toastService.error('Network error.');
       }
     });
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.loginForm.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
   }
 }

@@ -46,9 +46,8 @@ export class PostsService {
 
   // ✅ NEW: Report Post according to Swagger
   // Endpoint: POST /api/posts/{PostId}/report
-  reportPost(id: number, reason: string): Observable<ApiResponse<any>> {
-    // بنبعت السبب في الـ Body عشان الباك اند يسجله لو محتاجه
-    const body = { reason: reason };
+  reportPost(id: number, reason: number, details: string): Observable<ApiResponse<any>> {
+    const body = { Reason: reason, Details: details };
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/${id}/report`, body);
   }
 
@@ -90,13 +89,32 @@ export class PostsService {
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/create`, formData);
   }
 
-  updatePost(id: number, data: any, files?: File[]): Observable<ApiResponse<any>> {
+  updatePost(id: number, data: any, files?: File[], removedAttachmentIds: number[] = []): Observable<ApiResponse<any>> {
     const formData = new FormData();
-    formData.append('postId', id.toString());
-    formData.append('title', data.title);
-    formData.append('content', data.content);
-    if (data.category !== null) formData.append('category', data.category.toString());
-    if (files && files.length > 0) files.forEach(file => formData.append('addedAttachments', file));
+    formData.append('PostId', id.toString());
+    formData.append('Title', data.title);
+    formData.append('Content', data.content);
+    if (data.category !== null && data.category !== undefined) formData.append('Category', data.category.toString());
+
+    // Handle Tags
+    if (data.tags && Array.isArray(data.tags)) {
+      data.tags.forEach((tag: number) => {
+        formData.append('TagIds', tag.toString());
+      });
+    }
+
+    // New Attachments
+    if (files && files.length > 0) {
+      files.forEach(file => formData.append('AddedAttachments', file));
+    }
+
+    // Removed Attachments
+    if (removedAttachmentIds && removedAttachmentIds.length > 0) {
+      removedAttachmentIds.forEach(attId => {
+        formData.append('RemovedAttachments', attId.toString());
+      });
+    }
+
     return this.http.put<ApiResponse<any>>(`${this.baseUrl}/edit`, formData);
   }
 

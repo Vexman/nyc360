@@ -44,6 +44,23 @@ $radius: 16px;
   }
 }
 
+.btn-luxury-outline {
+  background: transparent;
+  color: $dark;
+  border: 1px solid $dark;
+  padding: 10px 25px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: $dark;
+    color: $white;
+    transform: translateY(-2px);
+  }
+}
+
 // Glass Panel
 .glass-panel {
   background: $white;

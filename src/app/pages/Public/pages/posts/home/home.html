@@ -113,6 +113,12 @@
       </div>
     </main>
 
+    <div class="no-data-state" *ngIf="!isLoading && featuredPosts.length === 0 && !heroBanner">
+      <i class="bi bi-newspaper"></i>
+      <h3>No News Available</h3>
+      <p>Check back later for the latest updates from NYC.</p>
+    </div>
+
     <aside class="sidebar">
 
       <div class="widget weather" *ngIf="weatherData">
@@ -177,13 +183,4 @@
     </aside>
   </div>
 
-  <div class="toast-container">
-    <div class="custom-toast" *ngFor="let toast of toasts" [ngClass]="toast.type" (click)="removeToast(toast.id)">
-      <div class="toast-icon">
-        <i class="bi"
-          [ngClass]="{'bi-check-circle-fill': toast.type==='success', 'bi-x-circle-fill': toast.type==='error', 'bi-info-circle-fill': toast.type==='info'}"></i>
-      </div>
-      <div class="toast-content"><span>{{ toast.message }}</span></div>
-    </div>
-  </div>
 </div>

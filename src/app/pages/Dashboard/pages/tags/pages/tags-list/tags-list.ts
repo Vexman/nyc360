@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { TagModel, TagType } from '../../models/tags.model';
 import { CATEGORY_LIST } from '../../../../../models/category-list';
 import { TagsService } from '../../service/tags-dashboard.service';
+import { TagVerificationService } from '../../service/tag-verification.service';
 import { ToastService } from '../../../../../../shared/services/toast.service';
 
 @Component({
@@ -17,6 +18,7 @@ import { ToastService } from '../../../../../../shared/services/toast.service';
 })
 export class TagsListComponent implements OnInit {
   private tagsService = inject(TagsService);
+  private verificationService = inject(TagVerificationService);
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
 
@@ -34,6 +36,7 @@ export class TagsListComponent implements OnInit {
   totalPages = 0;
   totalCount = 0;
   isLoading = false;
+  pendingCount = 0;
 
   // Stats
   stats = [
@@ -74,6 +77,14 @@ export class TagsListComponent implements OnInit {
         console.error('Network Error:', err);
         this.toastService.error('Failed to load tags data');
         this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+
+    // Also fetch pending count
+    this.verificationService.getPendingRequests(1, 1).subscribe(res => {
+      if (res.isSuccess) {
+        this.pendingCount = res.totalCount;
         this.cdr.detectChanges();
       }
     });

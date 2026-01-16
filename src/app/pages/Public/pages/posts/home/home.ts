@@ -8,8 +8,8 @@ import { PostsService } from '../services/posts';
 import { Post, FeedData, InterestGroup, CommunitySuggestion, PostAuthor } from '../models/posts';
 import { CATEGORY_LIST } from '../../../../../pages/models/category-list';
 import { WeatherService } from '../services/weather';
+import { ToastService } from '../../../../../shared/services/toast.service';
 
-interface Toast { id: number; message: string; type: 'success' | 'error' | 'info'; }
 interface Alert { type: 'yellow' | 'blue' | 'red'; title: string; desc: string; icon: string; }
 
 @Component({
@@ -27,6 +27,8 @@ export class Home implements OnInit {
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
+
+  private toastService = inject(ToastService);
 
   // Data
   featuredPosts: Post[] = [];
@@ -50,9 +52,6 @@ export class Home implements OnInit {
   isLoading = true;
   selectedCategoryId: number = -1;
   categories = [{ id: -1, name: 'All', icon: 'bi-grid' }, ...CATEGORY_LIST];
-
-  toasts: Toast[] = [];
-  private toastCounter = 0;
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -90,7 +89,7 @@ export class Home implements OnInit {
       },
       error: () => {
         this.isLoading = false;
-        this.showToast('Failed to load feed', 'error');
+        this.toastService.error('Failed to load feed');
         this.cdr.detectChanges();
       }
     });
@@ -188,7 +187,7 @@ export class Home implements OnInit {
     event.stopPropagation();
     event.preventDefault();
     if (!this.authService.currentUser$.value) {
-      this.showToast('Please login to save posts', 'info');
+      this.toastService.info('Please login to save posts');
       return;
     }
     const originalState = post.isSaved;
@@ -197,42 +196,35 @@ export class Home implements OnInit {
       next: (res) => {
         if (res.isSuccess) {
           const msg = post.isSaved ? 'Post saved successfully!' : 'Post unsaved';
-          this.showToast(msg, 'success');
+          this.toastService.success(msg);
         } else {
           post.isSaved = originalState;
-          this.showToast('Failed to save post', 'error');
+          this.toastService.error('Failed to save post');
         }
         this.cdr.detectChanges();
       },
       error: () => {
         post.isSaved = originalState;
-        this.showToast('Error saving post', 'error');
+        this.toastService.error('Error saving post');
         this.cdr.detectChanges();
       }
     });
   }
 
   onJoinCommunity(comm: CommunitySuggestion) {
-    if (!this.authService.currentUser$.value) { this.showToast('Login required', 'info'); return; }
+    if (!this.authService.currentUser$.value) { this.toastService.info('Login required'); return; }
     if (comm.isJoined || comm.isLoadingJoin) return;
     comm.isLoadingJoin = true;
     this.postsService.joinCommunity(comm.id).subscribe({
       next: (res) => {
         comm.isLoadingJoin = false;
-        if (res.isSuccess) { comm.isJoined = true; this.showToast('Joined!', 'success'); }
-        else this.showToast('Failed', 'error');
+        if (res.isSuccess) { comm.isJoined = true; this.toastService.success('Joined!'); }
+        else this.toastService.error('Failed');
         this.cdr.detectChanges();
       },
       error: () => { comm.isLoadingJoin = false; this.cdr.detectChanges(); }
     })
   }
-
-  private showToast(message: string, type: 'success' | 'error' | 'info') {
-    const id = this.toastCounter++;
-    this.toasts.push({ id, message, type });
-    setTimeout(() => this.removeToast(id), 3500);
-  }
-  removeToast(id: number) { this.toasts = this.toasts.filter(t => t.id !== id); this.cdr.detectChanges(); }
 
   // Helpers
   private normalizePost(post: any): Post {

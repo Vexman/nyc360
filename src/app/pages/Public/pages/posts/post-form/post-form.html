@@ -109,21 +109,35 @@
 
       <!-- Attachments -->
       <div class="form-group">
-        <label>ATTACHMENTS</label>
+        <!-- Existing Attachments -->
+        <div class="existing-attachments mb-3" *ngIf="existingAttachments.length > 0">
+          <label class="small text-muted uppercase">Current Attachments</label>
+          <div class="attachments-preview">
+            <div class="preview-item" *ngFor="let att of existingAttachments; let i = index">
+              <img [src]="resolveImageUrl(att.url)" alt="Existing">
+              <button type="button" class="btn-remove danger" (click)="removeExistingFile(i, att.id)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="file-upload-zone">
           <input type="file" (change)="onFileSelect($event)" multiple id="fileInput" class="hidden-input">
           <label for="fileInput" class="upload-label">
             <i class="bi bi-cloud-arrow-up-fill"></i>
-            <span>Drag images here or click to upload</span>
+            <span>{{ isEditMode ? 'Add more images' : 'Drag images here or click to upload' }}</span>
           </label>
         </div>
 
+        <!-- New Previews -->
         <div class="attachments-preview" *ngIf="imagePreviews.length > 0">
-          <div class="preview-item" *ngFor="let img of imagePreviews; let i = index">
-            <img [src]="img" alt="Preview">
+          <div class="preview-item new-file" *ngFor="let img of imagePreviews; let i = index">
+            <img [src]="img" alt="New Preview">
             <button type="button" class="btn-remove" (click)="removeFile(i)">
               <i class="bi bi-x"></i>
             </button>
+            <span class="new-badge">NEW</span>
           </div>
         </div>
       </div>

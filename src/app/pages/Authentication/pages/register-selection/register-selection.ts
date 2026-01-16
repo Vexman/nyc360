@@ -7,8 +7,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { trigger, style, animate, transition, query, stagger } from '@angular/animations';
 import { RegistrationService } from '../../Service/registration-service';
 import { CATEGORY_LIST } from '../../../models/category-list';
-
-// ✅ Import the centralized category list
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-register-selection',
@@ -43,14 +42,15 @@ export class RegisterSelectionComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private registrationService = inject(RegistrationService);
+  private toastService = inject(ToastService);
 
   currentStep: 'selection' | 'form' = 'selection';
-  selectedType: string = ''; 
+  selectedType: string = '';
   isOrganization = false;
-  
+
   form!: FormGroup;
   isLoading = false;
-  errorMessage: string | null = null;
+
 
   selectionOptions = [
     { id: 'visitor', title: 'Visitor', icon: 'bi-airplane-engines', desc: 'Exploring NYC for a visit.' },
@@ -72,18 +72,17 @@ export class RegisterSelectionComponent {
 
   goBack() {
     this.currentStep = 'selection';
-    this.errorMessage = null;
     this.form.reset();
-    this.selectedInterestIds = []; 
+    this.selectedInterestIds = [];
   }
 
   initForm() {
     this.selectedInterestIds = [];
-    
+
     const passwordValidators = [
-      Validators.required, 
+      Validators.required,
       Validators.minLength(6),
-      Validators.pattern(/^(?=.*[a-z])(?=.*\d).{6,}$/) 
+      Validators.pattern(/^(?=.*[a-z])(?=.*\d).{6,}$/)
     ];
 
     if (this.isOrganization) {
@@ -108,9 +107,9 @@ export class RegisterSelectionComponent {
     if (id === null) return; // Safety check
     const index = this.selectedInterestIds.indexOf(id);
     if (index >= 0) {
-      this.selectedInterestIds.splice(index, 1); 
+      this.selectedInterestIds.splice(index, 1);
     } else {
-      this.selectedInterestIds.push(id); 
+      this.selectedInterestIds.push(id);
     }
   }
 
@@ -126,23 +125,23 @@ export class RegisterSelectionComponent {
 
   onSubmit() {
     if (this.form.invalid) {
-      this.form.markAllAsTouched(); 
+      this.form.markAllAsTouched();
+      this.toastService.warning('Please complete all required fields.');
       return;
     }
 
     if (this.selectedInterestIds.length === 0) {
-      this.errorMessage = "Please select at least one area of interest.";
+      this.toastService.warning('Please select at least one interest.');
       return;
     }
 
     this.isLoading = true;
-    this.errorMessage = null;
-    
+
     const formValue = this.form.value;
 
-    const finalData = { 
-      ...formValue, 
-      interests: this.selectedInterestIds 
+    const finalData = {
+      ...formValue,
+      interests: this.selectedInterestIds
     };
 
     if (this.isOrganization) {
@@ -151,7 +150,7 @@ export class RegisterSelectionComponent {
         error: (err) => this.handleError(err)
       });
     } else {
-      const payload = { 
+      const payload = {
         firstName: formValue.firstName,
         lastName: formValue.lastName,
         username: formValue.username,
@@ -160,7 +159,7 @@ export class RegisterSelectionComponent {
         interests: this.selectedInterestIds,
         userType: (this.selectedType === 'new-yorker' ? 'NewYorker' : 'Visitor') as 'NewYorker' | 'Visitor'
       };
-      
+
       this.registrationService.registerNormalUser(payload).subscribe({
         next: (res) => this.handleSuccess(res),
         error: (err) => this.handleError(err)
@@ -171,16 +170,17 @@ export class RegisterSelectionComponent {
   private handleSuccess(res: any) {
     this.isLoading = false;
     if (res.isSuccess) {
-      this.router.navigate(['/auth/login']); 
+      this.toastService.success('Registration successful! Please log in.');
+      this.router.navigate(['/auth/login']);
     } else {
-      this.errorMessage = res.error?.message || 'Registration failed.';
+      this.toastService.error(res.error?.message || 'Registration failed.');
     }
   }
 
   private handleError(err: any) {
     this.isLoading = false;
     console.error(err);
-    this.errorMessage = err.error?.message || 'Network error occurred. Please try again.';
+    this.toastService.error(err.error?.message || 'Network error occurred. Please try again.');
   }
 
   getFormTitle(): string {
