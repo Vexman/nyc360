@@ -117,4 +117,12 @@ export class CategoryHomeComponent implements OnInit {
   get dynamicDescription(): string {
     return `Discover the latest updates, opportunities, and insights in ${this.activeTheme?.label || 'NYC'}.`;
   }
+
+  getAuthorImg(author: any): string {
+    let url = author?.imageUrl;
+    if (!url || url.trim() === '') return 'assets/images/default-avatar.png';
+    url = url.replace('@local://', '');
+    if (url.startsWith('http')) return url;
+    return `${this.environment.apiBaseUrl3}/${url}`;
+  }
 }

@@ -134,7 +134,7 @@
             <h3 class="text-title">“{{ post.title }}”</h3>
 
             <div class="card-footer-meta">
-              <img [src]="post.author.imageUrl || 'assets/user.png'" class="mini-avatar">
+              <img [src]="getAuthorImg(post.author)" class="mini-avatar">
               <span>{{ post.author.username }}</span>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule, Location } from '@angular/common'; 
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { environment } from '../../../../../../environments/environment';
 import { AuthService } from '../../../../../Authentication/Service/auth';
@@ -17,34 +17,34 @@ export enum CommunityRole {
 @Component({
   selector: 'app-community-profile',
   standalone: true,
-  imports: [CommonModule, CommunityRequestsComponent , RouterLink],
+  imports: [CommonModule, CommunityRequestsComponent, RouterLink],
   templateUrl: './community-profile.html',
   styleUrls: ['./community-profile.scss']
 })
 export class CommunityProfileComponent implements OnInit {
-  
+
   private route = inject(ActivatedRoute);
   private profileService = inject(CommunityProfileService);
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
-  private location = inject(Location); 
+  private location = inject(Location);
   protected readonly environment = environment;
 
   // Data
   community: CommunityDetails | null = null;
   posts: Post[] = [];
   members: CommunityMember[] = [];
-  
+
   // Roles & Permissions
   ownerId: number = 0;
   memberRole: number | null = null; // 1=Owner, 2=Mod, 3=Member, null=Not Joined
-  
+
   // UI State
   activeTab: string = 'discussion';
   isLoading = false;
   isMembersLoading = false;
-  isJoinLoading = false; 
-  shareSuccess = false; 
+  isJoinLoading = false;
+  shareSuccess = false;
 
   // Getters for Logic
   get isJoined(): boolean {
@@ -75,7 +75,7 @@ export class CommunityProfileComponent implements OnInit {
         if (res.isSuccess && res.data) {
           this.community = res.data.community;
           this.ownerId = res.data.ownerId;
-          
+
           // API returns numerical role
           this.memberRole = res.data.memberRole ? Number(res.data.memberRole) : null;
 
@@ -113,7 +113,7 @@ export class CommunityProfileComponent implements OnInit {
 
   onJoinCommunity() {
     if (!this.community || this.isJoined) return;
-    
+
     this.isJoinLoading = true;
     this.profileService.joinCommunity(this.community.id).subscribe({
       next: (res) => {
@@ -183,7 +183,7 @@ export class CommunityProfileComponent implements OnInit {
       setTimeout(() => {
         this.shareSuccess = false;
         this.cdr.detectChanges();
-      }, 2000); 
+      }, 2000);
     });
   }
 
@@ -195,15 +195,22 @@ export class CommunityProfileComponent implements OnInit {
   }
 
   resolvePostImage(url?: string): string {
-    if (!url) return '';
-    if (url.includes('http')) return url;
-    return `${environment.apiBaseUrl2}/posts/${url}`;
+    if (!url || url.trim() === '') return '';
+
+    // تنظيف المسار
+    const cleanUrl = url.replace('@local://', '');
+
+    // لو لينك خارجي
+    if (cleanUrl.startsWith('http')) return cleanUrl;
+
+    // لو صورة من السيرفر (posts)
+    return `${this.environment.apiBaseUrl3}/${cleanUrl}`;
   }
 
   resolveUserAvatar(url?: string | null): string {
     if (!url) return 'assets/images/default-avatar.png';
     if (url.includes('http')) return url;
-    return `${environment.apiBaseUrl2}/avatars/${url}`; 
+    return `${environment.apiBaseUrl2}/avatars/${url}`;
   }
 
   getAuthorName(author: any): string {
