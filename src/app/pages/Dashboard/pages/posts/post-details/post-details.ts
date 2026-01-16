@@ -7,6 +7,7 @@ import { PostsService } from '../services/posts';
 import { Post, PostCategoryList, InteractionType, Comment, FlagReasonType } from '../models/posts';
 import { AuthService } from '../../../../Authentication/Service/auth';
 import { ToastService } from '../../../../../shared/services/toast.service';
+import { ConfirmationService } from '../../../../../shared/services/confirmation.service';
 
 @Component({
   selector: 'app-post-details',
@@ -26,6 +27,7 @@ export class PostDetailsComponent implements OnInit {
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
+  private confirmationService = inject(ConfirmationService);
 
   // Data
   post: Post | null = null;
@@ -171,17 +173,27 @@ export class PostDetailsComponent implements OnInit {
 
   // --- Actions ---
   onDelete() {
-    if (this.post && confirm('Delete post?')) {
-      this.postsService.deletePost(this.post.id).subscribe({
-        next: () => {
-          this.toastService.success('Post deleted successfully.');
-          this.router.navigate(['/admin/posts']);
-        },
-        error: () => {
-          this.toastService.error('Failed to delete post.');
-        }
-      });
-    }
+    if (!this.post) return;
+
+    this.confirmationService.confirm({
+      title: 'Delete Post',
+      message: 'Are you sure you want to delete this post? This action cannot be undone.',
+      confirmText: 'Delete Post',
+      cancelText: 'Cancel',
+      type: 'danger'
+    }).then((confirmed) => {
+      if (confirmed && this.post) {
+        this.postsService.deletePost(this.post.id).subscribe({
+          next: () => {
+            this.toastService.success('Post deleted successfully.');
+            this.router.navigate(['/admin/posts']);
+          },
+          error: () => {
+            this.toastService.error('Failed to delete post.');
+          }
+        });
+      }
+    });
   }
 
   toggleInteraction(type: InteractionType) {

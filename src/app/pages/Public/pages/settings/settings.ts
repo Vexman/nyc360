@@ -5,6 +5,7 @@ import { ProfileService } from '../profile/service/profile';
 import { AuthService } from '../../../Authentication/Service/auth';
 import { VerificationService } from './services/verification.service';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { ConfirmationService } from '../../../../shared/services/confirmation.service';
 import {
     UserProfileData, UpdateBasicProfileDto, AddEducationDto, UpdateEducationDto,
     AddPositionDto, UpdatePositionDto, Education, Position, SocialPlatform, SocialLinkDto
@@ -26,6 +27,7 @@ export class SettingsComponent implements OnInit {
     private authService = inject(AuthService);
     private verificationService = inject(VerificationService);
     private toastService = inject(ToastService);
+    private confirmationService = inject(ConfirmationService);
     private fb = inject(FormBuilder);
     private cdr = inject(ChangeDetectorRef);
     private datePipe = inject(DatePipe);
@@ -307,9 +309,16 @@ export class SettingsComponent implements OnInit {
     }
 
     deleteEdu(id: number) {
-        if (confirm('Are you sure you want to delete this education entry?')) {
-            this.profileService.deleteEducation(id).subscribe(() => { this.loadCurrentUser(); this.toastService.success('Deleted successfully'); });
-        }
+        this.confirmationService.confirm({
+            title: 'Delete Education',
+            message: 'Are you sure you want to delete this education entry?',
+            confirmText: 'Delete',
+            type: 'danger'
+        }).then((confirmed) => {
+            if (confirmed) {
+                this.profileService.deleteEducation(id).subscribe(() => { this.loadCurrentUser(); this.toastService.success('Deleted successfully'); });
+            }
+        });
     }
 
     // --- Position ---
@@ -350,9 +359,16 @@ export class SettingsComponent implements OnInit {
     }
 
     deletePos(id: number) {
-        if (confirm('Are you sure you want to delete this experience entry?')) {
-            this.profileService.deletePosition(id).subscribe(() => { this.loadCurrentUser(); this.toastService.success('Deleted successfully'); });
-        }
+        this.confirmationService.confirm({
+            title: 'Delete Experience',
+            message: 'Are you sure you want to delete this experience entry?',
+            confirmText: 'Delete',
+            type: 'danger'
+        }).then((confirmed) => {
+            if (confirmed) {
+                this.profileService.deletePosition(id).subscribe(() => { this.loadCurrentUser(); this.toastService.success('Deleted successfully'); });
+            }
+        });
     }
 
     // --- Social ---

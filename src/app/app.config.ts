@@ -10,17 +10,17 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 // 2. استيراد مكتبات جوجل والإنترسبتور
 import { SocialAuthServiceConfig, GoogleLoginProvider } from '@abacritt/angularx-social-login';
 import { authInterceptor } from './interceptor/auth.interceptor';
+import { globalLoaderInterceptor } from './interceptor/global-loader.interceptor';
 import { loaderInterceptor } from './interceptor/loader-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    
+
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withInterceptors([loaderInterceptor])),
     provideHttpClient(
       withFetch(),
-      withInterceptors([authInterceptor]) 
+      withInterceptors([authInterceptor, loaderInterceptor, globalLoaderInterceptor])
     ),
 
     provideAnimations(),
