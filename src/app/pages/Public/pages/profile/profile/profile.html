@@ -8,29 +8,25 @@
 
       <div class="header-card">
          <div class="cover-area" [style.backgroundImage]="'url(' + resolveCover(user.coverImageUrl) + ')'">
-            <button *ngIf="isOwner" class="btn-edit-cover">
-               <i class="bi bi-camera-fill"></i> Edit Cover
-               <input type="file" (change)="onCoverSelected($event)" accept="image/*">
+            <!-- Share Button -->
+            <button class="btn-share-top" (click)="shareProfile()" title="Share">
+               <i class="bi bi-share-fill"></i>
             </button>
-            <button class="btn-share-top" (click)="shareProfile()" title="Share"><i
-                  class="bi bi-share-fill"></i></button>
+
+            <!-- Edit Button for Owner -->
+            <button *ngIf="isOwner" class="btn-edit-profile" routerLink="/public/profile/settings">
+               <i class="bi bi-pencil-fill"></i> Edit Profile
+            </button>
          </div>
 
          <div class="user-info-bar">
             <div class="avatar-holder">
                <img [src]="resolveImage(user.imageUrl)" alt="User">
-               <label *ngIf="isOwner" class="upload-overlay">
-                  <i class="bi bi-camera"></i>
-                  <input type="file" (change)="onAvatarSelected($event)" accept="image/*">
-               </label>
             </div>
             <div class="info-details">
                <div class="name-row">
                   <h1>{{ displayName }}</h1>
                   <span class="badge-ny">New Yorker</span>
-                  <button *ngIf="isOwner" class="btn-icon-edit" (click)="openBasicModal()">
-                     <i class="bi bi-pencil-fill"></i> Edit Intro
-                  </button>
                </div>
                <p class="headline">{{ user.headline || 'No headline available' }}</p>
                <div class="location" *ngIf="user.location || user.locationId">
@@ -40,7 +36,7 @@
          </div>
       </div>
 
-      <!-- Stats Section (Optional but nice to handle) -->
+      <!-- Stats Section -->
       <div class="dashboard-section" *ngIf="topCards && topCards.length > 0">
          <div class="h-scroll-cards">
             <div class="status-card" *ngFor="let card of topCards" [class.event-card]="card.isEvent">
@@ -83,7 +79,6 @@
                <div *ngIf="!user.bio && (!user.socialLinks || user.socialLinks.length === 0)" class="empty-mini">
                   <p>No bio or social links.</p>
                </div>
-               <button *ngIf="isOwner" class="btn-see-all" (click)="openAddSocial()">Edit Links</button>
             </div>
 
             <div class="sidebar-widget">
@@ -147,8 +142,7 @@
             <div *ngSwitchCase="'about'">
                <div class="about-box">
                   <div class="box-header">
-                     <h3>Experience</h3> <button *ngIf="isOwner" (click)="openAddPos()"><i
-                           class="bi bi-plus-lg"></i></button>
+                     <h3>Experience</h3>
                   </div>
                   <ng-container *ngIf="user.positions && user.positions.length > 0; else emptyPositions">
                      <div class="list-item" *ngFor="let pos of user.positions">
@@ -168,8 +162,7 @@
 
                <div class="about-box">
                   <div class="box-header">
-                     <h3>Education</h3> <button *ngIf="isOwner" (click)="openAddEdu()"><i
-                           class="bi bi-plus-lg"></i></button>
+                     <h3>Education</h3>
                   </div>
                   <ng-container *ngIf="user.education && user.education.length > 0; else emptyEducation">
                      <div class="list-item" *ngFor="let edu of user.education">
@@ -213,39 +206,6 @@
             </div>
 
          </main>
-      </div>
-   </div>
-
-   <!-- Selection of Modals -->
-   <div class="modal-backdrop" *ngIf="modalState.basic">
-      <div class="modal-content">
-         <div class="modal-header">
-            <h3>Edit Intro</h3><button (click)="closeModals()">&times;</button>
-         </div>
-         <form [formGroup]="basicForm" (ngSubmit)="saveBasicInfo()">
-            <div class="form-group"><label>First Name</label><input formControlName="firstName"></div>
-            <div class="form-group"><label>Last Name</label><input formControlName="lastName"></div>
-            <div class="form-group"><label>Headline</label><input formControlName="headline"></div>
-            <div class="form-group"><label>Bio</label><textarea formControlName="bio"></textarea></div>
-            <div class="modal-footer"><button type="submit" class="btn-save" [disabled]="isSaving">{{ isSaving ?
-                  'Saving...' : 'Save Changes' }}</button></div>
-         </form>
-      </div>
-   </div>
-
-   <div class="modal-backdrop" *ngIf="modalState.social">
-      <div class="modal-content">
-         <div class="modal-header">
-            <h3>Social Link</h3><button (click)="closeModals()">&times;</button>
-         </div>
-         <form [formGroup]="socialForm" (ngSubmit)="saveSocial()">
-            <div class="form-group"><label>Platform</label><select formControlName="platform">
-                  <option *ngFor="let p of socialPlatforms" [value]="p.id">{{ p.name }}</option>
-               </select></div>
-            <div class="form-group"><label>URL</label><input formControlName="url" placeholder="https://..."></div>
-            <div class="modal-footer"><button type="submit" class="btn-save" [disabled]="isSaving">{{ isSaving ?
-                  'Adding...' : 'Add Link' }}</button></div>
-         </form>
       </div>
    </div>
 

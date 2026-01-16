@@ -50,7 +50,7 @@
             <a [routerLink]="['/public/profile', currentUsername]" class="dropdown-item">
               <i class="bi bi-person"></i> Profile
             </a>
-            <a routerLink="/public/settings" class="dropdown-item">
+            <a routerLink="/public/profile/settings" class="dropdown-item">
               <i class="bi bi-gear"></i> Settings
             </a>
             <a *ngIf="authService.hasPermission('Permissions.Dashboard.View')" routerLink="/dashboard"
@@ -116,7 +116,7 @@
       <a [routerLink]="['/public/profile', currentUsername]" (click)="toggleMenu()" class="mobile-sub-link-item">
         <i class="bi bi-person"></i> Profile
       </a>
-      <a routerLink="/public/settings" (click)="toggleMenu()" class="mobile-sub-link-item">
+      <a routerLink="/public/profile/settings" (click)="toggleMenu()" class="mobile-sub-link-item">
         <i class="bi bi-gear"></i> Settings
       </a>
       <a *ngIf="authService.hasPermission('Permissions.Dashboard.View')" routerLink="/dashboard" (click)="toggleMenu()"
