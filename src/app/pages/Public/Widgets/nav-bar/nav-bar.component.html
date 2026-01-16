@@ -37,9 +37,32 @@
           <span *ngIf="hasNotifications" class="notification-dot"></span>
         </button>
 
-        <a [routerLink]="['/public/profile', currentUsername]" class="user-profile-link" title="Profile">
-          <i class="bi bi-person-circle profile-icon" style="font-size: 1.8rem;"></i>
-        </a>
+        <div class="user-profile-container">
+          <button (click)="toggleProfileDropdown($event)" class="user-profile-btn" title="Profile">
+            <i class="bi bi-person-circle profile-icon" style="font-size: 1.8rem;"></i>
+          </button>
+
+          <div class="profile-dropdown" [class.show]="isProfileDropdownOpen">
+            <div class="dropdown-header">
+              <span class="user-name">{{ currentUsername }}</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a [routerLink]="['/public/profile', currentUsername]" class="dropdown-item">
+              <i class="bi bi-person"></i> Profile
+            </a>
+            <a routerLink="/public/settings" class="dropdown-item">
+              <i class="bi bi-gear"></i> Settings
+            </a>
+            <a *ngIf="authService.hasPermission('Permissions.Dashboard.View')" routerLink="/dashboard"
+              class="dropdown-item dashboard-link">
+              <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <div class="dropdown-divider"></div>
+            <button (click)="logout()" class="dropdown-item logout-item">
+              <i class="bi bi-box-arrow-right"></i> Log out
+            </button>
+          </div>
+        </div>
       </ng-container>
 
       <ng-template #loginTemplate>
@@ -81,13 +104,26 @@
       <app-global-search [currentActiveCat]="currentActiveCat" [isMobile]="true"></app-global-search>
     </div>
 
-    <div *ngIf="isLoggedIn" class="mobile-user-info" [routerLink]="['/profile', currentUsername]"
-      (click)="toggleMenu()">
+    <div *ngIf="isLoggedIn" class="mobile-user-info">
       <i class="bi bi-person-circle" style="font-size: 2rem; color: #0A3D91;"></i>
       <div class="user-details">
         <span class="welcome">Welcome back,</span>
         <span class="username">{{ currentUsername }}</span>
       </div>
+    </div>
+
+    <div *ngIf="isLoggedIn" class="mobile-user-links">
+      <a [routerLink]="['/public/profile', currentUsername]" (click)="toggleMenu()" class="mobile-sub-link-item">
+        <i class="bi bi-person"></i> Profile
+      </a>
+      <a routerLink="/public/settings" (click)="toggleMenu()" class="mobile-sub-link-item">
+        <i class="bi bi-gear"></i> Settings
+      </a>
+      <a *ngIf="authService.hasPermission('Permissions.Dashboard.View')" routerLink="/dashboard" (click)="toggleMenu()"
+        class="mobile-sub-link-item dashboard-link">
+        <i class="bi bi-speedometer2"></i> Dashboard
+      </a>
+      <hr style="border-top: 1px solid #eee; margin: 15px 0;">
     </div>
 
     <div *ngIf="currentActiveCat" class="mobile-sub-links-group">

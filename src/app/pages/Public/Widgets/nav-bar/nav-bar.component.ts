@@ -24,6 +24,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   currentUsername: string | null = null;
   hasNotifications = true;
+  isProfileDropdownOpen = false;
 
   // المتغير اللي ماسك القسم الحالي
   currentActiveCat: any = null;
@@ -181,6 +182,16 @@ export class NavBarComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = this.isMenuOpen ? 'hidden' : 'auto';
     }
+  }
+
+  toggleProfileDropdown(event: Event) {
+    event.stopPropagation();
+    this.isProfileDropdownOpen = !this.isProfileDropdownOpen;
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeDropdowns(event: Event) {
+    this.isProfileDropdownOpen = false;
   }
 
   logout() {
