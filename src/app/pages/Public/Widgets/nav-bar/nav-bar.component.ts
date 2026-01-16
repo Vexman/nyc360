@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, OnDestroy, PLATFORM_ID, HostListener } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy, PLATFORM_ID, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router, NavigationEnd, Event as RouterEvent } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
@@ -18,6 +18,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   public authService = inject(AuthService);
   private platformId = inject(PLATFORM_ID);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   isMenuOpen = false;
   isLoggedIn = false;
@@ -160,14 +161,19 @@ export class NavBarComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Logic to keep buttons persistent if URL starts with category route
-    const found = this.categories.find(cat => url.startsWith(cat.route));
+    // Logic to keep buttons persistent if URL matches category route OR any of its sub-links
+    const found = this.categories.find(cat => {
+      const isMainRoute = url.startsWith(cat.route);
+      const isSubRoute = cat.topLinks.some(link => url.startsWith(link.route));
+      return isMainRoute || isSubRoute;
+    });
 
     if (found) {
       this.currentActiveCat = found;
     } else {
       this.currentActiveCat = null;
     }
+    this.cdr.detectChanges();
   }
 
   toggleMenu() {

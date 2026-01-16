@@ -108,7 +108,7 @@ $cat-colors: (
       text-decoration: none;
       color: $text-gray; // Default gray
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       transition: all 0.2s ease;
       position: relative;
       padding-bottom: 2px; // Space for border
@@ -127,7 +127,6 @@ $cat-colors: (
         &:hover,
         &.active-link {
           color: $color !important;
-          font-weight: 700;
         }
 
         // Active Underline in that color

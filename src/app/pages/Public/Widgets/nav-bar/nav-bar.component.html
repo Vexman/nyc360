@@ -54,8 +54,8 @@
     <div class="cat-scroller">
 
 
-      <a *ngFor="let cat of categories" [routerLink]="[cat.route]" routerLinkActive="active-cat"
-        [routerLinkActiveOptions]="{ exact: false }" [class]="'cat-pill ' + cat.id">
+      <a *ngFor="let cat of categories" [routerLink]="[cat.route]" [class]="'cat-pill ' + cat.id"
+        [class.active-cat]="currentActiveCat?.id === cat.id">
 
         <i [class]="'bi ' + cat.icon"></i>
         <span>{{ cat.name }}</span>
@@ -104,8 +104,7 @@
     <div class="mobile-categories-list">
 
       <a *ngFor="let cat of categories" [routerLink]="[cat.route]" (click)="toggleMenu()"
-        routerLinkActive="active-mobile-cat" [routerLinkActiveOptions]="{ exact: false }"
-        [class]="'mobile-cat-item ' + cat.id">
+        [class]="'mobile-cat-item ' + cat.id" [class.active-mobile-cat]="currentActiveCat?.id === cat.id">
         <div class="icon-box"><i [class]="'bi ' + cat.icon"></i></div>
         <span class="text">{{ cat.name }}</span>
         <i class="bi bi-chevron-right arrow"></i>
