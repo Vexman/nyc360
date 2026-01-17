@@ -165,8 +165,13 @@ export class CommunityProfileComponent implements OnInit {
           this.members = this.members.filter(m => m.userId !== memberId);
           this.toastService.success('Member removed successfully.');
         } else {
-          this.toastService.error('Failed to remove member.');
+          this.toastService.error(res.error?.message || 'Failed to remove member.');
         }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.toastService.error('Error removing member.');
+        this.cdr.detectChanges();
       }
     });
   }

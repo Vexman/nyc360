@@ -45,6 +45,12 @@ export class CommunityManagementComponent implements OnInit {
     isLoading = false;
     isMembersLoading = false;
     isSaving = false;
+    isTransferring = false;
+
+    // Ownership Transfer Modal
+    showTransferModal = false;
+    memberSearchQuery = '';
+    selectedNewOwner: CommunityMember | null = null;
 
     // Edit Form Data
     editForm = {
@@ -146,8 +152,12 @@ export class CommunityManagementComponent implements OnInit {
                     this.members = this.members.filter(m => m.userId !== memberId);
                     this.toastService.success('Member removed successfully.');
                 } else {
-                    this.toastService.error('Failed to remove member.');
+                    this.toastService.error(res.error?.message || 'Failed to remove member.');
                 }
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.toastService.error('Error removing member.');
                 this.cdr.detectChanges();
             }
         });
@@ -213,7 +223,61 @@ export class CommunityManagementComponent implements OnInit {
 
     onTransferOwnership() {
         if (!this.community) return;
-        this.toastService.info('Ownership transfer feature coming soon.');
+        this.showTransferModal = true;
+        this.memberSearchQuery = '';
+        this.selectedNewOwner = null;
+
+        // Ensure members are loaded
+        if (this.members.length === 0) {
+            this.loadMembers();
+        }
+    }
+
+    get filteredMembers(): CommunityMember[] {
+        if (!this.memberSearchQuery.trim()) {
+            return this.members.filter(m => m.userId !== this.ownerId);
+        }
+        const query = this.memberSearchQuery.toLowerCase();
+        return this.members.filter(m =>
+            m.userId !== this.ownerId &&
+            (m.name.toLowerCase().includes(query))
+        );
+    }
+
+    onSelectNewOwner(member: CommunityMember) {
+        this.selectedNewOwner = member;
+    }
+
+    onConfirmTransfer() {
+        if (!this.community || !this.selectedNewOwner) {
+            console.error('Transfer blocked: missing community or owner');
+            return;
+        }
+
+        console.log('Initiating transfer to:', this.selectedNewOwner.userId);
+        this.isTransferring = true;
+        this.cdr.detectChanges();
+
+        this.profileService.transferOwnership(this.community.id, this.selectedNewOwner.userId).subscribe({
+            next: (res) => {
+                console.log('Transfer Response:', res);
+                this.isTransferring = false;
+                if (res.isSuccess) {
+                    this.toastService.success('Ownership transferred successfully!');
+                    this.showTransferModal = false;
+                    this.router.navigate(['/public/community', this.slug]);
+                } else {
+                    this.toastService.error(res.error?.message || 'Failed to transfer ownership');
+                }
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                console.error('Transfer API Error:', err);
+                this.isTransferring = false;
+                this.toastService.error('Error transferring ownership');
+                this.cdr.detectChanges();
+            }
+        });
     }
 
     // --- Helpers ---

@@ -208,4 +208,57 @@
         </div>
 
     </ng-container>
+
+    <!-- Ownership Transfer Modal -->
+    <div class="modal-overlay" *ngIf="showTransferModal" (click)="showTransferModal = false">
+        <div class="modal-card" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Transfer Ownership</h3>
+                <button class="close-btn" (click)="showTransferModal = false">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p class="modal-desc">Select a member to transfer the ownership of this community to. This action is
+                    irreversible.</p>
+
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" [(ngModel)]="memberSearchQuery" placeholder="Search members...">
+                </div>
+
+                <div class="members-results" [class.loading]="isMembersLoading">
+                    <div class="member-item" *ngFor="let member of filteredMembers"
+                        [class.selected]="selectedNewOwner?.userId === member.userId"
+                        (click)="onSelectNewOwner(member)">
+                        <img [src]="resolveUserAvatar(member.avatarUrl)" alt="User">
+                        <div class="item-info">
+                            <span class="name">{{ member.name }}</span>
+                            <span class="role">{{ member.role }}</span>
+                        </div>
+                        <i class="bi bi-check-circle-fill select-icon"
+                            *ngIf="selectedNewOwner?.userId === member.userId"></i>
+                    </div>
+
+                    <div class="empty-results" *ngIf="filteredMembers.length === 0 && !isMembersLoading">
+                        <p>No members found.</p>
+                    </div>
+
+                    <div class="modal-loader" *ngIf="isMembersLoading">
+                        <div class="spinner-sm"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="showTransferModal = false">Cancel</button>
+                <button class="btn-confirm" [disabled]="!selectedNewOwner || isTransferring"
+                    (click)="onConfirmTransfer()">
+                    <span *ngIf="isTransferring" class="spinner-border spinner-border-sm me-2"></span>
+                    Transfer Ownership
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
