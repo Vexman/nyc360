@@ -52,12 +52,22 @@ export class CommunityManagementComponent implements OnInit {
     memberSearchQuery = '';
     selectedNewOwner: CommunityMember | null = null;
 
+    // Disband Confirmation Modal
+    showDisbandModal = false;
+    disbandConfirmName = '';
+
     // Edit Form Data
     editForm = {
         name: '',
         description: '',
-        type: 0
+        type: 0,
+        locationId: 0,
+        isPrivate: false,
+        requiresApproval: false
     };
+
+    avatarFile: File | null = null;
+    coverFile: File | null = null;
 
     // Tabs Configuration
     tabs: ManagementTab[] = [
@@ -104,7 +114,10 @@ export class CommunityManagementComponent implements OnInit {
                     this.editForm = {
                         name: this.community.name,
                         description: this.community.description || '',
-                        type: this.community.type
+                        type: this.community.type,
+                        locationId: 0, // Default or from data if available
+                        isPrivate: false, // Default or from data if available
+                        requiresApproval: false // Default or from data if available
                     };
                 }
                 this.cdr.detectChanges();
@@ -196,33 +209,88 @@ export class CommunityManagementComponent implements OnInit {
     }
 
     // --- Settings ---
+    onAvatarSelected(event: any) {
+        const file = event.target.files[0];
+        if (file) this.avatarFile = file;
+    }
+
+    onCoverSelected(event: any) {
+        const file = event.target.files[0];
+        if (file) this.coverFile = file;
+    }
+
     onSaveSettings() {
         if (!this.community) return;
         this.isSaving = true;
 
-        // TODO: Implement actual update API when available
-        setTimeout(() => {
-            this.isSaving = false;
-            this.toastService.success('Settings saved successfully!');
-            this.cdr.detectChanges();
-        }, 1000);
+        const formData = new FormData();
+        formData.append('Name', this.editForm.name);
+        formData.append('Description', this.editForm.description);
+        formData.append('Type', this.editForm.type.toString());
+        formData.append('LocationId', this.editForm.locationId.toString());
+        formData.append('IsPrivate', this.editForm.isPrivate.toString());
+        formData.append('RequiresApproval', this.editForm.requiresApproval.toString());
+
+        if (this.avatarFile) {
+            formData.append('AvatarImage', this.avatarFile);
+        }
+        if (this.coverFile) {
+            formData.append('CoverImage', this.coverFile);
+        }
+
+        this.profileService.updateCommunity(this.community.id, formData).subscribe({
+            next: (res) => {
+                this.isSaving = false;
+                if (res.isSuccess) {
+                    this.toastService.success('Information updated successfully!');
+                    // Optionally update local community data
+                    if (res.data) {
+                        this.community = { ...this.community, ...res.data };
+                    }
+                } else {
+                    this.toastService.error(res.error?.message || 'Update failed');
+                }
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                this.isSaving = false;
+                this.toastService.error('Error updating community info');
+                this.cdr.detectChanges();
+            }
+        });
     }
 
     // --- Danger Zone ---
+    isDisbanding = false;
+
     onDisbandCommunity() {
         if (!this.community) return;
+        this.disbandConfirmName = '';
+        this.showDisbandModal = true;
+        this.cdr.detectChanges();
+    }
 
-        const confirmText = prompt(`Type "${this.community.name}" to confirm you want to DISBAND this community. This action is irreversible:`);
-        if (confirmText !== this.community.name) {
-            this.toastService.error('Community name did not match. Action cancelled.');
+    onConfirmDisband() {
+        if (!this.community) return;
+
+        // Final name validation
+        if (this.disbandConfirmName.trim().toLowerCase() !== this.community.name.trim().toLowerCase()) {
+            this.toastService.error('Community name did not match.');
             return;
         }
 
-        this.isLoading = true;
-        this.profileService.disbandCommunity(this.community.id).subscribe({
+        const communityId = this.community.id;
+        console.log(`[API Call] Initiating Disband via Modal for ID: ${communityId}`);
+
+        this.isDisbanding = true;
+        this.cdr.detectChanges();
+
+        this.profileService.disbandCommunity(communityId).subscribe({
             next: (res) => {
-                this.isLoading = false;
+                console.log('Disband success response:', res);
+                this.isDisbanding = false;
                 if (res.isSuccess) {
+                    this.showDisbandModal = false;
                     this.toastService.success('Community has been disbanded.');
                     this.router.navigate(['/public/community']);
                 } else {
@@ -231,8 +299,9 @@ export class CommunityManagementComponent implements OnInit {
                 this.cdr.detectChanges();
             },
             error: (err) => {
-                this.isLoading = false;
-                this.toastService.error('Error disbanding community');
+                console.error('Disband Network/API error:', err);
+                this.isDisbanding = false;
+                this.toastService.error('Error connecting to server to disband community');
                 this.cdr.detectChanges();
             }
         });

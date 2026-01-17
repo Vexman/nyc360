@@ -56,4 +56,9 @@ export class CommunityProfileService {
   disbandCommunity(communityId: number): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${communityId}/disband`);
   }
+
+  // 9. Update Community Info
+  updateCommunity(communityId: number, formData: FormData): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.apiUrl}/${communityId}/update`, formData);
+  }
 }
