@@ -20,6 +20,7 @@ export const PUBLIC_ROUTES: Routes = [
       { path: 'community', loadComponent: () => import('../pages/Public/pages/communities/pages/community/community').then(m => m.CommunityComponent) },
       { path: 'create-community', loadComponent: () => import('../pages/Public/pages/communities/pages/create-community/create-community').then(m => m.CreateCommunityComponent) },
       { path: 'community/:slug', loadComponent: () => import('../pages/Public/pages/communities/pages/community-profile/community-profile').then(m => m.CommunityProfileComponent) },
+      { path: 'community/:slug/manage', loadComponent: () => import('../pages/Public/pages/communities/pages/community-management/community-management').then(m => m.CommunityManagementComponent) },
       { path: 'discover', loadComponent: () => import('../pages/Public/pages/communities/pages/community-discovery/community-discovery').then(m => m.CommunityDiscoveryComponent) },
       { path: 'community/:id/create-post', loadComponent: () => import('../pages/Public/pages/communities/pages/create-community-post/create-community-post').then(m => m.CreateCommunityPostComponent) },
       { path: 'my-communities', loadComponent: () => import('../pages/Public/pages/communities/pages/mycommunities/mycommunities').then(m => m.MycommunitiesComponent) },

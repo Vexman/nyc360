@@ -8,10 +8,10 @@ import { environment } from '../../../../../environments/environment';
   providedIn: 'root'
 })
 export class CommunityProfileService {
-  
+
   private http = inject(HttpClient);
   // تأكد إن المسار الأساسي مظبوط على /api/communities
-  private apiUrl = `${environment.apiBaseUrl}/communities`; 
+  private apiUrl = `${environment.apiBaseUrl}/communities`;
 
   // 1. Get Community Profile by Slug
   getCommunityBySlug(slug: string): Observable<ApiResponse<CommunityProfileData>> {
@@ -39,5 +39,11 @@ export class CommunityProfileService {
   removeMember(communityId: number, memberId: number): Observable<ApiResponse<any>> {
     const body = { CommunityId: communityId, MemberId: memberId };
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/remove-member`, body);
+  }
+
+  // 6. Update Member Role
+  updateMemberRole(communityId: number, targetUserId: number, newRole: number): Observable<ApiResponse<any>> {
+    const body = { NewRole: newRole };
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/${communityId}/members/${targetUserId}/role`, body);
   }
 }

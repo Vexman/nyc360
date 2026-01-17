@@ -1,5 +1,5 @@
 <div class="community-wrapper" *ngIf="community">
-  
+
   <div class="community-header">
     <div class="cover-container">
       <div class="cover-image" [style.backgroundImage]="'url(' + resolveCommunityImage(community.coverUrl) + ')'"></div>
@@ -11,29 +11,32 @@
         <div class="logo-box">
           <img [src]="resolveCommunityImage(community.imageUrl)" alt="Community Logo">
         </div>
-        
+
         <div class="text-details">
           <h1>{{ community.name }}</h1>
           <p class="meta">
             <span class="badge-type">{{ community.type === 5 ? 'Public Resources' : 'Community' }}</span>
-            &bull; 
+            &bull;
             <span><i class="bi bi-people-fill"></i> {{ community.memberCount }} Members</span>
           </p>
         </div>
 
         <div class="action-box">
-          
-          <button *ngIf="!isJoined" 
-                  class="btn-action btn-join" 
-                  (click)="onJoinCommunity()" 
-                  [disabled]="isJoinLoading">
+
+          <!-- Management Button (Owner Only) -->
+          <button *ngIf="isOwner" class="btn-action btn-manage"
+            [routerLink]="['/public/community', community.slug, 'manage']">
+            <i class="bi bi-gear-fill"></i> Manage
+          </button>
+
+          <button *ngIf="!isJoined" class="btn-action btn-join" (click)="onJoinCommunity()" [disabled]="isJoinLoading">
             <span *ngIf="isJoinLoading" class="spinner-border spinner-border-sm"></span>
             <span *ngIf="!isJoinLoading"><i class="bi bi-person-plus-fill"></i> Join Community</span>
           </button>
 
           <div *ngIf="isJoined" class="joined-dropdown">
             <button class="btn-action btn-status">
-              <i class="bi bi-check-circle-fill"></i> 
+              <i class="bi bi-check-circle-fill"></i>
               {{ isOwner ? 'Owner' : (memberRole === 2 ? 'Moderator' : 'Member') }}
             </button>
             <button *ngIf="!isOwner" class="btn-leave-sm" (click)="onLeaveCommunity()" title="Leave Community">
@@ -64,19 +67,19 @@
   </div>
 
   <div class="community-body container">
-    
+
     <aside class="side-panel">
       <div class="widget about-widget">
         <h3>About Community</h3>
         <p class="desc">{{ community.description || 'Welcome to our community! Join the conversation.' }}</p>
-        
+
         <div class="stat-row">
           <div class="stat"><strong>{{ community.memberCount }}</strong> <span>Members</span></div>
           <div class="stat"><strong>{{ posts.length }}</strong> <span>Posts</span></div>
         </div>
-        
+
         <hr>
-        
+
         <div class="meta-list">
           <div class="meta-item"><i class="bi bi-calendar3"></i> Created in 2026</div>
           <div class="meta-item" *ngIf="isJoined"><i class="bi bi-shield-check"></i> You are a member</div>
@@ -85,9 +88,9 @@
     </aside>
 
     <main class="main-content">
-      
+
       <ng-container *ngIf="activeTab === 'discussion'">
-        
+
         <div class="create-post-box" *ngIf="isJoined">
           <div class="input-trigger" [routerLink]="['/public/community', community.id, 'create-post']">
             <span>Start a discussion...</span>
@@ -110,8 +113,8 @@
               </div>
             </div>
             <div class="card-foot">
-      
-         
+
+
             </div>
           </div>
         </ng-container>
@@ -153,7 +156,11 @@
               </div>
             </div>
           </div>
-          <ng-template #loader><div class="spinner-center"><div class="spinner"></div></div></ng-template>
+          <ng-template #loader>
+            <div class="spinner-center">
+              <div class="spinner"></div>
+            </div>
+          </ng-template>
         </div>
       </ng-container>
 

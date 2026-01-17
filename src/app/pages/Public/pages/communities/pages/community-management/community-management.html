@@ -1,0 +1,211 @@
+<div class="management-wrapper">
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Loading community settings...</p>
+    </div>
+
+    <!-- Main Content -->
+    <ng-container *ngIf="!isLoading && community">
+
+        <!-- Header -->
+        <div class="management-header">
+            <button class="back-btn" (click)="goBack()">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+            <div class="header-info">
+                <h1>Manage: {{ community.name }}</h1>
+                <p class="subtitle">Configure your community settings, members, and more.</p>
+            </div>
+        </div>
+
+        <!-- Layout -->
+        <div class="management-layout">
+
+            <!-- Sidebar Navigation -->
+            <aside class="management-sidebar">
+                <nav class="sidebar-nav">
+                    <button *ngFor="let tab of tabs" class="nav-item" [class.active]="activeTab === tab.id"
+                        [class.danger]="tab.id === 'danger'" (click)="setTab(tab.id)">
+                        <i class="bi" [ngClass]="tab.icon"></i>
+                        <span>{{ tab.label }}</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Main Panel -->
+            <main class="management-panel">
+
+                <!-- Overview Tab -->
+                <section class="tab-section" *ngIf="activeTab === 'overview'">
+                    <div class="section-header">
+                        <h2>Community Overview</h2>
+                        <p>Quick stats and information about your community.</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="bi bi-people-fill"></i>
+                            <div class="stat-info">
+                                <span class="stat-value">{{ community.memberCount }}</span>
+                                <span class="stat-label">Members</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="bi bi-shield-check"></i>
+                            <div class="stat-info">
+                                <span class="stat-value">{{ community.type === 5 ? 'Public' : 'Community' }}</span>
+                                <span class="stat-label">Type</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="bi bi-bookmark-star"></i>
+                            <div class="stat-info">
+                                <span class="stat-value">Owner</span>
+                                <span class="stat-label">Your Role</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="community-preview">
+                        <div class="preview-cover"
+                            [style.backgroundImage]="'url(' + resolveCommunityImage(community.coverUrl) + ')'">
+                            <div class="preview-overlay"></div>
+                        </div>
+                        <div class="preview-body">
+                            <img [src]="resolveCommunityImage(community.imageUrl)" alt="Logo" class="preview-logo">
+                            <div class="preview-info">
+                                <h3>{{ community.name }}</h3>
+                                <p>{{ community.description || 'No description set.' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Members Tab -->
+                <section class="tab-section" *ngIf="activeTab === 'members'">
+                    <div class="section-header">
+                        <h2>Manage Members</h2>
+                        <p>View, promote, or remove members from your community.</p>
+                    </div>
+
+                    <div class="members-loading" *ngIf="isMembersLoading">
+                        <div class="spinner"></div>
+                    </div>
+
+                    <div class="members-list" *ngIf="!isMembersLoading">
+                        <div class="member-card" *ngFor="let member of members">
+                            <div class="member-left">
+                                <img [src]="resolveUserAvatar(member.avatarUrl)" alt="Avatar" class="member-avatar">
+                                <div class="member-info">
+                                    <h4>{{ member.name || 'Unknown User' }}</h4>
+                                    <div class="member-meta">
+                                        <span class="role-badge" [class.owner]="member.role === 'Owner'"
+                                            [class.mod]="member.role === 'Moderator'">
+                                            {{ member.role }}
+                                        </span>
+                                        <span class="joined">Joined {{ member.joinedAt | date:'mediumDate' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="member-actions" *ngIf="member.userId !== ownerId">
+                                <!-- Promote / Demote Toggle -->
+                                <button *ngIf="member.role === 'Member'" class="action-btn promote"
+                                    (click)="onPromoteToModerator(member.userId)" title="Promote to Moderator">
+                                    <i class="bi bi-arrow-up-circle"></i>
+                                </button>
+                                <button *ngIf="member.role === 'Moderator' || member.role === 'Admin'"
+                                    class="action-btn demote" (click)="onDemoteToMember(member.userId)"
+                                    title="Demote to Member">
+                                    <i class="bi bi-arrow-down-circle"></i>
+                                </button>
+
+                                <button class="action-btn remove" (click)="onRemoveMember(member.userId)"
+                                    title="Remove Member">
+                                    <i class="bi bi-person-x"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="empty-members" *ngIf="members.length === 0">
+                            <i class="bi bi-people"></i>
+                            <p>No members yet.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Tab -->
+                <section class="tab-section" *ngIf="activeTab === 'settings'">
+                    <div class="section-header">
+                        <h2>Community Settings</h2>
+                        <p>Update your community's name, description, and visibility.</p>
+                    </div>
+
+                    <form class="settings-form" (ngSubmit)="onSaveSettings()">
+                        <div class="form-group">
+                            <label for="name">Community Name</label>
+                            <input type="text" id="name" [(ngModel)]="editForm.name" name="name"
+                                placeholder="Enter community name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" [(ngModel)]="editForm.description" name="description" rows="4"
+                                placeholder="Describe your community..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="type">Visibility</label>
+                            <select id="type" [(ngModel)]="editForm.type" name="type">
+                                <option [value]="1">Public</option>
+                                <option [value]="2">Private</option>
+                                <option [value]="5">Public Resources</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-save" [disabled]="isSaving">
+                                <span *ngIf="isSaving" class="spinner-border spinner-border-sm"></span>
+                                <span *ngIf="!isSaving"><i class="bi bi-check-lg"></i> Save Changes</span>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Danger Zone Tab -->
+                <section class="tab-section" *ngIf="activeTab === 'danger'">
+                    <div class="section-header danger">
+                        <h2><i class="bi bi-exclamation-triangle"></i> Danger Zone</h2>
+                        <p>Irreversible actions. Proceed with caution.</p>
+                    </div>
+
+                    <div class="danger-actions">
+                        <div class="danger-card">
+                            <div class="danger-info">
+                                <h4>Transfer Ownership</h4>
+                                <p>Transfer this community to another member. You will lose all owner privileges.</p>
+                            </div>
+                            <button class="btn-danger-outline" (click)="onTransferOwnership()">
+                                <i class="bi bi-arrow-left-right"></i> Transfer
+                            </button>
+                        </div>
+
+                        <div class="danger-card">
+                            <div class="danger-info">
+                                <h4>Delete Community</h4>
+                                <p>Permanently delete this community and all its content. This action cannot be undone.
+                                </p>
+                            </div>
+                            <button class="btn-danger" (click)="onDeleteCommunity()">
+                                <i class="bi bi-trash3"></i> Delete Community
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+
+    </ng-container>
+</div>
