@@ -22,6 +22,7 @@ export class InitiativesLayoutComponent implements OnInit {
   currentCategory = 0;
   pageTitle = '';
   themeColor = '#00c3ff';
+  themeLight = 'rgba(0, 195, 255, 0.1)';
 
   // البحث والفلاتر
   searchQuery = '';
@@ -36,8 +37,6 @@ export class InitiativesLayoutComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private postsService: PostsService,
-    private el: ElementRef,
-    private renderer: Renderer2,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -54,19 +53,11 @@ export class InitiativesLayoutComponent implements OnInit {
         this.themeColor = data['themeColor'] || '#00c3ff';
       }
 
-      this.applyTheme(this.themeColor);
+      this.themeLight = this.themeColor + '1a'; // 10% opacity
+
       this.loadInitiatives();
       this.cdr.markForCheck();
     });
-  }
-
-  applyTheme(color: string) {
-    if (this.el.nativeElement) {
-      this.renderer.setStyle(this.el.nativeElement, '--theme-color', color);
-      // لون خفيف للخلفيات والفلاتر النشطة
-      this.renderer.setStyle(this.el.nativeElement, '--theme-light', color + '1a'); // 10% opacity hex code approx
-      this.cdr.detectChanges(); // Ensure UI reflects changes immediately
-    }
   }
 
   loadInitiatives() {
