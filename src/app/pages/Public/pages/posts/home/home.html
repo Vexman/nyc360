@@ -124,8 +124,8 @@
           <span class="sun-icon"><i class="bi bi-geo-alt-fill"></i> {{ currentDate | date:'fullDate' }}</span>
         </div>
         <div class="w-body">
-          <div class="temp-box">
-            <span class="degree">{{ weatherData.temp }}°F</span>
+          <div class="temp-box" (click)="toggleUnit()" style="cursor: pointer;" title="Click to switch C/F">
+            <span class="degree">{{ displayTemp }}°{{ isFahrenheit ? 'F' : 'C' }}</span>
             <span class="desc">{{ weatherData.desc | titlecase }}</span>
           </div>
           <div class="aqi-box">

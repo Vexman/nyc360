@@ -43,6 +43,7 @@ export class Home implements OnInit {
   // Weather Data
   weatherData: any = null;
   currentDate: Date = new Date();
+  isFahrenheit: boolean = true; // Default to F for NYC
 
   // Alerts Data
   alerts: Alert[] = [
@@ -65,17 +66,38 @@ export class Home implements OnInit {
   }
 
   getRealWeather() {
-    this.weatherService.getWeather().subscribe(data => {
-      if (data) {
-        this.weatherData = {
-          temp: Math.round(data.main.temp),
-          desc: data.weather[0].description,
-          icon: `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`,
-          humidity: data.main.humidity
-        };
-      }
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.fetchWeather(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.warn('Location access denied, defaulting to NYC');
+          this.fetchWeather(); // Will use default inside service
+        }
+      );
+    } else {
+      this.fetchWeather();
+    }
+  }
+
+  fetchWeather(lat?: number, lon?: number) {
+    this.weatherService.getWeather(lat, lon).subscribe(data => {
+      this.weatherData = data;
       this.cdr.detectChanges();
     });
+  }
+
+  toggleUnit() {
+    this.isFahrenheit = !this.isFahrenheit;
+  }
+
+  get displayTemp(): number {
+    if (!this.weatherData) return 0;
+    if (this.isFahrenheit) {
+      return Math.round((this.weatherData.tempC * 9 / 5) + 32);
+    }
+    return Math.round(this.weatherData.tempC);
   }
 
   loadFeed() {
@@ -237,6 +259,8 @@ export class Home implements OnInit {
   private normalizePost(post: any): Post {
     if (!post.stats) post.stats = { views: 0, likes: 0, dislikes: 0, comments: 0, shares: 0 };
     if (post.isSaved === undefined) post.isSaved = (post.isSavedByUser === true);
+    if (!post.title) post.title = '';
+    if (!post.content) post.content = '';
     return post;
   }
 
