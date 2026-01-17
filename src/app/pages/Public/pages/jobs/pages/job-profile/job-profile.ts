@@ -14,7 +14,7 @@ import { AuthService } from '../../../../../Authentication/Service/auth';
 @Component({
   selector: 'app-job-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './job-profile.html',
   styleUrls: ['./job-profile.scss']
 })

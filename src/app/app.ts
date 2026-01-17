@@ -8,8 +8,7 @@ import { BackToTopComponent } from './shared/components/back-to-top/back-to-top'
   selector: 'app-root',
   imports: [RouterOutlet, ConfirmationModalComponent, GlobalLoaderComponent, BackToTopComponent],
   templateUrl: './app.html',
-  styleUrl: './app.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './app.scss'
 })
 export class App {
   protected readonly title = signal('my-ssr-app');

@@ -9,7 +9,7 @@
 
         <div class="featured-row">
           <div class="feat-card" *ngFor="let post of featuredPosts" (click)="goToPost(post)">
-            <img [src]="resolvePostImage(post)" alt="Post Image">
+            <img [src]="resolvePostImage(post)" alt="Post Image" loading="lazy">
 
             <button class="save-btn" [class.saved]="post.isSaved" (click)="onSavePost(post, $event)">
               <i class="bi" [ngClass]="post.isSaved ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
@@ -27,7 +27,7 @@
 
       <section class="hero-section" *ngIf="heroBanner">
         <div class="hero-card" (click)="goToPost(heroBanner)">
-          <img [src]="resolvePostImage(heroBanner)" alt="Hero Image">
+          <img [src]="resolvePostImage(heroBanner)" alt="Hero Image" loading="lazy">
 
           <button class="save-btn" [class.saved]="heroBanner.isSaved" (click)="onSavePost(heroBanner, $event)">
             <i class="bi" [ngClass]="heroBanner.isSaved ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
@@ -49,7 +49,7 @@
         <div class="posts-grid">
           <div class="std-card" *ngFor="let post of group.posts | slice:0:4" (click)="goToPost(post)">
             <div class="img-wrapper">
-              <img [src]="resolvePostImage(post)">
+              <img [src]="resolvePostImage(post)" loading="lazy">
               <button class="save-btn" [class.saved]="post.isSaved" (click)="onSavePost(post, $event)">
                 <i class="bi" [ngClass]="post.isSaved ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
               </button>
@@ -74,7 +74,7 @@
               <button class="save-btn" [class.saved]="post.isSaved" (click)="onSavePost(post, $event)">
                 <i class="bi" [ngClass]="post.isSaved ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
               </button>
-              <img [src]="resolvePostImage(post)">
+              <img [src]="resolvePostImage(post)" loading="lazy">
             </div>
             <div class="h-content">
               <h2 class="h-title">{{ post.title }}</h2>
