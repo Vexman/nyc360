@@ -75,6 +75,10 @@ export interface Post {
   isSavedByUser?: boolean;
   // ✅ UI State Field
   isSaved?: boolean;
+
+  // UI State for feed/profile
+  showComments?: boolean;
+  newCommentContent?: string;
 }
 
 export interface InterestGroup {

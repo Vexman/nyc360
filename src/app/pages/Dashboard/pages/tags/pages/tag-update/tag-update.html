@@ -29,7 +29,7 @@
           <select [(ngModel)]="selectedDivision" name="division"
             [class.invalid-border]="formSubmitted && selectedDivision === null" required>
             <option [ngValue]="null" disabled>Select Division</option>
-            <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.label }}</option>
+            <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.label }}</option>
           </select>
           <span class="error-msg" *ngIf="formSubmitted && selectedDivision === null">Please select a division</span>
         </div>
@@ -47,8 +47,8 @@
         <div class="input-field full-width position-relative">
           <label>Parent Tag (Link/Unlink)</label>
           <div class="search-wrapper position-relative">
-            <input type="text" (input)="onSearchParent($event)" placeholder="Search to change parent..."
-              [value]="selectedParentName">
+            <input type="text" [(ngModel)]="parentSearchQuery" name="parentSearchQuery" (input)="onSearchParent($event)"
+              placeholder="Search to change parent...">
             <i class="bi bi-search position-absolute" style="right: 15px; top: 14px; opacity: 0.5;"></i>
           </div>
 

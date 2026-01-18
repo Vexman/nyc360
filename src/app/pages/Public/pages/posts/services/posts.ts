@@ -39,8 +39,8 @@ export class PostsService {
   }
 
   // ✅ Share Post according to Swagger
-  sharePost(id: number, content: string = ''): Observable<ApiResponse<any>> {
-    const body = { content: content };
+  sharePost(id: number, commentary: string = ''): Observable<ApiResponse<any>> {
+    const body = { Commentary: commentary };
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/${id}/share`, body);
   }
 

@@ -137,9 +137,14 @@
                         </div>
                         <div class="list-entries">
                             <div class="list-entry" *ngFor="let link of user.socialLinks">
-                                <div class="entry-info">
+                                <div class="entry-info social-row">
                                     <i class="bi" [ngClass]="getPlatformIcon(link.platform)"></i>
                                     <a [href]="link.url" target="_blank">{{ getPlatformName(link.platform) }}</a>
+                                </div>
+                                <div class="entry-actions">
+                                    <button (click)="openEditSocial(link)"><i class="bi bi-pencil"></i></button>
+                                    <button (click)="deleteSocial((link.id || link.linkId)!)" class="text-danger"><i
+                                            class="bi bi-trash"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -182,14 +187,14 @@
                         </div>
 
                         <!-- Login Activity (Placeholder) -->
-                        <div class="setting-item">
+                        <!-- <div class="setting-item">
                             <div class="item-icon"><i class="bi bi-clock-history"></i></div>
                             <div class="item-content">
                                 <h4>Login Activity</h4>
                                 <p>View where you're logged in.</p>
                             </div>
                             <button class="btn-link">View</button>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </section>
@@ -362,7 +367,7 @@
     <div class="modal-backdrop" *ngIf="modalState.social">
         <div class="modal-content animate-pop-in">
             <div class="modal-header">
-                <h3>Add Social Link</h3><button (click)="closeModals()">&times;</button>
+                <h3>{{ isEditMode ? 'Edit' : 'Add' }} Social Link</h3><button (click)="closeModals()">&times;</button>
             </div>
             <form [formGroup]="socialForm" (ngSubmit)="saveSocial()">
                 <div class="form-group"><label>Platform</label>
@@ -372,8 +377,10 @@
                 </div>
                 <div class="form-group"><label>URL</label><input formControlName="url" class="form-control"
                         placeholder="https://..."></div>
-                <div class="modal-footer"><button type="submit" class="btn-primary">{{ isSaving ? 'Adding...' : 'Add
-                        Link' }}</button></div>
+                <div class="modal-footer"><button type="submit" class="btn-primary" [disabled]="isSaving">
+                        {{ isSaving ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update' : 'Add Link')
+                        }}
+                    </button></div>
             </form>
         </div>
     </div>
@@ -402,6 +409,21 @@
                         }}</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- HIGH-IMPACT SUCCESS OVERLAY -->
+    <div class="success-overlay-container" *ngIf="showSuccessOverlay">
+        <div class="success-card">
+            <div class="success-icon-wrapper">
+                <div class="checkmark-circle">
+                    <div class="checkmark draw"></div>
+                </div>
+            </div>
+            <div class="success-content">
+                <h2>Done!</h2>
+                <p>{{ successMessage }}</p>
+            </div>
         </div>
     </div>
 

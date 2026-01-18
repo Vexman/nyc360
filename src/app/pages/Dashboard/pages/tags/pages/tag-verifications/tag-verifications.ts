@@ -45,11 +45,11 @@ export class TagVerificationsComponent implements OnInit {
         this.cdr.detectChanges();
 
         this.verificationService.getPendingRequests(this.currentPage, this.pageSize).subscribe({
-            next: (res) => {
-                if (res.isSuccess) {
-                    this.requests = res.data || [];
-                    this.totalCount = res.totalCount;
-                    this.totalPages = res.totalPages;
+            next: (res: any) => {
+                if (res.isSuccess || res.IsSuccess) {
+                    this.requests = res.data || res.Data || [];
+                    this.totalCount = res.totalCount ?? res.TotalCount ?? 0;
+                    this.totalPages = res.totalPages ?? res.TotalPages ?? 0;
                 }
                 this.isLoading = false;
                 this.cdr.detectChanges();
@@ -67,9 +67,9 @@ export class TagVerificationsComponent implements OnInit {
         if (!this.searchTerm) return this.requests;
         const term = this.searchTerm.toLowerCase();
         return this.requests.filter(r =>
-            r.requester.username.toLowerCase().includes(term) ||
-            r.requester.fullName?.toLowerCase().includes(term) ||
-            r.tag.name.toLowerCase().includes(term)
+            r.requester?.username?.toLowerCase().includes(term) ||
+            r.requester?.fullName?.toLowerCase().includes(term) ||
+            r.tag?.name?.toLowerCase().includes(term)
         );
     }
 

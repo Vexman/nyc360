@@ -1,4 +1,4 @@
-import { Post } from "../../posts/models/posts";
+import { Post, PostComment, PostStats } from "../../posts/models/posts";
 
 export enum UserType {
   Normal = 0, Organization = 1, Admin = 2
@@ -79,12 +79,11 @@ export interface ProfilePost {
     fullName: string;
     imageUrl: string;
   };
-  stats?: {
-    views: number;
-    likes: number;
-    comments: number;
-    shares: number;
-  };
+  stats?: PostStats;
+  userInteraction?: number | null;
+  showComments?: boolean;
+  newCommentContent?: string;
+  comments?: PostComment[];
 }
 
 export interface UserProfileData {
