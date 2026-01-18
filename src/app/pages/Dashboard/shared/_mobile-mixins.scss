@@ -1,0 +1,243 @@
+// Dashboard Mobile Responsive Mixins
+// Use these mixins in all Dashboard page SCSS files
+
+// Extra Small Phones (< 375px)
+@mixin extra-small-phone {
+    @media (max-width: 374px) {
+        @content;
+    }
+}
+
+// Small Phones (375px - 480px)
+@mixin small-phone {
+    @media (max-width: 480px) {
+        @content;
+    }
+}
+
+// Tablets (481px - 768px)
+@mixin tablet {
+    @media (max-width: 768px) {
+        @content;
+    }
+}
+
+// Apply to all Dashboard pages
+@mixin dashboard-mobile {
+
+    // Tablet
+    @include tablet {
+        .container-fluid {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        .gold-title {
+            font-size: 1.75rem !important;
+        }
+
+        .header-section {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 1rem;
+        }
+
+        .glass-panel {
+            padding: 1rem;
+        }
+
+        .luxury-table {
+            font-size: 0.875rem;
+        }
+    }
+
+    // Small Phone
+    @include small-phone {
+        .container-fluid {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        .gold-title {
+            font-size: 1.5rem !important;
+        }
+
+        .glass-panel {
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
+            margin-left: -8px !important;
+            margin-right: -8px !important;
+            padding: 0.75rem;
+        }
+
+        .luxury-table {
+            font-size: 0.8rem;
+
+            // Hide middle columns, keep first and last
+            th:not(:first-child):not(:last-child),
+            td:not(:first-child):not(:last-child) {
+                &:nth-child(n+3):nth-last-child(n+2) {
+                    display: none;
+                }
+            }
+        }
+
+        .btn,
+        button {
+            font-size: 0.85rem;
+            padding: 8px 12px;
+        }
+
+        .action-btns {
+            gap: 6px !important;
+
+            button {
+                flex: 1;
+                min-width: 70px;
+            }
+        }
+    }
+
+    // Extra Small Phone
+    @include extra-small-phone {
+        .container-fluid {
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+
+        .gold-title {
+            font-size: 1.25rem !important;
+        }
+
+        .glass-panel {
+            padding: 0.5rem;
+        }
+
+        .luxury-table {
+            font-size: 0.75rem;
+        }
+
+        .btn,
+        button {
+            font-size: 0.75rem;
+            padding: 6px 10px;
+        }
+
+        .stat-card {
+
+            .count,
+            .stat-number {
+                font-size: 1.5rem !important;
+            }
+
+            .stat-label {
+                font-size: 0.65rem;
+            }
+        }
+    }
+}
+
+// Table responsive helper
+@mixin table-responsive {
+    @include small-phone {
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+
+            table {
+                min-width: 600px;
+            }
+        }
+    }
+}
+
+// Form responsive helper
+@mixin form-responsive {
+    @include small-phone {
+
+        .form-row,
+        .row {
+            [class*='col-'] {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+    }
+}
+
+// Modal responsive helper
+@mixin modal-responsive {
+    @include small-phone {
+
+        .modal-content,
+        .luxury-modal-content {
+            margin: 10px;
+            max-width: calc(100vw - 20px);
+            border-radius: 16px;
+        }
+
+        .modal-luxury-header,
+        .modal-luxury-body {
+            padding: 1rem;
+        }
+
+        .modal-luxury-footer {
+            padding: 1rem;
+            flex-direction: column;
+
+            button {
+                width: 100%;
+            }
+        }
+    }
+
+    @include extra-small-phone {
+
+        .modal-luxury-header,
+        .modal-luxury-body,
+        .modal-luxury-footer {
+            padding: 0.75rem;
+        }
+    }
+}
+
+// Stats cards responsive
+@mixin stats-responsive {
+    @include tablet {
+        .stat-card {
+            margin-bottom: 1rem;
+
+            .stat-number,
+            .count {
+                font-size: 2rem;
+            }
+        }
+    }
+
+    @include small-phone {
+        .stat-card {
+            padding: 1rem;
+
+            .stat-number,
+            .count {
+                font-size: 1.75rem;
+            }
+        }
+    }
+
+    @include extra-small-phone {
+        .stat-card {
+            padding: 0.75rem;
+
+            .stat-number,
+            .count {
+                font-size: 1.5rem !important;
+            }
+        }
+    }
+}

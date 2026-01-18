@@ -1,0 +1,136 @@
+// Dashboard Mobile Responsive Utilities
+// Extra small devices (< 375px)
+@media (max-width: 374px) {
+    .container-fluid {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+
+    .glass-panel,
+    .table-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        margin-left: -8px !important;
+        margin-right: -8px !important;
+    }
+
+    .row {
+        margin-left: -4px !important;
+        margin-right: -4px !important;
+
+        >[class*='col-'] {
+            padding-left: 4px !important;
+            padding-right: 4px !important;
+        }
+    }
+
+    h1,
+    .gold-title {
+        font-size: 1.25rem !important;
+    }
+
+    h2 {
+        font-size: 1.1rem !important;
+    }
+
+    h3,
+    h4 {
+        font-size: 1rem !important;
+    }
+
+    .btn,
+    button {
+        font-size: 0.8rem !important;
+        padding: 6px 10px !important;
+    }
+
+    .stat-card {
+        padding: 12px !important;
+
+        .count,
+        .stat-number {
+            font-size: 1.5rem !important;
+        }
+    }
+}
+
+// Small phones (375px - 480px)
+@media (max-width: 480px) {
+
+    // Ensure tables are scrollable
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+
+        table {
+            min-width: 600px;
+        }
+    }
+
+    // Stack form elements
+    .form-row,
+    .row.g-3,
+    .row.g-4 {
+
+        .col-md-6,
+        .col-lg-3,
+        .col-lg-4,
+        .col-lg-6 {
+            width: 100%;
+            max-width: 100%;
+        }
+    }
+
+    // Make action buttons stack
+    .action-btns,
+    .header-actions {
+        flex-wrap: wrap;
+        gap: 8px !important;
+
+        button,
+        .btn {
+            flex: 1 1 auto;
+            min-width: 80px;
+        }
+    }
+
+    // Modal adjustments
+    .modal-content,
+    .luxury-modal-content {
+        margin: 10px;
+        max-width: calc(100vw - 20px);
+    }
+}
+
+// General mobile optimizations (max-width: 768px)
+@media (max-width: 768px) {
+
+    // Hide less important columns in tables
+    .luxury-table {
+
+        th:nth-child(n+4),
+        td:nth-child(n+4) {
+            display: none;
+        }
+
+        // Keep ID and Actions visible
+        th:first-child,
+        td:first-child,
+        th:last-child,
+        td:last-child {
+            display: table-cell !important;
+        }
+    }
+
+    // Stack stats cards
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+
+    // Ensure text doesn't overflow
+    * {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+}

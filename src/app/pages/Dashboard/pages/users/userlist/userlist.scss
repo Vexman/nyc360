@@ -158,6 +158,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
 }
 
 .luxury-modal-content {
@@ -168,6 +169,8 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   overflow: hidden;
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
 
   &.role-manager-luxury {
     max-width: 450px;
@@ -335,8 +338,216 @@
   }
 }
 
+// ============= MOBILE RESPONSIVE =============
+
+// Prevent horizontal scroll
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.users-page,
+.container-fluid {
+  overflow-x: hidden !important;
+  max-width: 100vw;
+}
+
 @media (max-width: 991px) {
   .search-box {
     width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .users-page {
+    padding-bottom: 2rem;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .gold-title {
+    font-size: 1.75rem !important;
+  }
+
+  .luxury-table {
+    font-size: 0.85rem;
+
+    // Hide biography column on tablets
+    th:nth-child(2),
+    td:nth-child(2) {
+      display: none;
+    }
+  }
+
+  .luxury-avatar-wrapper {
+    width: 38px;
+    height: 38px;
+  }
+
+  .btn-circle-luxury {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .modal-luxury-header,
+  .modal-luxury-body,
+  .modal-luxury-footer {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gold-title {
+    font-size: 1.5rem !important;
+  }
+
+  .search-box {
+    font-size: 0.85rem;
+    padding: 0 0.75rem;
+
+    input {
+      font-size: 0.85rem;
+    }
+  }
+
+  .glass-panel {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+  }
+
+  .luxury-table {
+
+    // Show only Name, Role, and Actions on phones
+    th:nth-child(2),
+    td:nth-child(2),
+    th:nth-child(4),
+    td:nth-child(4) {
+      display: none;
+    }
+
+    .luxury-avatar-wrapper {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .modal-luxury-content {
+    max-width: 100%;
+    border-radius: 16px;
+    margin: 10px;
+  }
+
+  .avatar-upload-luxury {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+// Card layout for very small screens
+@media (max-width: 600px) {
+  .luxury-table {
+    display: block;
+
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: block;
+
+      tr {
+        display: block;
+        margin-bottom: 1rem;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+        td {
+          display: block;
+          text-align: left !important;
+          padding: 8px 0 !important;
+          border: none !important;
+
+          &:last-child {
+            padding-top: 12px;
+            margin-top: 8px;
+            border-top: 1px solid #e2e8f0;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 374px) {
+  .gold-title {
+    font-size: 1.25rem !important;
+  }
+
+  .mini-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .btn-circle-luxury {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .role-badge-luxury {
+    font-size: 0.6rem;
+    padding: 3px 8px;
+  }
+
+  .luxury-table {
+    font-size: 0.75rem;
+
+    .luxury-avatar-wrapper {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .modal-luxury-header,
+  .modal-luxury-body {
+    padding: 0.75rem;
+  }
+
+  .modal-luxury-footer {
+    padding: 0.75rem;
+    flex-direction: column;
+
+    button {
+      width: 100%;
+      min-width: auto;
+    }
+  }
+
+  .glass-panel {
+    padding: 8px !important;
+  }
+
+  .header-section {
+    padding: 8px;
+
+    .gold-title {
+      font-size: 1.2rem !important;
+      line-height: 1.3;
+    }
   }
 }

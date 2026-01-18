@@ -97,7 +97,7 @@
                   <div class="d-flex align-items-center gap-3">
                     <div class="post-thumb-wrapper">
                       <img [src]="getMainImage(post) || 'assets/images/placeholder-post.png'" class="post-thumb"
-                        loading="lazy" (error)="post.imageUrl = null">
+                        loading="lazy" appImagePlaceholder placeholderType="post">
                     </div>
                     <div class="post-info">
                       <h5 class="post-title text-truncate-2">{{ post.title }}</h5>

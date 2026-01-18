@@ -179,3 +179,136 @@
     border-color: var(--luxury-gold);
   }
 }
+
+// Mobile Responsive Enhancements
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0.5rem;
+  }
+
+  .header-luxury {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 1rem;
+
+    .date-pill {
+      margin-left: 0;
+    }
+  }
+
+  .stat-card-luxury {
+    padding: 1rem;
+
+    .stat-number {
+      font-size: 1.75rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 0.25rem;
+  }
+
+  .gold-title {
+    font-size: 1.5rem !important;
+  }
+
+  .luxury-table {
+    font-size: 0.85rem;
+
+    .luxury-avatar {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .bar-item {
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+@media (max-width: 374px) {
+  .stat-card-luxury {
+    padding: 0.75rem;
+    border-radius: 12px;
+
+    .stat-label {
+      font-size: 0.65rem;
+    }
+
+    .stat-number {
+      font-size: 1.5rem !important;
+    }
+
+    .stat-icon-wrapper {
+      width: 36px;
+      height: 36px;
+      font-size: 1.1rem;
+    }
+
+    .trend-badge {
+      font-size: 0.6rem;
+      padding: 1px 6px;
+    }
+  }
+
+  .gold-title {
+    font-size: 1.25rem !important;
+  }
+
+  .date-pill {
+    font-size: 0.7rem;
+    padding: 6px 12px !important;
+  }
+
+  // Additional fixes for very small screens
+  .container-fluid {
+    padding-left: 4px;
+    padding-right: 4px;
+    overflow-x: hidden;
+  }
+
+  .row {
+    margin-left: -2px;
+    margin-right: -2px;
+
+    >[class*='col-'] {
+      padding-left: 2px;
+      padding-right: 2px;
+    }
+  }
+
+  .glass-panel {
+    border-radius: 8px !important;
+    margin-bottom: 8px;
+  }
+
+  .luxury-table {
+    font-size: 0.7rem;
+
+    .luxury-avatar {
+      width: 24px !important;
+      height: 24px !important;
+    }
+  }
+
+  .bar-item {
+    margin-bottom: 1rem !important;
+
+    h4 {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// Ensure no horizontal scroll
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.dashboard-container,
+.container-fluid {
+  overflow-x: hidden;
+}

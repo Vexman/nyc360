@@ -5,8 +5,8 @@ $primary-orange: #FF9933;
 $text-dark: #111111;
 $text-gray: #666666;
 $bg-partners: #052C65;
-$bg-roadmap: #FFFFFF; // Changed to White per image
-$bg-purple-light: #E8EBF8; // For Card 1
+$bg-roadmap: #FFFFFF;
+$bg-purple-light: #E8EBF8;
 $bg-contact-header: #EBEBFA;
 $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
 
@@ -180,6 +180,7 @@ $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
       .hero-buttons {
         display: flex;
         gap: 20px;
+        flex-wrap: wrap;
       }
     }
 
@@ -270,7 +271,6 @@ $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
     grid-template-columns: repeat(3, 1fr);
   }
 
-  // Card styles identical to previous, compacted for brevity
   .info-card,
   .value-card {
     background: white;
@@ -320,7 +320,7 @@ $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
   }
 }
 
-// 5. STRATEGIC ROADMAP (Custom Vertical Timeline)
+// 5. STRATEGIC ROADMAP
 .roadmap-section {
   padding: 80px 0 120px;
   background-color: $bg-roadmap;
@@ -353,7 +353,6 @@ $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
     max-width: 1100px;
     margin: 0 auto;
 
-    // The Line
     .timeline-line {
       position: absolute;
       top: 0;
@@ -369,12 +368,9 @@ $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
       position: relative;
       width: 100%;
       margin-bottom: 60px;
-
-      // Clearfix-ish setup
       display: flex;
       align-items: flex-start;
 
-      // The Marker (Circle on the line)
       .timeline-marker {
         position: absolute;
         left: 50%;
@@ -391,7 +387,7 @@ $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
         font-size: 1.2rem;
         transform: translateX(-50%);
         z-index: 5;
-        box-shadow: 0 0 0 5px $bg-roadmap; // Spacing around icon
+        box-shadow: 0 0 0 5px $bg-roadmap;
       }
 
       .timeline-content {
@@ -476,15 +472,12 @@ $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
         }
       }
 
-      // Alternate sides Desktop
       &.left {
         justify-content: flex-start;
 
         .timeline-content {
           margin-right: auto;
         }
-
-        // Content pushes left
       }
 
       &.right {
@@ -493,8 +486,6 @@ $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
         .timeline-content {
           margin-left: auto;
         }
-
-        // Content pushes right
       }
     }
   }
@@ -628,11 +619,22 @@ $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
   }
 }
 
-// --- Responsive Media Queries ---
+// ============= RESPONSIVE MEDIA QUERIES =============
+
+// Tablets & Small Laptops
 @media (max-width: 992px) {
-  .hero-section .hero-content {
-    flex-direction: column-reverse;
-    text-align: center;
+  .hero-section {
+    padding: 60px 0;
+
+    .hero-content {
+      flex-direction: column-reverse;
+      text-align: center;
+      gap: 40px;
+
+      .text-side .hero-buttons {
+        justify-content: center;
+      }
+    }
   }
 
   .about-section .cards-wrapper,
@@ -643,52 +645,335 @@ $font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
   .contact-section .contact-grid {
     flex-direction: column;
   }
+
+  .section-header h2 {
+    font-size: 2.2rem;
+  }
 }
 
+// Tablets Portrait
 @media (max-width: 768px) {
-  .hero-section .hero-content .text-side .headline {
-    font-size: 2.5rem;
-  }
+  .hero-section {
+    padding: 40px 0;
 
-  .about-section .cards-wrapper,
-  .values-section .values-grid {
-    grid-template-columns: 1fr;
-  }
-
-  // *** ROADMAP MOBILE FIX ***
-  .roadmap-section .timeline-container-vertical {
-    .timeline-line {
-      left: 30px;
-      transform: none;
-    }
-
-    // Move line to left
-    .timeline-item {
-      flex-direction: column;
-      padding-left: 70px; // Make space for line and icon
-
-      .timeline-marker {
-        left: 30px;
-        transform: translateX(-50%);
+    .hero-content .text-side {
+      .logo-text {
+        font-size: 2.5rem;
       }
 
-      // Align icon with new line pos
+      .headline {
+        font-size: 2.5rem;
+      }
 
-      // Reset width for mobile
-      &.left .timeline-content,
-      &.right .timeline-content {
-        width: 100%;
-        margin: 0;
+      .subtext {
+        font-size: 1.1rem;
       }
     }
   }
 
-  .contact-section .header-title {
+  .section-header h2 {
     font-size: 2rem;
   }
 
-  .form-side .row-inputs {
-    flex-direction: column;
-    gap: 0;
+  .about-section,
+  .values-section {
+    padding: 60px 0;
+
+    .cards-wrapper,
+    .values-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .info-card,
+    .value-card {
+      padding: 30px;
+    }
+  }
+
+  .roadmap-section {
+    padding: 60px 0 80px;
+
+    .timeline-container-vertical {
+      .timeline-line {
+        left: 30px;
+        transform: none;
+      }
+
+      .timeline-item {
+        flex-direction: column;
+        padding-left: 70px;
+
+        .timeline-marker {
+          left: 30px;
+          transform: translateX(-50%);
+        }
+
+        &.left .timeline-content,
+        &.right .timeline-content {
+          width: 100%;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  .contact-section {
+    .contact-header-bg {
+      padding: 60px 20px 140px;
+
+      .header-title {
+        font-size: 2rem;
+      }
+    }
+
+    .contact-card {
+      padding: 30px;
+    }
+
+    .form-side .row-inputs {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+
+  .partners-section .marquee-content .partner-item {
+    font-size: 1.2rem;
+    margin: 0 20px;
+  }
+}
+
+// Mobile Phones
+@media (max-width: 480px) {
+  @mixin container {
+    padding: 0 12px;
+  }
+
+  .hero-section {
+    padding: 30px 0;
+
+    .hero-content .text-side {
+      .logo-text {
+        font-size: 2rem;
+      }
+
+      .headline {
+        font-size: 1.75rem;
+      }
+
+      .subtext {
+        font-size: 1rem;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+        gap: 12px;
+
+        .btn {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .section-header {
+    h2 {
+      font-size: 1.75rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .about-section,
+  .values-section {
+    padding: 40px 0;
+
+    .info-card,
+    .value-card {
+      padding: 20px;
+
+      h3 {
+        font-size: 1.2rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+
+      .icon-circle,
+      .icon-square {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+      }
+    }
+  }
+
+  .roadmap-section {
+    padding: 40px 0 60px;
+
+    .roadmap-header h2 {
+      font-size: 2rem;
+    }
+
+    .timeline-container-vertical {
+      .timeline-item {
+        padding-left: 60px;
+        margin-bottom: 40px;
+
+        .timeline-marker {
+          width: 36px;
+          height: 36px;
+          font-size: 1rem;
+          left: 24px;
+        }
+
+        .timeline-content {
+          padding: 20px;
+
+          h3 {
+            font-size: 1.2rem;
+          }
+
+          p {
+            font-size: 0.9rem;
+          }
+
+          .tags-row .tag {
+            font-size: 0.7rem;
+            padding: 4px 8px;
+          }
+        }
+      }
+
+      .timeline-line {
+        left: 24px;
+      }
+    }
+  }
+
+  .contact-section {
+    padding-bottom: 60px;
+
+    .contact-header-bg {
+      padding: 40px 12px 100px;
+
+      .header-title {
+        font-size: 1.5rem;
+      }
+
+      .header-sub {
+        font-size: 1rem;
+      }
+    }
+
+    .cards-overlap-container {
+      margin-top: -80px;
+    }
+
+    .contact-card {
+      padding: 20px;
+
+      h3 {
+        font-size: 1.4rem;
+      }
+    }
+
+    .info-side .info-item {
+      gap: 12px;
+
+      .icon-box {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+
+      .value {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .partners-section .marquee-content .partner-item {
+    font-size: 1rem;
+    margin: 0 15px;
+  }
+}
+
+// Extra Small Phones
+@media (max-width: 374px) {
+  .hero-section .hero-content .text-side {
+    .logo-text {
+      font-size: 1.75rem;
+    }
+
+    .headline {
+      font-size: 1.5rem;
+    }
+
+    .subtext {
+      font-size: 0.95rem;
+    }
+  }
+
+  .section-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .about-section,
+  .values-section {
+
+    .info-card,
+    .value-card {
+      padding: 16px;
+
+      .icon-circle,
+      .icon-square {
+        width: 40px;
+        height: 40px;
+        font-size: 1.3rem;
+      }
+    }
+  }
+
+  .roadmap-section {
+    .timeline-container-vertical .timeline-item {
+      padding-left: 50px;
+
+      .timeline-marker {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+        left: 20px;
+      }
+
+      .timeline-content {
+        padding: 16px;
+      }
+    }
+
+    .timeline-line {
+      left: 20px !important;
+    }
+  }
+
+  .contact-section .contact-card {
+    padding: 16px;
+
+    h3 {
+      font-size: 1.2rem;
+    }
   }
 }
