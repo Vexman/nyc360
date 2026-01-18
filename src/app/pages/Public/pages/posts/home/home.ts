@@ -153,8 +153,8 @@ export class Home implements OnInit {
       }
     });
 
-    // Take top 4 valid images for featured
-    this.featuredPosts = validFeatured.slice(0, 4);
+    // Take top 3 valid images for featured row
+    this.featuredPosts = validFeatured.slice(0, 3);
 
     // 2. Hero Banner Logic
     const rawDiscovery = data.discoveryPosts || [];
@@ -285,8 +285,8 @@ export class Home implements OnInit {
       // لو الرابط لينك خارجي رجعه زي ما هو
       if (url.startsWith('http') || url.startsWith('https')) return url;
 
-      // لو الرابط محلي، ضيف مسار السيرفر
-      return `${this.environment.apiBaseUrl3}/${url}`;
+      // لو الرابط محلي، ضيف مسار السيرفر وفولدر الأفاتار
+      return `${this.environment.apiBaseUrl2}/avatars/${url}`;
     }
     return 'assets/images/default-avatar.png';
   }
@@ -296,7 +296,7 @@ export class Home implements OnInit {
     let url = attachment?.url || post.imageUrl;
 
     // 1. لو مفيش صورة، رجع صورة احتياطية (Placeholder)
-    if (!url || url.trim() === '') return 'assets/images/placeholder-news.jpg';
+    if (!url || url.trim() === '') return 'assets/images/default-post.jpg';
 
     // 2. تنظيف المسار من @local://
     url = url.replace('@local://', '');
@@ -307,7 +307,12 @@ export class Home implements OnInit {
       return url;
     }
 
-    // 4. لو الرابط مش http يعني ده اسم ملف محلي -> ضيف مسار السيرفر والفولدر posts
+    // 4. لو الرابط مش http يعني ده اسم ملف محلي
+    // نتأكد إننا مش بنكرر كلمة posts لو هي موجودة أصلاً في الـ url
+    if (url.startsWith('posts/')) {
+      return `${this.environment.apiBaseUrl2}/${url}`;
+    }
+
     return `${this.environment.apiBaseUrl3}/${url}`;
   }
 }

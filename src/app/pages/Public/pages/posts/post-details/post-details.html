@@ -249,8 +249,9 @@
       </div>
       <p class="modal-desc small text-muted mb-3">Add a comment to your shared post:</p>
       <div class="form-group">
-        <textarea class="luxury-textarea form-control" rows="3" placeholder="What's on your mind?..."
-          [(ngModel)]="shareComment"></textarea>
+        <textarea name="shareCommentary" class="luxury-textarea form-control" rows="3"
+          placeholder="What's on your mind?..." [(ngModel)]="shareCommentary"
+          (input)="shareCommentary = $any($event.target).value"></textarea>
       </div>
     </div>
     <div class="modal-footer border-top p-3 d-flex gap-2">

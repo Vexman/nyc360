@@ -1,3 +1,4 @@
+@use "sass:color";
 // --- Premium Variables ---
 $bg-body: #f8f9fc;
 $primary: #000000;
@@ -316,7 +317,7 @@ $shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
 
     .category-link {
       background: rgba($accent, 0.1);
-      color: darken($accent, 15%);
+      color: color.adjust($accent, $lightness: -15%);
       border: 1px solid rgba($accent, 0.2);
 
       &:hover {
@@ -449,6 +450,7 @@ $shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
             // Limit lines
             display: -webkit-box;
             -webkit-line-clamp: 3;
+            line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
           }

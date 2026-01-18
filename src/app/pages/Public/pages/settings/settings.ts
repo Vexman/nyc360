@@ -8,7 +8,7 @@ import { ToastService } from '../../../../shared/services/toast.service';
 import { ConfirmationService } from '../../../../shared/services/confirmation.service';
 import {
     UserProfileData, UpdateBasicProfileDto, AddEducationDto, UpdateEducationDto,
-    AddPositionDto, UpdatePositionDto, Education, Position, SocialPlatform, SocialLinkDto
+    AddPositionDto, UpdatePositionDto, Education, Position, SocialPlatform, SocialLinkDto, UserSocialLink
 } from '../profile/models/profile';
 import { Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
@@ -61,6 +61,10 @@ export class SettingsComponent implements OnInit {
     selectedVerificationFile: File | null = null;
 
     modalState = { education: false, position: false, social: false, password: false };
+
+    // Success Overlay State
+    showSuccessOverlay = false;
+    successMessage = '';
 
     socialPlatforms = [
         { id: SocialPlatform.Facebook, name: 'Facebook', icon: 'bi-facebook' },
@@ -194,7 +198,7 @@ export class SettingsComponent implements OnInit {
         setTimeout(() => {
             this.isSaving = false;
             this.modalState.password = false;
-            this.toastService.success('Password changed successfully!');
+            this.triggerSuccessOverlay('Password changed successfully!');
         }, 1000);
     }
 
@@ -204,10 +208,19 @@ export class SettingsComponent implements OnInit {
         if (res.isSuccess) {
             this.modalState[modalKey] = false;
             this.loadCurrentUser();
-            this.toastService.success('Updated successfully');
+            this.triggerSuccessOverlay('Operation completed successfully!');
         } else {
             this.toastService.error(res.error?.message || 'Update failed');
         }
+    }
+
+    triggerSuccessOverlay(message: string) {
+        this.successMessage = message;
+        this.showSuccessOverlay = true;
+        setTimeout(() => {
+            this.showSuccessOverlay = false;
+            this.cdr.detectChanges();
+        }, 2200); // Overlay duration
     }
 
     closeModals() {
@@ -261,7 +274,7 @@ export class SettingsComponent implements OnInit {
             next: (res) => {
                 this.isSaving = false;
                 if (res.isSuccess) {
-                    this.toastService.success('Profile updated successfully!');
+                    this.triggerSuccessOverlay('Profile updated successfully!');
                     this.loadCurrentUser();
                 } else {
                     this.toastService.error('Update failed');
@@ -372,10 +385,23 @@ export class SettingsComponent implements OnInit {
     }
 
     // --- Social ---
-    openAddSocial() { this.isEditMode = false; this.socialForm.reset({ platform: 0 }); this.modalState.social = true; }
+    openAddSocial() { this.isEditMode = false; this.socialForm.reset({ platform: SocialPlatform.Website }); this.modalState.social = true; }
+
+    openEditSocial(link: UserSocialLink) {
+        this.isEditMode = true;
+        this.selectedItemId = link.id || link.linkId || null;
+        this.socialForm.patchValue({
+            platform: link.platform,
+            url: link.url
+        });
+        this.modalState.social = true;
+    }
 
     saveSocial() {
-        if (this.socialForm.invalid) return;
+        if (this.socialForm.invalid) {
+            this.socialForm.markAllAsTouched();
+            return;
+        }
         this.isSaving = true;
         const dto: SocialLinkDto = {
             LinkId: this.isEditMode ? this.selectedItemId! : 0,
@@ -388,6 +414,29 @@ export class SettingsComponent implements OnInit {
         } else {
             this.profileService.addSocialLink(dto).subscribe(res => this.handleResponse(res, 'social'));
         }
+    }
+
+    deleteSocial(id: number) {
+        this.confirmationService.confirm({
+            title: 'Delete Social Link',
+            message: 'Are you sure you want to delete this social link?',
+            confirmText: 'Delete',
+            type: 'danger'
+        }).then((confirmed) => {
+            if (confirmed) {
+                this.profileService.deleteSocialLink(id).subscribe({
+                    next: (res: any) => {
+                        if (res.isSuccess) {
+                            this.toastService.success('Social link deleted');
+                            this.loadCurrentUser();
+                        } else {
+                            this.toastService.error(res.error?.message || 'Failed to delete social link');
+                        }
+                    },
+                    error: () => this.toastService.error('Network error')
+                });
+            }
+        });
     }
 
 
@@ -482,7 +531,7 @@ export class SettingsComponent implements OnInit {
     private handleVerificationSuccess(res: any) {
         this.isSaving = false;
         if (res.isSuccess) {
-            this.toastService.success('Verification request submitted successfully!');
+            this.triggerSuccessOverlay('Verification request submitted!');
             this.verificationForm.reset({ tagId: 0, documentType: 1 });
             this.selectedVerificationFile = null;
             this.clearTagSelection();

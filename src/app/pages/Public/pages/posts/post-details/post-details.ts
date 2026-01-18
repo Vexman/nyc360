@@ -74,7 +74,7 @@ export class PostDetailsComponent implements OnInit {
   ];
 
   showShareModal = false;
-  shareComment = '';
+  shareCommentary = '';
   isSharing = false;
 
   ngOnInit() {
@@ -175,19 +175,19 @@ export class PostDetailsComponent implements OnInit {
       return;
     }
     this.showShareModal = true;
-    this.shareComment = '';
+    this.shareCommentary = '';
   }
 
   closeShareModal() {
     this.showShareModal = false;
-    this.shareComment = '';
+    this.shareCommentary = '';
     this.isSharing = false;
   }
 
   submitShare() {
     if (!this.post) return;
     this.isSharing = true;
-    this.postsService.sharePost(this.post.id, this.shareComment).subscribe({
+    this.postsService.sharePost(this.post.id, this.shareCommentary).subscribe({
       next: (res: any) => {
         this.isSharing = false;
         if (res.isSuccess) {
