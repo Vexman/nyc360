@@ -57,7 +57,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="table-card glass-panel animate__animated animate__fadeInUp">
+    <div class="table-card glass-panel">
 
       <!-- Loading/Error States -->
       <div *ngIf="isLoading" class="text-center py-5 text-muted">
@@ -89,8 +89,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of rssList; let i = index" class="animate__animated animate__fadeInRight table-row"
-              [style.animation-delay]="i * 0.05 + 's'">
+            <tr *ngFor="let item of rssList; let i = index" class="table-row">
 
               <!-- Source Info -->
               <td>

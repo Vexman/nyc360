@@ -23,7 +23,7 @@
         </div>
 
         <!-- Filter Panel -->
-        <div class="filter-panel glass-panel mb-4 p-3 animate__animated animate__fadeInDown">
+        <div class="filter-panel glass-panel mb-4 p-3">
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="search-box">
@@ -46,8 +46,7 @@
             <p class="mt-3 text-muted merriweather-font letter-spacing-1">SECURELY FETCHING REQUESTS...</p>
         </div>
 
-        <div *ngIf="!isLoading && filteredRequests.length === 0"
-            class="empty-state glass-panel text-center py-5 animate__animated animate__pulse">
+        <div *ngIf="!isLoading && filteredRequests.length === 0" class="empty-state glass-panel text-center py-5">
             <div class="icon-box mb-4">
                 <div class="empty-icon-wrapper">
                     <i class="bi bi-shield-lock text-gold"></i>
@@ -60,8 +59,7 @@
 
         <div class="requests-grid row row-cols-1 row-cols-xl-2 g-4" *ngIf="filteredRequests.length > 0">
             <div class="col" *ngFor="let req of filteredRequests; let i = index">
-                <div class="request-card glass-panel animate__animated animate__fadeInUp"
-                    [style.animation-delay]="i * 0.1 + 's'">
+                <div class="request-card glass-panel">
 
                     <div class="card-top d-flex justify-content-between border-bottom p-4">
                         <div class="user-info d-flex align-items-center gap-3">
@@ -163,8 +161,7 @@
     <!-- Resolve Modal -->
     <div class="resolve-overlay animate__animated animate__fadeIn" *ngIf="selectedRequest"
         (click)="closeResolveModal()">
-        <div class="resolve-modal glass-panel-modal animate__animated animate__slideInUp"
-            (click)="$event.stopPropagation()">
+        <div class="resolve-modal glass-panel-modal" (click)="$event.stopPropagation()">
             <div class="modal-header-luxury border-bottom p-4 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     <div class="modal-icon"><i class="bi bi-shield-shaded"></i></div>
