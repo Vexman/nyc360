@@ -69,6 +69,8 @@ export interface Post {
   currentUserInteraction?: InteractionType | null;
   userInteraction?: InteractionType | null; // For UI mapping
 
+  parentPost?: Post;
+
   // ✅ Backend Field
   isSavedByUser?: boolean;
   // ✅ UI State Field
