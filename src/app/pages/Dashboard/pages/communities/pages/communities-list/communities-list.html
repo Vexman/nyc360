@@ -1,4 +1,4 @@
-<div class="dashboard-container">
+<div>
   <!-- Header Section -->
   <div class="header-section">
     <div class="title-group">
@@ -36,7 +36,8 @@
         <option *ngFor="let type of communityTypes" [ngValue]="type.value">{{ type.label }}</option>
       </select>
       <div class="form-check form-switch ms-3">
-        <input class="form-check-input" type="checkbox" id="disbandFilter" [(ngModel)]="hasDisbandRequest" (change)="onDisbandFilterChange()">
+        <input class="form-check-input" type="checkbox" id="disbandFilter" [(ngModel)]="hasDisbandRequest"
+          (change)="onDisbandFilterChange()">
         <label class="form-check-label" for="disbandFilter">Disband Requests Only</label>
       </div>
       <button class="btn btn-primary ms-3" (click)="onSearch()">
@@ -65,7 +66,7 @@
             <td>
               <div class="d-flex align-items-center">
                 <div class="community-avatar">
-                   {{ community.name.charAt(0) }}
+                  {{ community.name.charAt(0) }}
                 </div>
                 <div class="ms-3">
                   <div class="fw-bold">{{ community.name }}</div>
@@ -83,7 +84,8 @@
                 <span class="count">{{ community.memberCount }}</span>
                 <div class="sub-counts">
                   <span title="Leaders"><i class="bi bi-person-badge"></i> {{ community.leaderCount }}</span>
-                  <span title="Moderators" class="ms-2"><i class="bi bi-shield-check"></i> {{ community.moderatorCount }}</span>
+                  <span title="Moderators" class="ms-2"><i class="bi bi-shield-check"></i> {{ community.moderatorCount
+                    }}</span>
                 </div>
               </div>
             </td>
@@ -107,7 +109,8 @@
             </td>
             <td class="text-end">
               <div class="btn-group">
-                <a [routerLink]="['../moderation', community.id]" class="btn btn-sm btn-outline-primary" title="Moderate">
+                <a [routerLink]="['../moderation', community.id]" class="btn btn-sm btn-outline-primary"
+                  title="Moderate">
                   <i class="bi bi-shield-lock"></i>
                 </a>
                 <button class="btn btn-sm btn-outline-info" title="View Public Profile">
@@ -144,9 +147,8 @@
         <button class="btn btn-icon" [disabled]="currentPage === 1" (click)="loadData(currentPage - 1)">
           <i class="bi bi-chevron-left"></i>
         </button>
-        <button class="btn btn-icon" *ngFor="let p of [].constructor(totalPages); let i = index" 
-                [class.active]="currentPage === i + 1"
-                (click)="loadData(i + 1)">
+        <button class="btn btn-icon" *ngFor="let p of [].constructor(totalPages); let i = index"
+          [class.active]="currentPage === i + 1" (click)="loadData(i + 1)">
           {{ i + 1 }}
         </button>
         <button class="btn btn-icon" [disabled]="currentPage === totalPages" (click)="loadData(currentPage + 1)">

@@ -79,6 +79,12 @@
                 <i class="bi bi-geo-alt-fill"></i>
                 <span class="link-text">Locations</span>
             </a>
+
+            <a class="nav-item" *ngIf="canViewRSS" routerLink="/admin/communities/list" routerLinkActive="active"
+                (click)="closeMobileMenu()">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span class="link-text">Communities</span>
+            </a>
         </div>
     </div>
 
