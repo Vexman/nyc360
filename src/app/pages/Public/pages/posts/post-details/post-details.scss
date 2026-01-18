@@ -363,6 +363,133 @@ $shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
     }
   }
 
+  // --- Shared Post Container ---
+  .shared-post-container {
+    margin-bottom: 40px;
+    padding: 0;
+
+    .shared-post-card {
+      border: 1px solid $border-color;
+      border-radius: 16px;
+      padding: 24px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+
+      // Premium touch: subtle gold/accent border on left
+      border-left: 4px solid rgba($accent, 0.3);
+
+      &:hover {
+        border-color: rgba($primary, 0.1);
+        box-shadow: $shadow-md;
+        transform: translateY(-3px);
+        border-left-color: $accent;
+      }
+
+      .shared-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+
+        .shared-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 1px solid $border-color;
+        }
+
+        .shared-meta {
+          display: flex;
+          flex-direction: column;
+
+          .shared-author {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: $primary;
+          }
+
+          .shared-date {
+            font-size: 0.75rem;
+            color: $text-secondary;
+          }
+        }
+      }
+
+      .shared-layout {
+        display: flex;
+        gap: 25px;
+
+        @media(max-width: 600px) {
+          flex-direction: column-reverse;
+          gap: 15px;
+        }
+
+        .shared-text-col {
+          flex: 1;
+          min-width: 0; // Fix text truncation
+
+          .shared-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: $primary;
+            font-family: 'Playfair Display', serif;
+            line-height: 1.3;
+          }
+
+          .shared-excerpt {
+            font-size: 0.95rem;
+            color: $text-secondary;
+            line-height: 1.6;
+
+            // Limit lines
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+        }
+
+        .shared-media-col {
+          width: 150px;
+          flex-shrink: 0;
+
+          @media(max-width: 600px) {
+            width: 100%;
+          }
+
+          .shared-img-wrapper {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: $shadow-sm;
+
+            aspect-ratio: 1;
+
+            @media(max-width: 600px) {
+              aspect-ratio: 16/9;
+            }
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              transition: transform 0.5s ease;
+            }
+          }
+        }
+      }
+
+      &:hover .shared-media-col img {
+        transform: scale(1.05);
+      }
+    }
+  }
+
   // --- Interaction Bar ---
   .interaction-card {
     background: $white;

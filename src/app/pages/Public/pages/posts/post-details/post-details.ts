@@ -157,6 +157,15 @@ export class PostDetailsComponent implements OnInit {
     if (post.currentUserInteraction !== undefined) post.userInteraction = post.currentUserInteraction;
     if (post.isSavedByUser !== undefined) post.isSaved = post.isSavedByUser;
     else post.isSaved = false;
+
+    // Recursively normalize parent post
+    if (post.parentPost && typeof post.parentPost === 'object') {
+      this.normalizePostData(post.parentPost);
+    } else if ((post as any).ParentPost && typeof (post as any).ParentPost === 'object') {
+      post.parentPost = (post as any).ParentPost;
+      this.normalizePostData(post.parentPost!);
+    }
+
     return post;
   }
 
