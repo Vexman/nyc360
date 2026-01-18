@@ -242,9 +242,12 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  openReplyInput(commentId: number) {
-    this.activeReplyId = this.activeReplyId === commentId ? null : commentId;
+  openReplyInput(comment: any) {
+    const id = comment.id || comment;
+    this.activeReplyId = this.activeReplyId === id ? null : id;
   }
+
+
 
   submitReply(post: any, parentComment: PostComment, content: string) {
     if (!content.trim() || !this.currentUserId) return;
