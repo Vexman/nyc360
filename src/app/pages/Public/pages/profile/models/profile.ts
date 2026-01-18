@@ -106,6 +106,7 @@ export interface UserProfileData {
   socialLinks: UserSocialLink[];
   stats?: UserStats | null;
   tags?: any[];
+  interests?: number[];
 }
 
 // --- Request DTOs ---

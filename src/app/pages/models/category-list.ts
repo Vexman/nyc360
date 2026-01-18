@@ -1,32 +1,31 @@
-// src/app/shared/models/category-list.ts
+import { CategoryEnum, CATEGORY_THEMES } from '../Public/Widgets/feeds/models/categories';
 
 export interface CategoryModel {
-  id: number | null; // null or -1 for 'All'
+  id: number | null;
   name: string;
   icon: string;
+  path?: string; // Adding optional path
+  color?: string; // Adding optional color
 }
 
-// هذه القائمة تطابق الـ C# Enum بالمللي (للتعامل مع الداتا بيز)
-// Community=0, Culture=1, ..., Tv=11
-export const CATEGORY_LIST: CategoryModel[] = [
-  { id: 0, name: 'Community', icon: 'bi-people-fill' },
-  { id: 1, name: 'Culture', icon: 'bi-masks' },
-  { id: 2, name: 'Education', icon: 'bi-book-fill' },
-  { id: 3, name: 'Events', icon: 'bi-calendar-event-fill' },
-  { id: 4, name: 'Health', icon: 'bi-heart-pulse-fill' },
-  { id: 5, name: 'Legal', icon: 'bi-balance-scale' },
-  { id: 6, name: 'Lifestyle', icon: 'bi-person-arms-up' },
-  { id: 7, name: 'News', icon: 'bi-newspaper' },
-  { id: 8, name: 'Professions', icon: 'bi-briefcase-fill' },
-  { id: 9, name: 'Social', icon: 'bi-globe-americas' },
-  { id: 10, name: 'Tour', icon: 'bi-map-fill' },
-  { id: 11, name: 'TV', icon: 'bi-tv-fill' }
-];
+// Generate the list dynamically from the Source of Truth (CategoryEnum + CATEGORY_THEMES)
+export const CATEGORY_LIST: CategoryModel[] = Object.values(CategoryEnum)
+  .filter(value => typeof value === 'number') // Filter out the string keys of the Enum
+  .map(id => {
+    const theme = CATEGORY_THEMES[id as CategoryEnum];
+    return {
+      id: id as number,
+      name: theme ? theme.label : 'Unknown',
+      icon: theme ? (theme as any).icon : 'bi-question', // Cast as any just in case, though we added it
+      path: theme?.path,
+      color: theme?.color
+    };
+  });
 
-// دالة مساعدة لو عايز القائمة ومعاها "All" عشان الفلترة في الهوم والناف بار
+// Helper function to get list with 'All'
 export function getCategoriesWithAll(): CategoryModel[] {
   return [
-    { id: -1, name: 'All', icon: 'bi-grid-fill' }, // -1 for UI handling
+    { id: -1, name: 'All', icon: 'bi-grid-fill' },
     ...CATEGORY_LIST
   ];
 }

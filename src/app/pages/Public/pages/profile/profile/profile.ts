@@ -11,6 +11,7 @@ import { UserProfileData, SocialPlatform } from '../models/profile';
 import { Post, InteractionType, PostComment } from '../../posts/models/posts';
 import { ToastService } from '../../../../../shared/services/toast.service';
 import { PostsService } from '../../posts/services/posts';
+import { CATEGORY_LIST } from '../../../../models/category-list';
 
 export interface DashboardCard {
   type: string;
@@ -25,7 +26,7 @@ export interface DashboardCard {
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   providers: [DatePipe],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
@@ -63,6 +64,7 @@ export class ProfileComponent implements OnInit {
   shareCommentary = '';
   isSharing = false;
   sharingPostId: number | null = null;
+  categories = CATEGORY_LIST;
 
   // UI Data
   socialPlatforms = [
@@ -485,9 +487,17 @@ export class ProfileComponent implements OnInit {
 
   resolveAttachmentUrl(url: string | null | undefined): string {
     if (!url || url.trim() === '') return 'assets/images/default-post.jpg';
-    url = url.replace('@local://', '');
-    if (url.startsWith('http')) return url;
-    return `${environment.apiBaseUrl3}/${url}`;
+    let cleanUrl = url.replace('@local://', '');
+
+    if (cleanUrl.startsWith('http') || cleanUrl.startsWith('https') || cleanUrl.startsWith('data:')) {
+      return cleanUrl;
+    }
+
+    if (cleanUrl.startsWith('posts/')) {
+      return `${environment.apiBaseUrl2}/${cleanUrl}`;
+    }
+
+    return `${environment.apiBaseUrl3}/${cleanUrl}`;
   }
 
   getAuthorImage(author: any): string {
@@ -505,7 +515,14 @@ export class ProfileComponent implements OnInit {
 
   get displayName() {
     if (!this.user) return '';
-    return (this.user.firstName || this.user.lastName) ? `${this.user.firstName || ''} ${this.user.lastName || ''}`.trim() : this.currentUsername;
+    const first = this.user.firstName || '';
+    const last = this.user.lastName || '';
+    if (first.toLowerCase() === last.toLowerCase()) return first;
+    return `${first} ${last}`.trim() || this.currentUsername;
+  }
+
+  getInterestName(id: number): string {
+    return this.categories.find(c => c.id === id)?.name || 'Interest';
   }
 
   get isVerified(): boolean {

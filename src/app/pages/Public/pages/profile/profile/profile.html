@@ -42,13 +42,13 @@
                <p class="headline-text">{{ user.headline || 'Impactful Member @ NYC 360' }}</p>
                <div class="meta-badges">
                   <span class="meta-tag"><i class="bi bi-geo-alt"></i> {{ user.location || 'New York, USA' }}</span>
-                  <span class="meta-tag"><i class="bi bi-calendar3"></i> Joined {{ (user.recentPosts[0]?.createdAt ||
-                     '') | date:'MMM yyyy' }}</span>
+                  <!-- Show joined date only if we can derive it, or generic -->
+                  <span class="meta-tag"><i class="bi bi-calendar3"></i> Active Member</span>
                </div>
             </div>
 
             <div class="header-actions">
-               <button *ngIf="isOwner" class="btn-premium" (click)="switchTab('manage')">
+               <button *ngIf="isOwner" class="btn-premium" [routerLink]="['/public/settings']">
                   <i class="bi bi-pencil-square"></i> Edit Profile
                </button>
                <button *ngIf="!isOwner" class="btn-follow">
@@ -71,10 +71,6 @@
                *ngIf="isOwner">
                <i class="bi bi-bookmark"></i> Saved
             </button>
-            <button class="tab-item" [class.active]="activeTab === 'manage'" (click)="switchTab('manage')"
-               *ngIf="isOwner">
-               <i class="bi bi-gear"></i> Settings
-            </button>
          </div>
       </nav>
 
@@ -83,9 +79,12 @@
 
          <!-- LEFT SIDEBAR -->
          <aside class="side-col">
-            <div class="glass-card mb-4" *ngIf="user.bio">
+            <div class="glass-card mb-4" *ngIf="user.bio || isOwner">
                <h4 class="section-title">About Me</h4>
-               <p class="bio-text">{{ user.bio }}</p>
+               <p class="bio-text" *ngIf="user.bio">{{ user.bio }}</p>
+               <button *ngIf="!user.bio && isOwner" class="btn-add-outline w-100" [routerLink]="['/public/settings']">
+                  <i class="bi bi-plus-circle"></i> Add Bio
+               </button>
             </div>
 
             <div class="glass-card mb-4">
@@ -267,92 +266,7 @@
                </div>
             </div>
 
-            <!-- Settings Tab -->
-            <div *ngSwitchCase="'manage'" class="animate__animated animate__fadeIn">
-               <div class="glass-card luxury-form">
-                  <div class="form-header">
-                     <h3>Profile Settings</h3>
-                     <p>Customize how you appear to the community</p>
-                  </div>
 
-                  <div class="form-section">
-                     <label class="group-label">Basic Information</label>
-                     <div class="grid-2">
-                        <div class="input-group">
-                           <label>First Name</label>
-                           <input type="text" [(ngModel)]="basicInfo.FirstName">
-                        </div>
-                        <div class="input-group">
-                           <label>Last Name</label>
-                           <input type="text" [(ngModel)]="basicInfo.LastName">
-                        </div>
-                     </div>
-                     <div class="input-group">
-                        <label>Headline</label>
-                        <input type="text" [(ngModel)]="basicInfo.Headline" placeholder="e.g. Senior Software Engineer">
-                     </div>
-                     <div class="input-group">
-                        <label>About Me</label>
-                        <textarea rows="4" [(ngModel)]="basicInfo.Bio"></textarea>
-                     </div>
-                     <button class="btn-save" (click)="saveBasicInfo()">Update Personal Info</button>
-                  </div>
-
-                  <!-- Social Links Management -->
-                  <div class="form-section">
-                     <label class="group-label">Social Connections</label>
-                     <div class="social-links-list">
-                        <div *ngFor="let link of user.socialLinks" class="link-item">
-                           <i class="bi" [ngClass]="getPlatformIcon(link.platform)"></i>
-                           <span class="url">{{ link.url }}</span>
-                           <button class="btn-del" (click)="deleteLink(link.id || link.linkId!)"><i
-                                 class="bi bi-trash"></i></button>
-                        </div>
-
-                        <div class="add-link-box" *ngIf="!isAddingLink">
-                           <button class="btn-add-outline" (click)="isAddingLink = true"><i class="bi bi-plus"></i> Add
-                              New Link</button>
-                        </div>
-
-                        <div class="add-link-form" *ngIf="isAddingLink">
-                           <select [(ngModel)]="newLink.platform">
-                              <option *ngFor="let p of socialPlatforms" [value]="p.id">{{ p.name }}</option>
-                           </select>
-                           <input type="text" [(ngModel)]="newLink.url" placeholder="https://...">
-                           <div class="actions">
-                              <button class="btn-cancel" (click)="isAddingLink = false">Cancel</button>
-                              <button class="btn-confirm" (click)="addSocialLink()">Add</button>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-
-                  <!-- Experience Management -->
-                  <div class="form-section">
-                     <label class="group-label">Experience & Career</label>
-                     <div class="items-list">
-                        <div *ngFor="let pos of user.positions" class="list-item">
-                           <div class="txt">
-                              <strong>{{ pos.title }}</strong>
-                              <span>{{ pos.company }}</span>
-                           </div>
-                           <button class="btn-del" (click)="deletePosition(pos.id)"><i class="bi bi-trash"></i></button>
-                        </div>
-                        <button class="btn-add-outline w-100" (click)="isAddingPos = true" *ngIf="!isAddingPos">Add
-                           Experience</button>
-
-                        <div class="add-item-form" *ngIf="isAddingPos">
-                           <input type="text" [(ngModel)]="newPosition.Title" placeholder="Job Title">
-                           <input type="text" [(ngModel)]="newPosition.Company" placeholder="Company Name">
-                           <div class="actions">
-                              <button class="btn-cancel" (click)="isAddingPos = false">Cancel</button>
-                              <button class="btn-confirm" (click)="addPosition()">Save Experience</button>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
 
          </main>
 
@@ -368,6 +282,16 @@
                         <p>Member</p>
                      </div>
                   </div>
+               </div>
+            </div>
+
+            <div class="glass-card mb-4" *ngIf="categories && categories.length > 0">
+               <h4 class="section-title">Interests</h4>
+               <div class="d-flex flex-wrap gap-2">
+                  <span *ngFor="let catId of (user.interests || [])" class="badge bg-light text-dark border">
+                     {{ getInterestName(catId) }}
+                  </span>
+                  <span *ngIf="!user.interests?.length" class="text-muted small">No interests listed.</span>
                </div>
             </div>
 
