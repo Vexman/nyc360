@@ -32,13 +32,15 @@
     </div>
   </div>
 
-  <div *ngIf="isLoading" class="loading-luxury py-5 text-center">
-    <div class="spinner-border text-gold mb-3"></div>
-    <div class="gold-title h5">RETRIEVING USERS...</div>
+  <!-- Subtle Loading Indicator -->
+  <div *ngIf="isLoading" class="position-fixed top-0 start-0 w-100" style="z-index: 9999; height: 3px;">
+    <div class="progress" style="height: 3px; border-radius: 0;">
+      <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width: 100%;"></div>
+    </div>
   </div>
 
   <!-- Users Table -->
-  <div *ngIf="!isLoading" class="table-container">
+  <div class="table-container">
     <div class="glass-panel overflow-hidden">
       <table class="luxury-table mb-0">
         <thead>

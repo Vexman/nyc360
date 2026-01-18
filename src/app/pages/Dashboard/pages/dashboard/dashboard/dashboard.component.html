@@ -12,15 +12,28 @@
     </div>
   </div>
 
-  <div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5">
-    <div class="spinner-border text-gold mb-3" role="status"></div>
-    <div class="gold-title h5">SYNCHRONIZING...</div>
-  </div>
-
-  <div *ngIf="!isLoading">
+  <div>
+    <!-- Subtle Loading Indicator -->
+    <div *ngIf="isLoading" class="position-fixed top-0 start-0 w-100" style="z-index: 9999; height: 3px;">
+      <div class="progress" style="height: 3px; border-radius: 0;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width: 100%;"></div>
+      </div>
+    </div>
     <!-- Premium Stats Grid -->
     <div class="row g-4 mb-5">
-      <div class="col-md-6 col-lg-3" *ngFor="let card of statCards; let i = index">
+      <!-- Skeleton Loaders -->
+      <ng-container *ngIf="isLoading">
+        <div class="col-md-6 col-lg-3" *ngFor="let i of [1,2,3,4]">
+          <div class="glass-panel p-4">
+            <div class="skeleton-text short mb-2"></div>
+            <div class="skeleton-text medium mb-3" style="height: 40px;"></div>
+            <div class="skeleton-text long"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Real Content -->
+      <div class="col-md-6 col-lg-3" *ngFor="let card of statCards" [hidden]="isLoading">
         <div class="glass-panel stat-card-luxury">
           <div class="d-flex justify-content-between align-items-start">
             <div>

@@ -62,77 +62,79 @@
             <option *ngFor="let c of categories" [value]="c.id">{{c.label}}</option>
           </select>
         </div>
-        <div class="col-12 col-lg-1 text-center" *ngIf="isLoading">
-          <div class="spinner-border text-gold spinner-border-sm"></div>
+        <!-- Subtle Loading Indicator -->
+        <div *ngIf="isLoading" class="position-fixed top-0 start-0 w-100" style="z-index: 9999; height: 3px;">
+          <div class="progress" style="height: 3px; border-radius: 0;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width: 100%;"></div>
+          </div>
         </div>
+
+        <!-- Table Card -->
+        <div class="table-card glass-panel">
+          <div class="table-responsive">
+            <table class="luxury-table">
+              <thead>
+                <tr>
+                  <th width="80">ID</th>
+                  <th>TAG NAME</th>
+                  <th>TYPE</th>
+                  <th>DIVISION</th>
+                  <th class="text-end">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let t of tags; let i = index" class="table-row">
+                  <td class="id-cell">
+                    <span class="id-badge" (click)="copyId(t.id)" title="Click to Copy">
+                      #{{t.id}} <i class="bi bi-files ms-1"></i>
+                    </span>
+                  </td>
+                  <td class="name-cell">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="avatar-initials" [style.background-color]="getAvatarColor(t.name)">
+                        {{ t.name.charAt(0) | uppercase }}
+                      </div>
+                      <div class="d-flex flex-column">
+                        <strong class="text-dark">{{t.name}}</strong>
+                        <small class="text-muted" style="font-size: 10px;">{{ getTypeName(t.type) }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge-custom type" [attr.data-type]="t.type">{{getTypeName(t.type)}}</span></td>
+                  <td><span class="badge-custom div">{{getCatName(t.division)}}</span></td>
+                  <td class="text-end">
+                    <div class="action-btns">
+                      <button [routerLink]="['update', t.id]" class="btn-icon edit" title="Edit"><i
+                          class="bi bi-pencil-fill"></i></button>
+                      <button (click)="onDelete(t.id)" class="btn-icon delete" title="Delete"><i
+                          class="bi bi-trash3-fill"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div
+            class="pagination-footer d-flex justify-content-between align-items-center p-4 border-top flex-wrap gap-3">
+            <div class="info text-muted small">
+              Showing <b>{{tags.length}}</b> of <b>{{totalCount}}</b> tags
+            </div>
+
+            <div class="pagination-controls d-flex align-items-center gap-2">
+              <button class="btn-circle" [disabled]="currentPage === 1" (click)="loadData(currentPage - 1)">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+
+              <span class="page-indicator">{{currentPage}} / {{totalPages}}</span>
+
+              <button class="btn-circle" [disabled]="currentPage === totalPages" (click)="loadData(currentPage + 1)">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-
-    <!-- Table Card -->
-    <div class="table-card glass-panel">
-      <div class="table-responsive">
-        <table class="luxury-table">
-          <thead>
-            <tr>
-              <th width="80">ID</th>
-              <th>TAG NAME</th>
-              <th>TYPE</th>
-              <th>DIVISION</th>
-              <th class="text-end">ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let t of tags; let i = index" class="table-row">
-              <td class="id-cell">
-                <span class="id-badge" (click)="copyId(t.id)" title="Click to Copy">
-                  #{{t.id}} <i class="bi bi-files ms-1"></i>
-                </span>
-              </td>
-              <td class="name-cell">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="avatar-initials" [style.background-color]="getAvatarColor(t.name)">
-                    {{ t.name.charAt(0) | uppercase }}
-                  </div>
-                  <div class="d-flex flex-column">
-                    <strong class="text-dark">{{t.name}}</strong>
-                    <small class="text-muted" style="font-size: 10px;">{{ getTypeName(t.type) }}</small>
-                  </div>
-                </div>
-              </td>
-              <td><span class="badge-custom type" [attr.data-type]="t.type">{{getTypeName(t.type)}}</span></td>
-              <td><span class="badge-custom div">{{getCatName(t.division)}}</span></td>
-              <td class="text-end">
-                <div class="action-btns">
-                  <button [routerLink]="['update', t.id]" class="btn-icon edit" title="Edit"><i
-                      class="bi bi-pencil-fill"></i></button>
-                  <button (click)="onDelete(t.id)" class="btn-icon delete" title="Delete"><i
-                      class="bi bi-trash3-fill"></i></button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div class="pagination-footer d-flex justify-content-between align-items-center p-4 border-top flex-wrap gap-3">
-        <div class="info text-muted small">
-          Showing <b>{{tags.length}}</b> of <b>{{totalCount}}</b> tags
-        </div>
-
-        <div class="pagination-controls d-flex align-items-center gap-2">
-          <button class="btn-circle" [disabled]="currentPage === 1" (click)="loadData(currentPage - 1)">
-            <i class="bi bi-chevron-left"></i>
-          </button>
-
-          <span class="page-indicator">{{currentPage}} / {{totalPages}}</span>
-
-          <button class="btn-circle" [disabled]="currentPage === totalPages" (click)="loadData(currentPage + 1)">
-            <i class="bi bi-chevron-right"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>

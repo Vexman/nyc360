@@ -12,10 +12,11 @@
     </a>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5">
-    <div class="spinner-border text-gold mb-3"></div>
-    <div class="gold-title h5">AUTHENTICATING ACCESS...</div>
+  <!-- Subtle Loading Indicator -->
+  <div *ngIf="isLoading" class="position-fixed top-0 start-0 w-100" style="z-index: 9999; height: 3px;">
+    <div class="progress" style="height: 3px; border-radius: 0;">
+      <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width: 100%;"></div>
+    </div>
   </div>
 
   <!-- Error State -->
@@ -26,7 +27,7 @@
   </div>
 
   <!-- Roles Grid -->
-  <div *ngIf="!isLoading && roles.length > 0" class="row g-4">
+  <div *ngIf="roles.length > 0" class="row g-4">
     <div class="col-xl-4 col-md-6" *ngFor="let role of roles; let i = index">
       <div class="glass-panel role-card-luxury h-100">
 
