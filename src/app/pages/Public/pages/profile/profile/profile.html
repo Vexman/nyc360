@@ -11,23 +11,12 @@
       <header class="profile-header-premium animate__animated animate__fadeIn">
          <div class="cover-photo" [style.backgroundImage]="'url(' + resolveCover(user.coverImageUrl) + ')'">
             <div class="cover-overlay"></div>
-            <div class="cover-actions" *ngIf="isOwner">
-               <input type="file" id="cover-input" hidden (change)="onCoverSelected($event)" accept="image/*">
-               <button class="btn-glass" (click)="triggerCoverUpload()">
-                  <i class="bi bi-camera"></i> Edit Cover
-               </button>
-            </div>
-            <button class="btn-share-top" (click)="shareProfile()"><i class="bi bi-share"></i></button>
          </div>
 
          <div class="profile-meta-row">
             <div class="avatar-container">
                <div class="avatar-wrapper">
                   <img [src]="resolveImage(user.imageUrl)" alt="Profile">
-                  <div class="avatar-edit" *ngIf="isOwner" (click)="triggerAvatarUpload()">
-                     <i class="bi bi-camera-fill"></i>
-                     <input type="file" id="avatar-input" hidden (change)="onAvatarSelected($event)" accept="image/*">
-                  </div>
                </div>
             </div>
 
@@ -48,9 +37,7 @@
             </div>
 
             <div class="header-actions">
-               <button *ngIf="isOwner" class="btn-premium" [routerLink]="['/public/settings']">
-                  <i class="bi bi-pencil-square"></i> Edit Profile
-               </button>
+               <!-- Edit Profile Removed -->
                <button *ngIf="!isOwner" class="btn-follow">
                   <i class="bi bi-person-plus-fill"></i> Follow
                </button>
@@ -82,18 +69,10 @@
             <div class="glass-card mb-4" *ngIf="user.bio || isOwner">
                <h4 class="section-title">About Me</h4>
                <p class="bio-text" *ngIf="user.bio">{{ user.bio }}</p>
-               <button *ngIf="!user.bio && isOwner" class="btn-add-outline w-100" [routerLink]="['/public/settings']">
-                  <i class="bi bi-plus-circle"></i> Add Bio
-               </button>
+
             </div>
 
-            <div class="glass-card mb-4">
-               <h4 class="section-title">Contact</h4>
-               <ul class="contact-list">
-                  <li><i class="bi bi-envelope"></i> <span>{{ user.email }}</span></li>
-                  <li *ngIf="user.phoneNumber"><i class="bi bi-phone"></i> <span>{{ user.phoneNumber }}</span></li>
-               </ul>
-            </div>
+
 
             <div class="glass-card mb-4" *ngIf="user.socialLinks.length">
                <h4 class="section-title">Connect</h4>
@@ -105,21 +84,7 @@
                </div>
             </div>
 
-            <!-- Stats Card -->
-            <div class="glass-card stats-overview" *ngIf="user.stats">
-               <div class="stat-item">
-                  <span class="val">{{ user.stats.postsCount || 0 }}</span>
-                  <span class="lbl">Posts</span>
-               </div>
-               <div class="stat-item border-x">
-                  <span class="val">{{ user.stats.followersCount || 0 }}</span>
-                  <span class="lbl">Followers</span>
-               </div>
-               <div class="stat-item">
-                  <span class="val">{{ user.stats.followingCount || 0 }}</span>
-                  <span class="lbl">Following</span>
-               </div>
-            </div>
+
          </aside>
 
          <!-- MAIN FEED -->
@@ -131,7 +96,7 @@
                <div class="create-post-card glass-card" *ngIf="isOwner">
                   <div class="input-trigger" (click)="viewPostDetails('create', $event)">
                      <img [src]="resolveImage(user.imageUrl)" class="mini-avatar">
-                     <span class="placeholder">Share an update with your city...</span>
+                     <span class="">Share an update with your city...</span>
                   </div>
                   <div class="action-bar">
                      <button (click)="viewPostDetails('create', $event)"><i class="bi bi-image text-success"></i>
@@ -161,13 +126,13 @@
                            <p>{{ post.createdAt | date:'longDate' }}</p>
                         </div>
                      </div>
-                     <div class="post-actions-btn"><i class="bi bi-three-dots"></i></div>
                   </div>
 
                   <div class="post-body" (click)="viewPostDetails(post.id, $event)">
                      <h4 *ngIf="post.title" class="post-title">{{ post.title }}</h4>
                      <p class="post-content">{{ post.content }}</p>
 
+                     <!-- Repost Content -->
                      <!-- Repost Content -->
                      <div *ngIf="post.parentPost" class="repost-box">
                         <div class="re-header">
@@ -176,87 +141,114 @@
                         </div>
                         <h5>{{ post.parentPost.title }}</h5>
                         <p>{{ post.parentPost.content }}</p>
+
+                        <!-- Shared Post Media -->
+                        <div
+                           *ngIf="(post.parentPost.attachments && post.parentPost.attachments.length > 0) || post.parentPost.imageUrl"
+                           class="post-media-container mt-3">
+                           <img *ngIf="post.parentPost.attachments && post.parentPost.attachments.length > 0"
+                              [src]="resolveImageUrl(post.parentPost.attachments[0].url)" class="post-img">
+                           <img
+                              *ngIf="(!post.parentPost.attachments || post.parentPost.attachments.length === 0) && post.parentPost.imageUrl"
+                              [src]="resolveImageUrl(post.parentPost.imageUrl)" class="post-img">
+                        </div>
                      </div>
 
                      <!-- Media -->
-                     <div *ngIf="post.attachments.length" class="post-media-container">
-                        <img [src]="resolveAttachmentUrl(post.attachments[0].url)" class="post-img">
+                     <!-- Media -->
+                     <div *ngIf="(post.attachments && post.attachments.length > 0) || post.imageUrl"
+                        class="post-media-container">
+                        <img *ngIf="post.attachments && post.attachments.length > 0"
+                           [src]="resolveImageUrl(post.attachments[0].url)" class="post-img">
+                        <img *ngIf="(!post.attachments || post.attachments.length === 0) && post.imageUrl"
+                           [src]="resolveImageUrl(post.imageUrl)" class="post-img">
                      </div>
                   </div>
 
-                  <div class="post-footer">
-                     <div class="stats">
-                        <span (click)="toggleComments(post, $event)"><i class="bi bi-chat-dots"></i> {{
-                           post.stats?.comments || 0 }}</span>
-                        <span><i class="bi bi-eye"></i> {{ post.stats?.views || 0 }}</span>
-                     </div>
-                     <div class="interactions">
-                        <button class="btn-action" [class.active]="post.userInteraction === InteractionType.Like"
-                           (click)="toggleInteraction(post, InteractionType.Like, $event)">
-                           <i class="bi"
-                              [ngClass]="post.userInteraction === InteractionType.Like ? 'bi-heart-fill' : 'bi-heart'"></i>
-                           {{ post.stats?.likes || 0 }}
-                        </button>
-                        <button class="btn-action" (click)="openShareModal(post, $event)">
-                           <i class="bi bi-share"></i>
-                        </button>
-                     </div>
+                  <!-- PRO INTERACTION BAR -->
+                  <div class="interaction-card"
+                     style="border:none; box-shadow:none; padding: 20px 0 0 0; margin: 0; margin-top: 15px; border-top: 1px solid #eee; border-radius: 0;">
+                     <button class="btn-action-premium"
+                        [class.active-like]="post.userInteraction === InteractionType.Like"
+                        (click)="toggleInteraction(post, InteractionType.Like, $event)">
+                        <i class="bi"
+                           [ngClass]="post.userInteraction === InteractionType.Like ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
+                        <span>{{ post.stats?.likes || 0 }}</span>
+                     </button>
+
+                     <button class="btn-action-premium"
+                        [class.active-dislike]="post.userInteraction === InteractionType.Dislike"
+                        (click)="toggleInteraction(post, InteractionType.Dislike, $event)">
+                        <i class="bi"
+                           [ngClass]="post.userInteraction === InteractionType.Dislike ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'"></i>
+                        <span>{{ post.stats?.dislikes || 0 }}</span>
+                     </button>
+
+                     <button class="btn-action-premium" (click)="toggleComments(post, $event)">
+                        <i class="bi bi-chat-left-dots"></i>
+                        <span>{{ post.stats?.comments || 0 }}</span>
+                     </button>
+
+                     <button class="share-btn-accent" (click)="openShareModal(post, $event)">
+                        <i class="bi bi-share-fill"></i> SHARE
+                     </button>
                   </div>
 
-                  <!-- Comments Section -->
-                  <div *ngIf="post.showComments" class="post-comments-section">
-                     <div class="comment-input-area">
-                        <img [src]="resolveImage(user.imageUrl)" class="mini-avatar">
-                        <input type="text" placeholder="Write a comment..." [(ngModel)]="post.newCommentContent"
-                           (keyup.enter)="submitComment(post, $event)">
-                        <button (click)="submitComment(post, $event)"
-                           [disabled]="!((post.newCommentContent || '').trim())"><i
-                              class="bi bi-send-fill"></i></button>
+                  <!-- PRO COMMENTS SECTION -->
+                  <section class="premium-comments animate__animated animate__fadeIn" *ngIf="post.showComments"
+                     style="margin-top: 25px;">
+                     <!-- Input -->
+                     <div class="comment-entry" (click)="$event.stopPropagation()">
+                        <input type="text" placeholder="Share your perspective..." [(ngModel)]="post.newCommentContent"
+                           (keydown.enter)="submitComment(post, $event)">
+                        <button class="btn-submit-comment" (click)="submitComment(post, $event)"
+                           [disabled]="!((post.newCommentContent || '').trim())">
+                           <i class="bi bi-arrow-right-short fs-2"></i>
+                        </button>
                      </div>
 
-                     <div class="comments-list">
-                        <div *ngFor="let comment of (post.comments || [])" class="comment-entry">
-                           <img [src]="getAuthorImage(comment.author)" class="comment-avatar">
-
-                           <div class="comment-body-wrapper">
-                              <!-- Bubble -->
-                              <div class="comment-bubble">
+                     <!-- Thread -->
+                     <div class="comments-thread" (click)="$event.stopPropagation()">
+                        <div class="comment-node" *ngFor="let comment of (post.comments || [])">
+                           <div class="comment-card">
+                              <div class="comment-content-box">
                                  <div class="header">
-                                    <h6>{{ getAuthorName(comment.author) }}</h6>
-                                    <span>{{ comment.createdAt | date:'shortTime' }}</span>
+                                    <strong>{{ getAuthorName(comment.author) }}</strong>
+                                    <time>{{ comment.createdAt | date:'shortTime' }}</time>
                                  </div>
-                                 <p>{{ comment.content }}</p>
+                                 <div class="text">{{ comment.content }}</div>
+                                 <div class="footer">
+                                    <button class="btn-reply-text" (click)="openReplyInput(comment)">REPLY</button>
+                                 </div>
                               </div>
+                           </div>
 
-                              <!-- Actions (Reply) -->
-                              <div class="comment-actions">
-                                 <button (click)="openReplyInput(comment)">Reply</button>
-                              </div>
+                           <!-- Reply Input -->
+                           <div class="comment-entry mt-3 mx-4" *ngIf="activeReplyId === comment.id">
+                              <input #replyIn type="text" placeholder="Replying..."
+                                 (keydown.enter)="submitReply(post, comment, replyIn.value)">
+                              <button class="btn-submit-comment" (click)="submitReply(post, comment, replyIn.value)">
+                                 <i class="bi bi-arrow-return-right"></i>
+                              </button>
+                           </div>
 
-                              <!-- Reply Input -->
-                              <div class="reply-input-box" *ngIf="activeReplyId === comment.id">
-                                 <input #replyIn type="text"
-                                    placeholder="Reply to {{ getAuthorName(comment.author) }}..."
-                                    (keydown.enter)="submitReply(post, comment, replyIn.value); replyIn.value = ''">
-                                 <button (click)="submitReply(post, comment, replyIn.value); replyIn.value = ''">
-                                    <i class="bi bi-send-fill"></i>
-                                 </button>
-                              </div>
-
-                              <!-- Nested Replies -->
-                              <div class="nested-replies" *ngIf="comment.replies?.length">
-                                 <div *ngFor="let reply of comment.replies" class="reply-item">
-                                    <div class="rep-header">
-                                       <strong>{{ getAuthorName(reply.author) }}</strong>
-                                       <time>{{ reply.createdAt | date:'shortTime' }}</time>
+                           <!-- Replies -->
+                           <div class="reply-indent" *ngIf="comment.replies?.length">
+                              <div class="reply-node" *ngFor="let reply of comment.replies">
+                                 <div class="comment-card">
+                                    <div class="comment-content-box">
+                                       <div class="header">
+                                          <strong>{{ getAuthorName(reply.author) }}</strong>
+                                          <time>{{ reply.createdAt | date:'shortTime' }}</time>
+                                       </div>
+                                       <div class="text">{{ reply.content }}</div>
                                     </div>
-                                    <p class="rep-text">{{ reply.content }}</p>
                                  </div>
                               </div>
                            </div>
                         </div>
                      </div>
-                  </div>
+                  </section>
                </article>
             </div>
 
@@ -276,7 +268,7 @@
                               (pos.endDate | date:'MMM yyyy') }}</p>
                         </div>
                      </div>
-                     <div *ngIf="!user.positions?.length" class="empty-item">Professional history not shared.</div>
+                     <div *ngIf="!user.positions.length" class="empty-item">Professional history not shared.</div>
                   </div>
                </div>
 
@@ -294,6 +286,127 @@
                      <div *ngIf="!user.education.length" class="empty-item">Academic background is private.</div>
                   </div>
                </div>
+            </div>
+
+            <!-- Saved Posts Tab -->
+            <div *ngSwitchCase="'saved'" class="animate__animated animate__fadeIn">
+               <!-- Loading State -->
+               <div *ngIf="isSavedLoading" class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status"></div>
+               </div>
+
+               <!-- Empty State -->
+               <div *ngIf="!isSavedLoading && !savedPosts.length" class="empty-state">
+                  <div class="icon-circle"><i class="bi bi-bookmark"></i></div>
+                  <h3>No saved items</h3>
+                  <p>Posts you save will appear here for easy access.</p>
+               </div>
+
+               <!-- Saved Posts List -->
+               <article *ngFor="let post of savedPosts"
+                  class="post-card glass-card animate__animated animate__fadeInUp">
+                  <div class="post-header">
+                     <div class="user-info">
+                        <img [src]="getAuthorImage(post.author)" class="post-avatar">
+                        <div class="meta" (click)="viewPostDetails(post.id, $event)">
+                           <h3>{{ getAuthorName(post.author) }}</h3>
+                           <p>{{ post.createdAt | date:'longDate' }}</p>
+                        </div>
+                     </div>
+                     <div class="post-actions-btn"><i class="bi bi-three-dots"></i></div>
+                  </div>
+
+                  <div class="post-body" (click)="viewPostDetails(post.id, $event)">
+                     <h4 *ngIf="post.title" class="post-title">{{ post.title }}</h4>
+                     <p class="post-content">{{ post.content }}</p>
+
+                     <!-- Repost Content -->
+                     <!-- Repost Content -->
+                     <div *ngIf="post.parentPost" class="repost-box">
+                        <div class="re-header">
+                           <img [src]="getAuthorImage(post.parentPost.author)" class="re-avatar">
+                           <strong>{{ getAuthorName(post.parentPost.author) }}</strong>
+                        </div>
+                        <h5>{{ post.parentPost.title }}</h5>
+                        <p>{{ post.parentPost.content }}</p>
+
+                        <!-- Shared Post Media -->
+                        <div
+                           *ngIf="(post.parentPost.attachments && post.parentPost.attachments.length > 0) || post.parentPost.imageUrl"
+                           class="post-media-container mt-3">
+                           <img *ngIf="post.parentPost.attachments && post.parentPost.attachments.length > 0"
+                              [src]="resolveImageUrl(post.parentPost.attachments[0].url)" class="post-img">
+                           <img
+                              *ngIf="(!post.parentPost.attachments || post.parentPost.attachments.length === 0) && post.parentPost.imageUrl"
+                              [src]="resolveImageUrl(post.parentPost.imageUrl)" class="post-img">
+                        </div>
+                     </div>
+
+                     <!-- Media -->
+                     <div *ngIf="(post.attachments && post.attachments.length > 0) || post.imageUrl"
+                        class="post-media-container">
+                        <img *ngIf="post.attachments && post.attachments.length > 0"
+                           [src]="resolveImageUrl(post.attachments[0].url)" class="post-img">
+                        <img *ngIf="(!post.attachments || post.attachments.length === 0) && post.imageUrl"
+                           [src]="resolveImageUrl(post.imageUrl)" class="post-img">
+                     </div>
+                  </div>
+
+                  <!-- PRO INTERACTION BAR (SAVED POSTS) -->
+                  <div class="interaction-card"
+                     style="border:none; box-shadow:none; padding: 20px 0 0 0; margin: 0; margin-top: 15px; border-top: 1px solid #eee; border-radius: 0;">
+                     <button class="btn-action-premium"
+                        [class.active-like]="post.userInteraction === InteractionType.Like"
+                        (click)="toggleInteraction(post, InteractionType.Like, $event)">
+                        <i class="bi"
+                           [ngClass]="post.userInteraction === InteractionType.Like ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
+                        <span>{{ post.stats?.likes || 0 }}</span>
+                     </button>
+
+                     <button class="btn-action-premium"
+                        [class.active-dislike]="post.userInteraction === InteractionType.Dislike"
+                        (click)="toggleInteraction(post, InteractionType.Dislike, $event)">
+                        <i class="bi"
+                           [ngClass]="post.userInteraction === InteractionType.Dislike ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'"></i>
+                        <span>{{ post.stats?.dislikes || 0 }}</span>
+                     </button>
+
+                     <button class="btn-action-premium" (click)="toggleComments(post, $event)">
+                        <i class="bi bi-chat-left-dots"></i>
+                        <span>{{ post.stats?.comments || 0 }}</span>
+                     </button>
+
+                     <button class="share-btn-accent" (click)="openShareModal(post, $event)">
+                        <i class="bi bi-share-fill"></i> SHARE
+                     </button>
+                  </div>
+
+                  <!-- PRO COMMENTS SECTION (SAVED) -->
+                  <section class="premium-comments animate__animated animate__fadeIn" *ngIf="post.showComments"
+                     style="margin-top: 25px;">
+                     <div class="comment-entry" (click)="$event.stopPropagation()">
+                        <input type="text" placeholder="Share your perspective..." [(ngModel)]="post.newCommentContent"
+                           (keydown.enter)="submitComment(post, $event)">
+                        <button class="btn-submit-comment" (click)="submitComment(post, $event)"
+                           [disabled]="!((post.newCommentContent || '').trim())">
+                           <i class="bi bi-arrow-right-short fs-2"></i>
+                        </button>
+                     </div>
+                     <div class="comments-thread" (click)="$event.stopPropagation()">
+                        <div class="comment-node" *ngFor="let comment of (post.comments || [])">
+                           <div class="comment-card">
+                              <div class="comment-content-box">
+                                 <div class="header">
+                                    <strong>{{ getAuthorName(comment.author) }}</strong>
+                                    <time>{{ comment.createdAt | date:'shortTime' }}</time>
+                                 </div>
+                                 <div class="text">{{ comment.content }}</div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </section>
+               </article>
             </div>
 
 
@@ -315,22 +428,16 @@
                </div>
             </div>
 
-            <div class="glass-card mb-4" *ngIf="categories && categories.length > 0">
-               <h4 class="section-title">Interests</h4>
-               <div class="d-flex flex-wrap gap-2">
-                  <span *ngFor="let catId of (user.interests || [])" class="badge bg-light text-dark border">
-                     {{ getInterestName(catId) }}
-                  </span>
-                  <span *ngIf="!user.interests?.length" class="text-muted small">No interests listed.</span>
-               </div>
-            </div>
 
-            <div class="glass-card">
-               <h4 class="section-title">Discovery</h4>
-               <button class="btn-action-outline w-100 mb-2" (click)="shareProfile()"><i class="bi bi-qr-code"></i> Show
-                  QR</button>
-               <button class="btn-action-outline w-100" (click)="viewPostDetails('create', $event)"><i
-                     class="bi bi-pencil"></i> Write Post</button>
+            <!-- Tags Section -->
+            <div class="glass-card mb-4" *ngIf="user.tags">
+               <h4 class="section-title"><i class="bi bi-tags"></i> Tags</h4>
+               <div class="tags-container" *ngIf="user.tags.length > 0">
+                  <span class="badge-tag" *ngFor="let tag of user.tags">{{ tag.name }}</span>
+               </div>
+               <div class="empty-side-text" *ngIf="user.tags.length === 0">
+                  No tags selected.
+               </div>
             </div>
          </aside>
 

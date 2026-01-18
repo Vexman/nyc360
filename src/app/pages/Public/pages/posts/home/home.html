@@ -50,7 +50,6 @@
       <section class="hero-banner" *ngIf="heroBanner" (click)="goToPost(heroBanner)">
         <div class="hero-img-wrapper">
           <img [src]="resolvePostImage(heroBanner)" alt="hero">
-          <div class="hero-play-btn"><i class="bi bi-play-fill"></i></div>
           <div class="hero-content">
             <span class="hero-badge">Lifestyle</span>
             <h2>{{ heroBanner.title }}</h2>

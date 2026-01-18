@@ -69,7 +69,7 @@
     </div>
 
     <!-- Table Card -->
-    <div class="table-card glass-panel animate__animated animate__fadeInUp">
+    <div class="table-card glass-panel">
       <div class="table-responsive">
         <table class="luxury-table">
           <thead>
@@ -82,8 +82,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let t of tags; let i = index" [style.animation-delay]="i * 0.05 + 's'"
-              class="animate__animated animate__fadeInRight table-row">
+            <tr *ngFor="let t of tags; let i = index" class="table-row">
               <td class="id-cell">
                 <span class="id-badge" (click)="copyId(t.id)" title="Click to Copy">
                   #{{t.id}} <i class="bi bi-files ms-1"></i>

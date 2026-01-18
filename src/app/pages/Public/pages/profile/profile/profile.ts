@@ -215,6 +215,10 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  toggleReplies(comment: any) {
+    comment.showReplies = !comment.showReplies;
+  }
+
   loadCommentsForPost(post: any) {
     this.postsService.getPostById(post.id).subscribe((res: any) => {
       if (res.isSuccess && res.data) {
@@ -488,8 +492,9 @@ export class ProfileComponent implements OnInit {
     return `${environment.apiBaseUrl2}/covers/${url}`;
   }
 
-  resolveAttachmentUrl(url: string | null | undefined): string {
+  resolveImageUrl(url: string | undefined | null): string {
     if (!url || url.trim() === '') return 'assets/images/default-post.jpg';
+
     let cleanUrl = url.replace('@local://', '');
 
     if (cleanUrl.startsWith('http') || cleanUrl.startsWith('https') || cleanUrl.startsWith('data:')) {
@@ -497,10 +502,14 @@ export class ProfileComponent implements OnInit {
     }
 
     if (cleanUrl.startsWith('posts/')) {
-      return `${environment.apiBaseUrl2}/${cleanUrl}`;
+      return `${this.environment.apiBaseUrl2}/${cleanUrl}`;
     }
 
-    return `${environment.apiBaseUrl3}/${cleanUrl}`;
+    return `${this.environment.apiBaseUrl3}/${cleanUrl}`;
+  }
+
+  resolveAttachmentUrl(url: string | null | undefined): string {
+    return this.resolveImageUrl(url);
   }
 
   getAuthorImage(author: any): string {
@@ -532,4 +541,7 @@ export class ProfileComponent implements OnInit {
     if (!this.user || !this.user.stats) return false;
     return this.user.stats.isVerified === true;
   }
+
+
+
 }

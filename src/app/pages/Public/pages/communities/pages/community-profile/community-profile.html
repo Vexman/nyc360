@@ -186,7 +186,7 @@
                         </div>
 
                         <!-- Replies -->
-                        <div class="replies-list" *ngIf="comment.replies?.length">
+                        <div class="replies-list" *ngIf="comment.replies.length">
                           <div *ngFor="let reply of comment.replies" class="reply-item">
                             <div class="r-bubble">
                               <span class="r-name">{{ reply.author.name }}</span>

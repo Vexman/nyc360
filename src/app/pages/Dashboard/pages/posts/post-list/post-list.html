@@ -65,7 +65,7 @@
     </div>
 
     <!-- Data Table -->
-    <div class="table-card glass-panel animate__animated animate__fadeInUp">
+    <div class="table-card glass-panel">
 
       <!-- Empty State -->
       <div *ngIf="!isLoading && filteredPosts.length === 0" class="text-center py-5">
@@ -86,8 +86,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let post of filteredPosts; let i = index" [style.animation-delay]="i * 0.03 + 's'"
-              class="animate__animated animate__fadeInRight table-row">
+            <tr *ngFor="let post of filteredPosts; let i = index" class="table-row">
 
               <!-- ID -->
               <td class="id-cell"><span class="id-badge">#{{ post.id }}</span></td>

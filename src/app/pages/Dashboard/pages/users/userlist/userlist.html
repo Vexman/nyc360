@@ -51,8 +51,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of users; let i = index" class="animate__animated animate__fadeInUp"
-            [style.animation-delay]="i * 0.05 + 's'">
+          <tr *ngFor="let user of users; let i = index">
             <td>
               <div class="d-flex align-items-center gap-3">
                 <div class="luxury-avatar-wrapper">
@@ -131,7 +130,7 @@
 
   <!-- Profile Edit Modal -->
   <div class="luxury-modal-backdrop" *ngIf="showProfileModal" (click)="closeModals()">
-    <div class="luxury-modal-content animate__animated animate__zoomIn" (click)="$event.stopPropagation()">
+    <div class="luxury-modal-content" (click)="$event.stopPropagation()">
       <div class="modal-luxury-header">
         <h3 class="gold-title h4 mb-0">EDIT ACCOUNT</h3>
         <button class="close-luxury" (click)="closeModals()"><i class="bi bi-x-lg"></i></button>
@@ -185,8 +184,7 @@
 
   <!-- Role Change Modal -->
   <div class="luxury-modal-backdrop" *ngIf="showRoleModal" (click)="closeModals()">
-    <div class="luxury-modal-content role-manager-luxury animate__animated animate__zoomIn"
-      (click)="$event.stopPropagation()">
+    <div class="luxury-modal-content role-manager-luxury" (click)="$event.stopPropagation()">
       <div class="modal-luxury-header">
         <div class="d-flex align-items-center gap-3">
           <div class="icon-circle bg-gold"><i class="bi bi-shield-lock"></i></div>

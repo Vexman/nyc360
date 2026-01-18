@@ -72,6 +72,8 @@ export interface ProfilePost {
   category: number;
   createdAt: string;
   attachments: any[];
+  imageUrl?: string | null;
+
   parentPost?: ProfilePost | null; // For shared posts
   author?: {
     id: number;

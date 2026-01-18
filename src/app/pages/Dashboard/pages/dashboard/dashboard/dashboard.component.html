@@ -21,8 +21,7 @@
     <!-- Premium Stats Grid -->
     <div class="row g-4 mb-5">
       <div class="col-md-6 col-lg-3" *ngFor="let card of statCards; let i = index">
-        <div class="glass-panel stat-card-luxury animate__animated animate__fadeInUp"
-          [style.animation-delay]="i * 0.1 + 's'">
+        <div class="glass-panel stat-card-luxury">
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <div class="stat-label text-muted">{{ card.label }}</div>
@@ -46,7 +45,7 @@
     <!-- Analytics & Activity -->
     <div class="row g-4">
       <div class="col-xl-4">
-        <div class="glass-panel p-4 h-100 animate__animated animate__fadeInLeft">
+        <div class="glass-panel p-4 h-100">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold mb-0">USER DISTRIBUTION</h5>
             <i class="bi bi-pie-chart-fill text-gold"></i>
@@ -100,7 +99,7 @@
       </div>
 
       <div class="col-xl-8">
-        <div class="glass-panel p-4 animate__animated animate__fadeInRight">
+        <div class="glass-panel p-4">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold mb-0">RECENT REGISTRATIONS</h5>
             <button class="btn btn-luxury-outline btn-sm py-1" routerLink="/admin/User">VIEW ALL USERS</button>
@@ -117,8 +116,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let user of recentUsers; let i = index" class="animate__animated animate__fadeInRight"
-                  [style.animation-delay]="i * 0.05 + 's'">
+                <tr *ngFor="let user of recentUsers; let i = index">
                   <td>
                     <div class="d-flex align-items-center gap-3">
                       <div class="luxury-avatar">
