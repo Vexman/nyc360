@@ -4,9 +4,9 @@ export interface Toast {
     id: string;
     message: string;
     type: 'success' | 'error' | 'info' | 'warning';
-    title?: string; // Custom title
+    title?: string;
     duration?: number;
-    details?: string[]; // For validation errors list
+    details?: string[];
 }
 
 @Injectable({
@@ -42,29 +42,29 @@ export class ToastService {
     }
 
     success(message: string, title?: string) {
-        this.show(message, 'success', 4000, title || 'نجح!');
+        this.show(message, 'success', 4000, title || 'Success!');
     }
 
     error(message: string, title?: string, details?: string[]) {
-        this.show(message, 'error', 6000, title || 'خطأ', details);
+        this.show(message, 'error', 6000, title || 'Error', details);
     }
 
     info(message: string, title?: string) {
-        this.show(message, 'info', 4000, title || 'معلومة');
+        this.show(message, 'info', 4000, title || 'Info');
     }
 
     warning(message: string, title?: string) {
-        this.show(message, 'warning', 5000, title || 'تنبيه');
+        this.show(message, 'warning', 5000, title || 'Warning');
     }
 
     // Helper for validation errors from backend
     validationError(errors: string[] | string, title?: string) {
         const errorList = Array.isArray(errors) ? errors : [errors];
         this.show(
-            'الرجاء تصحيح الأخطاء التالية:',
+            'Please correct the following errors:',
             'error',
             8000,
-            title || 'خطأ في البيانات',
+            title || 'Validation Error',
             errorList
         );
     }
@@ -72,19 +72,19 @@ export class ToastService {
     // Helper for network errors
     networkError() {
         this.show(
-            'تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.',
+            'Unable to connect to the server. Please check your internet connection and try again.',
             'error',
             6000,
-            'خطأ في الاتصال'
+            'Connection Error'
         );
     }
 
     // Helper for permission errors
     permissionError(action?: string) {
         const message = action
-            ? `ليس لديك صلاحية لـ ${action}`
-            : 'ليس لديك الصلاحيات الكافية لهذا الإجراء';
-        this.show(message, 'warning', 5000, 'تنبيه صلاحيات');
+            ? `You don't have permission to ${action.toLowerCase()}`
+            : 'You don\'t have sufficient permissions for this action';
+        this.show(message, 'warning', 5000, 'Permission Denied');
     }
 
     remove(id: string) {
