@@ -5,15 +5,26 @@ import { environment } from '../../../../../environments/environment';
 import { DashboardService } from '../service/dashboard';
 import { ToastService } from '../../../../../shared/services/toast.service';
 import { DashboardStats, UserSummary } from '../models/dashboard.';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  today: Date = new Date();
+
+  get statCards() {
+    return [
+      { label: 'Total Users', value: this.stats.totalUsers, icon: 'bi-people-fill', bg: 'rgba(212, 175, 55, 0.15)', trend: 12 },
+      { label: 'Verified Accounts', value: this.stats.verifiedAccounts, icon: 'bi-patch-check-fill', bg: 'rgba(46, 204, 113, 0.15)', trend: 8 },
+      { label: 'Organizations', value: this.stats.totalOrganizations, icon: 'bi-buildings-fill', bg: 'rgba(52, 152, 219, 0.15)', trend: 5 },
+      { label: 'Banned / Locked', value: this.stats.lockedAccounts, icon: 'bi-shield-lock-fill', bg: 'rgba(231, 76, 60, 0.15)', trend: -2 }
+    ];
+  }
 
   // Expose environment to HTML for image URLs
   protected readonly environment = environment;

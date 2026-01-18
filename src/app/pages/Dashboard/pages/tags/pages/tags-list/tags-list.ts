@@ -64,11 +64,11 @@ export class TagsListComponent implements OnInit {
       this.currentPage,
       this.pageSize
     ).subscribe({
-      next: (res) => {
-        if (res.isSuccess) {
-          this.tags = res.data || [];
-          this.totalPages = res.totalPages;
-          this.totalCount = res.totalCount;
+      next: (res: any) => {
+        if (res.isSuccess || res.IsSuccess) {
+          this.tags = res.data || res.Data || [];
+          this.totalPages = res.totalPages ?? res.TotalPages ?? 0;
+          this.totalCount = res.totalCount ?? res.TotalCount ?? 0;
 
           // Update Stats
           this.stats[0].value = this.totalCount;
@@ -85,9 +85,9 @@ export class TagsListComponent implements OnInit {
     });
 
     // Also fetch pending count
-    this.verificationService.getPendingRequests(1, 1).subscribe(res => {
-      if (res.isSuccess) {
-        this.pendingCount = res.totalCount;
+    this.verificationService.getPendingRequests(1, 1).subscribe((res: any) => {
+      if (res.isSuccess || res.IsSuccess) {
+        this.pendingCount = res.totalCount ?? res.TotalCount ?? 0;
         this.cdr.detectChanges();
       }
     });

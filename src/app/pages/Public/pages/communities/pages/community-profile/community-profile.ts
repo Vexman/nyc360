@@ -79,7 +79,7 @@ export class CommunityProfileComponent implements OnInit {
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
-      if (user) this.currentUserId = user.id;
+      if (user) this.currentUserId = user.id || user.userId;
     });
 
     this.route.paramMap.subscribe(params => {
@@ -91,16 +91,17 @@ export class CommunityProfileComponent implements OnInit {
   loadData(slug: string) {
     this.isLoading = true;
     this.profileService.getCommunityBySlug(slug).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.isLoading = false;
-        if (res.isSuccess && res.data) {
-          this.community = res.data.community;
-          this.ownerId = res.data.ownerId;
-          this.memberRole = res.data.memberRole ? Number(res.data.memberRole) : null;
+        const data = res.data || res.Data;
+        if ((res.isSuccess || res.IsSuccess) && data) {
+          this.community = data.community;
+          this.ownerId = data.ownerId;
+          this.memberRole = data.memberRole ? Number(data.memberRole) : null;
 
-          if (res.data.posts && Array.isArray(res.data.posts.data)) {
+          if (data.posts && Array.isArray(data.posts.data)) {
             // Map to ExtendedPost
-            this.posts = res.data.posts.data.map((p: any) => ({
+            this.posts = data.posts.data.map((p: any) => ({
               ...p,
               comments: [], // Init empty
               currentUserInteraction: p.currentUserInteraction || InteractionType.None,
