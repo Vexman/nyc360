@@ -105,6 +105,9 @@
               <h4>{{ post.title | slice:0:60 }}{{ post.title.length > 60 ? '...' : '' }}</h4>
               <p>{{ getCategoryName(post.category) }}</p>
             </div>
+            <button class="save-btn" [class.saved]="post.isSaved" (click)="onSavePost(post, $event)">
+              <i class="bi" [ngClass]="post.isSaved ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -126,6 +129,10 @@
         <div class="promo-actions">
           <button class="btn-join">Join</button>
           <button class="btn-outline">More Details</button>
+          <button class="save-btn-circle" [class.saved]="highlightedPosts[0].isSaved"
+            (click)="onSavePost(highlightedPosts[0], $event)">
+            <i class="bi" [ngClass]="highlightedPosts[0].isSaved ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
+          </button>
         </div>
       </div>
     </section>
@@ -136,6 +143,9 @@
         <div class="feed-media-container">
           <img [src]="resolvePostImage(post)" alt="feed">
           <span class="feed-badge">{{ getCategoryName(post.category) }}</span>
+          <button class="save-btn-large" [class.saved]="post.isSaved" (click)="onSavePost(post, $event)">
+            <i class="bi" [ngClass]="post.isSaved ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
+          </button>
         </div>
         <div class="feed-content">
           <h2 class="feed-title">{{ post.title }}</h2>
@@ -157,7 +167,7 @@
     <!-- 6. Text Only Posts (Moved to Bottom as Requested) -->
     <section class="text-only-section-v2" *ngIf="textOnlyPosts.length > 0">
       <header class="block-header">
-        <div class="vertical-bar" style="background: #607D8B;"></div>
+        <div class="vertical-bar"></div>
         <h2>Text-Only Insights</h2>
       </header>
       <div class="text-insights-grid">
