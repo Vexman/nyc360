@@ -217,12 +217,44 @@
                      <div class="comments-list">
                         <div *ngFor="let comment of (post.comments || [])" class="comment-entry">
                            <img [src]="getAuthorImage(comment.author)" class="comment-avatar">
-                           <div class="comment-bubble">
-                              <div class="header">
-                                 <h6>{{ getAuthorName(comment.author) }}</h6>
-                                 <span>{{ comment.createdAt | date:'short' }}</span>
+
+                           <div class="comment-body-wrapper">
+                              <!-- Bubble -->
+                              <div class="comment-bubble">
+                                 <div class="header">
+                                    <h6>{{ getAuthorName(comment.author) }}</h6>
+                                    <span>{{ comment.createdAt | date:'shortTime' }}</span>
+                                 </div>
+                                 <p>{{ comment.content }}</p>
                               </div>
-                              <p>{{ comment.content }}</p>
+
+                              <!-- Actions (Reply) -->
+                              <div class="comment-actions">
+                                 <button (click)="openReplyInput(comment)">Reply</button>
+                                 <button class="text-muted" *ngIf="isOwner"
+                                    (click)="deleteComment(comment)">Delete</button>
+                              </div>
+
+                              <!-- Reply Input -->
+                              <div class="reply-input-box" *ngIf="activeReplyId === comment.id">
+                                 <input #replyIn type="text"
+                                    placeholder="Reply to {{ getAuthorName(comment.author) }}..."
+                                    (keydown.enter)="submitReply(post, comment, replyIn.value); replyIn.value = ''">
+                                 <button (click)="submitReply(post, comment, replyIn.value); replyIn.value = ''">
+                                    <i class="bi bi-send-fill"></i>
+                                 </button>
+                              </div>
+
+                              <!-- Nested Replies -->
+                              <div class="nested-replies" *ngIf="comment.replies?.length">
+                                 <div *ngFor="let reply of comment.replies" class="reply-item">
+                                    <div class="rep-header">
+                                       <strong>{{ getAuthorName(reply.author) }}</strong>
+                                       <time>{{ reply.createdAt | date:'shortTime' }}</time>
+                                    </div>
+                                    <p class="rep-text">{{ reply.content }}</p>
+                                 </div>
+                              </div>
                            </div>
                         </div>
                      </div>
