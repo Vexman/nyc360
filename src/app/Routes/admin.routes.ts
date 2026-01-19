@@ -49,6 +49,11 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'locations/create', loadComponent: () => import('../pages/Dashboard/pages/locations/pages/location-form/location-form').then(m => m.LocationFormComponent) },
       { path: 'locations/edit/:id', loadComponent: () => import('../pages/Dashboard/pages/locations/pages/location-form/location-form').then(m => m.LocationFormComponent) },
 
+      // Communities
+      { path: 'communities/list', loadComponent: () => import('../pages/Dashboard/pages/communities/pages/communities-list/communities-list').then(m => m.CommunitiesListComponent) },
+      { path: 'communities/disband-requests', loadComponent: () => import('../pages/Dashboard/pages/communities/pages/disband-requests/disband-requests').then(m => m.DisbandRequestsComponent) },
+      { path: 'communities/moderation/:id', loadComponent: () => import('../pages/Dashboard/pages/communities/pages/community-moderation/community-moderation').then(m => m.CommunityModerationComponent) },
+
     ]
   }
 ];

@@ -1,343 +1,314 @@
-// Variables
-$gold: #D4AF37;
-$blue: #3498DB;
-$green: #2ECC71;
-$red: #E74C3C;
-$dark: #1A1A1A;
-$light: #F8F9FA;
-$text: #2C3E50;
-$gray: #7F8C8D;
-$white: #FFFFFF;
-$border: #ECF0F1;
-$radius: 16px;
-
 .dashboard-container {
-  min-height: 100vh;
-  background-color: #f4f6f9;
-  padding: 30px;
-  font-family: 'DM Sans', sans-serif;
+  padding: 1rem;
 }
 
-// --- Loading ---
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 50vh;
-
-  .spinner-border {
-    width: 3rem;
-    height: 3rem;
-    color: $gold;
-  }
+.date-pill {
+  border-radius: 50px;
+  font-size: 0.85rem;
+  color: var(--luxury-navy);
 }
 
-// --- Header ---
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
+.text-gold {
+  color: var(--luxury-gold);
+}
 
-  h2 {
-    font-weight: 800;
-    color: $dark;
-    font-size: 1.8rem;
-    margin: 0;
+.stat-card-luxury {
+  padding: 1.5rem;
+  border-radius: 20px;
+  height: 100%;
+  border-bottom: 4px solid rgba(212, 175, 55, 0.3);
 
-    .gold-accent {
-      color: $gold;
-      position: relative;
-
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -5px;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: $gold;
-        border-radius: 2px;
-      }
-    }
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
-  .date-badge {
-    background: $white;
-    padding: 10px 20px;
-    border-radius: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    font-weight: 600;
-    color: $text;
+  .stat-number {
+    color: var(--luxury-navy);
+  }
+
+  .stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    border: 1px solid rgba($gold, 0.2);
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--luxury-navy);
+  }
 
-    i {
-      color: $gold;
+  .trend-badge {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--luxury-green);
+
+    &.positive {
+      background: rgba(46, 204, 113, 0.1);
+      color: var(--luxury-green);
+    }
+
+    &:not(.positive) {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
     }
   }
 }
 
-// --- Glass Panel ---
-.glass-panel {
-  background: $white;
-  border-radius: $radius;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.luxury-progress {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 10px;
   overflow: hidden;
 
-  &:hover {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  .progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.gold {
+      background: var(--luxury-gold);
+    }
+
+    &.blue {
+      background: var(--luxury-blue);
+    }
+
+    &.green {
+      background: var(--luxury-green);
+    }
   }
 }
 
-// --- Stat Cards ---
-.stat-card {
-  padding: 25px;
-  position: relative;
+.luxury-alert {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 3px solid transparent;
+  gap: 1.2rem;
+  padding: 1.2rem;
+  background: #fff9eb;
+  border-radius: 16px;
+  border-left: 4px solid var(--luxury-gold);
 
-  &.primary {
-    border-bottom-color: $blue;
-
-    .stat-icon {
-      background: rgba($blue, 0.1);
-      color: $blue;
-    }
-  }
-
-  &.success {
-    border-bottom-color: $green;
-
-    .stat-icon {
-      background: rgba($green, 0.1);
-      color: $green;
-    }
-  }
-
-  &.info {
-    border-bottom-color: #9B59B6;
-
-    .stat-icon {
-      background: rgba(#9B59B6, 0.1);
-      color: #9B59B6;
-    }
-  }
-
-  // Purple for orgs
-  &.danger {
-    border-bottom-color: $red;
-
-    .stat-icon {
-      background: rgba($red, 0.1);
-      color: $red;
-    }
-  }
-
-  .stat-info {
-    z-index: 2;
-
-    .stat-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      color: $gray;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    .stat-value {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: $dark;
-      margin: 5px 0 0;
-      line-height: 1;
-    }
-  }
-
-  .stat-icon {
-    width: 60px;
-    height: 60px;
+  .icon-pulse {
+    width: 40px;
+    height: 40px;
+    background: var(--luxury-gold);
+    color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
-    transition: 0.3s;
-  }
-
-  &:hover {
-    transform: translateY(-5px);
-
-    .stat-icon {
-      transform: scale(1.1) rotate(10deg);
-    }
+    font-size: 1.2rem;
+    animation: alertPulse 2s infinite;
   }
 }
 
-// --- Content Cards ---
-.content-card {
-  height: 100%;
-  padding: 25px;
+@keyframes alertPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5);
+  }
 
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
+  70% {
+    box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+  }
 
-    h5 {
-      font-weight: 800;
-      color: $dark;
-      margin: 0;
-      font-size: 1.1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
   }
 }
 
-// --- Analytics Items ---
-.analytics-item {
-  margin-bottom: 25px;
-
-  .progress {
-    height: 10px;
-    border-radius: 5px;
-    background-color: #f0f0f0;
-    overflow: hidden;
-    margin-top: 8px;
-  }
-}
-
-.alert-box {
-  background: #FFF8E1; // Light gold/yellow
-  padding: 20px;
+.luxury-avatar {
+  width: 42px;
+  height: 42px;
   border-radius: 12px;
+  overflow: hidden;
+  background: var(--luxury-gold);
   display: flex;
   align-items: center;
-  gap: 20px;
-  border-left: 4px solid $gold;
-
-  .alert-icon {
-    font-size: 2rem;
-    color: $gold;
-  }
-
-  h6 {
-    margin: 0;
-    font-weight: 800;
-    color: $dark;
-  }
-
-  p {
-    margin: 5px 0 0;
-    font-size: 0.9rem;
-    color: #666;
-  }
-}
-
-// --- Table ---
-.luxury-table {
-  width: 100%;
-
-  thead th {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color: $gray;
-    font-weight: 700;
-    letter-spacing: 1px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid $border;
-  }
-
-  tbody tr {
-    transition: 0.2s;
-
-    &:hover {
-      background: #fafafa;
-    }
-
-    td {
-      padding: 15px 0;
-      border-bottom: 1px dashed $border;
-      vertical-align: middle;
-    }
-
-    &:last-child td {
-      border-bottom: none;
-    }
-  }
-}
-
-.avatar-group {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+  justify-content: center;
 
   img {
-    width: 45px;
-    height: 45px;
-    border-radius: 12px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
 
-  .initials {
-    width: 45px;
-    height: 45px;
-    border-radius: 12px;
-    background: $gold;
-    color: $white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .avatar-initials {
+    color: white;
     font-weight: 800;
+    font-size: 0.9rem;
   }
 }
 
-.role-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
+.role-pill {
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.7rem;
   font-weight: 700;
-  font-size: 0.75rem;
   text-transform: uppercase;
+  background: #f1f5f9;
+  color: var(--luxury-slate);
 
-  &.admin {
-    background: rgba($blue, 0.1);
-    color: $blue;
-  }
-
-  &.org {
-    background: rgba(#9B59B6, 0.1);
-    color: #9B59B6;
-  }
-
-  &.user {
-    background: rgba($gray, 0.1);
-    color: $gray;
+  &[data-role="SuperAdmin"],
+  &[data-role="Admin"] {
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--luxury-blue);
   }
 }
 
-// --- Animation ---
-.fade-in {
-  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+.btn-icon-luxury {
+  width: 32px;
+  height: 32px;
+  background: var(--luxury-bg);
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--luxury-slate);
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--luxury-gold);
+    color: white;
+    border-color: var(--luxury-gold);
+  }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+// Mobile Responsive Enhancements
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0.5rem;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .header-luxury {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 1rem;
+
+    .date-pill {
+      margin-left: 0;
+    }
   }
+
+  .stat-card-luxury {
+    padding: 1rem;
+
+    .stat-number {
+      font-size: 1.75rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 0.25rem;
+  }
+
+  .gold-title {
+    font-size: 1.5rem !important;
+  }
+
+  .luxury-table {
+    font-size: 0.85rem;
+
+    .luxury-avatar {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .bar-item {
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+@media (max-width: 374px) {
+  .stat-card-luxury {
+    padding: 0.75rem;
+    border-radius: 12px;
+
+    .stat-label {
+      font-size: 0.65rem;
+    }
+
+    .stat-number {
+      font-size: 1.5rem !important;
+    }
+
+    .stat-icon-wrapper {
+      width: 36px;
+      height: 36px;
+      font-size: 1.1rem;
+    }
+
+    .trend-badge {
+      font-size: 0.6rem;
+      padding: 1px 6px;
+    }
+  }
+
+  .gold-title {
+    font-size: 1.25rem !important;
+  }
+
+  .date-pill {
+    font-size: 0.7rem;
+    padding: 6px 12px !important;
+  }
+
+  // Additional fixes for very small screens
+  .container-fluid {
+    padding-left: 4px;
+    padding-right: 4px;
+    overflow-x: hidden;
+  }
+
+  .row {
+    margin-left: -2px;
+    margin-right: -2px;
+
+    >[class*='col-'] {
+      padding-left: 2px;
+      padding-right: 2px;
+    }
+  }
+
+  .glass-panel {
+    border-radius: 8px !important;
+    margin-bottom: 8px;
+  }
+
+  .luxury-table {
+    font-size: 0.7rem;
+
+    .luxury-avatar {
+      width: 24px !important;
+      height: 24px !important;
+    }
+  }
+
+  .bar-item {
+    margin-bottom: 1rem !important;
+
+    h4 {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// Ensure no horizontal scroll
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.dashboard-container,
+.container-fluid {
+  overflow-x: hidden;
 }

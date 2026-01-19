@@ -4,10 +4,10 @@ import { ToastService } from '../../services/toast.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 
 @Component({
-    selector: 'app-toast',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-toast',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="toast-container">
       <div *ngFor="let toast of toastService.toasts()" 
            class="toast-item" 
@@ -22,8 +22,13 @@ import { animate, style, transition, trigger } from '@angular/animations';
           }"></i>
         </div>
         <div class="content">
-          <span class="title">{{ toast.type | titlecase }}</span>
+          <span class="title">{{ toast.title || toast.type }}</span>
           <span class="message">{{ toast.message }}</span>
+          
+          <!-- Validation errors list -->
+          <ul class="error-list" *ngIf="toast.details && toast.details.length > 0">
+            <li *ngFor="let detail of toast.details">{{ detail }}</li>
+          </ul>
         </div>
         <button class="close-btn" (click)="toastService.remove(toast.id)">
           <i class="bi bi-x"></i>
@@ -31,84 +36,223 @@ import { animate, style, transition, trigger } from '@angular/animations';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .toast-container {
       position: fixed;
-      top: 20px;
+      top: 80px;
       right: 20px;
-      z-index: 9999;
+      z-index: 99999;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      pointer-events: none; /* Allow clicking through container */
+      gap: 12px;
+      pointer-events: none;
+      max-width: 450px;
     }
 
     .toast-item {
       pointer-events: auto;
-      min-width: 300px;
-      max-width: 400px;
-      background: rgba(20, 20, 20, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-left: 4px solid;
+      min-width: 320px;
+      max-width: 450px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-left: 5px solid;
       border-radius: 12px;
-      padding: 16px;
+      padding: 16px 20px;
       display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      color: white;
+      align-items: flex-start;
+      gap: 14px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+      position: relative;
       overflow: hidden;
 
-      &.success { border-left-color: #00d26a; .icon-wrapper { color: #00d26a; background: rgba(0, 210, 106, 0.1); } }
-      &.error { border-left-color: #f8312f; .icon-wrapper { color: #f8312f; background: rgba(248, 49, 47, 0.1); } }
-      &.info { border-left-color: #007bff; .icon-wrapper { color: #007bff; background: rgba(0, 123, 255, 0.1); } }
-      &.warning { border-left-color: #ffc107; .icon-wrapper { color: #ffc107; background: rgba(255, 193, 7, 0.1); } }
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, currentColor, transparent);
+        opacity: 0.3;
+      }
+
+      &.success { 
+        border-left-color: #10b981; 
+        color: #065f46;
+        &::before { color: #10b981; }
+        .icon-wrapper { 
+          background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+          color: #059669; 
+        }
+      }
+      
+      &.error { 
+        border-left-color: #ef4444; 
+        color: #991b1b;
+        &::before { color: #ef4444; }
+        .icon-wrapper { 
+          background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+          color: #dc2626; 
+        }
+      }
+      
+      &.info { 
+        border-left-color: #3b82f6; 
+        color: #1e40af;
+        &::before { color: #3b82f6; }
+        .icon-wrapper { 
+          background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+          color: #2563eb; 
+        }
+      }
+      
+      &.warning { 
+        border-left-color: #f59e0b; 
+        color: #92400e;
+        &::before { color: #f59e0b; }
+        .icon-wrapper { 
+          background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+          color: #d97706; 
+        }
+      }
 
       .icon-wrapper {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
+        margin-top: 2px;
       }
 
       .content {
         flex: 1;
         display: flex;
         flex-direction: column;
+        gap: 4px;
         
-        .title { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
-        .message { font-size: 0.9rem; color: #ccc; line-height: 1.4; }
+        .title { 
+          font-weight: 700; 
+          font-size: 0.95rem; 
+          letter-spacing: 0.3px;
+          margin-bottom: 2px;
+          display: block;
+        }
+        
+        .message { 
+          font-size: 0.9rem; 
+          line-height: 1.5;
+          opacity: 0.9;
+          display: block;
+        }
+
+        .error-list {
+          margin: 8px 0 0 0;
+          padding: 12px 16px;
+          background: rgba(0,0,0,0.03);
+          border-radius: 8px;
+          list-style: none;
+
+          li {
+            position: relative;
+            padding-left: 20px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 6px;
+            color: inherit;
+            opacity: 0.95;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+
+            &::before {
+              content: '•';
+              position: absolute;
+              left: 6px;
+              font-weight: 700;
+              font-size: 1.1rem;
+            }
+          }
+        }
       }
 
       .close-btn {
         background: none;
         border: none;
-        color: #666;
+        color: currentColor;
+        opacity: 0.4;
         cursor: pointer;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         padding: 4px;
-        transition: color 0.2s;
+        transition: all 0.2s;
+        margin-top: 2px;
+        min-width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
         
-        &:hover { color: white; }
+        &:hover { 
+          opacity: 1;
+          background: rgba(0,0,0,0.05);
+        }
+      }
+    }
+
+    // Mobile responsive
+    @media (max-width: 480px) {
+      .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+
+      .toast-item {
+        min-width: auto;
+        max-width: none;
+        padding: 14px 16px;
+        
+        .icon-wrapper {
+          width: 32px;
+          height: 32px;
+          min-width: 32px;
+          font-size: 1.1rem;
+        }
+
+        .content {
+          .title {
+            font-size: 0.9rem;
+          }
+
+          .message {
+            font-size: 0.85rem;
+          }
+
+          .error-list li {
+            font-size: 0.8rem;
+          }
+        }
       }
     }
   `],
-    animations: [
-        trigger('toastAnimation', [
-            transition(':enter', [
-                style({ transform: 'translateX(100%)', opacity: 0 }),
-                animate('300ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateX(0)', opacity: 1 }))
-            ]),
-            transition(':leave', [
-                animate('300ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateX(100%)', opacity: 0 }))
-            ])
-        ])
-    ]
+  animations: [
+    trigger('toastAnimation', [
+      transition(':enter', [
+        style({ transform: 'translateX(120%)', opacity: 0 }),
+        animate('350ms cubic-bezier(0.34, 1.56, 0.64, 1)', style({ transform: 'translateX(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('250ms cubic-bezier(0.4, 0.0, 1, 1)', style({ transform: 'translateX(120%)', opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class ToastComponent {
-    toastService = inject(ToastService);
+  toastService = inject(ToastService);
 }

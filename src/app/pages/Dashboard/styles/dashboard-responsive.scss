@@ -1,0 +1,547 @@
+/* ================================================================
+   DASHBOARD MASTER MOBILE RESPONSIVE STYLES
+   Auto-applies to ALL Dashboard pages
+   ================================================================ */
+
+// ============= UNIVERSAL RESET & BASE =============
+* {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+}
+
+// Prevent horizontal scroll globally
+.container-fluid,
+.luxury-dashboard,
+.users-page,
+.posts-dashboard,
+.roles-page,
+.tags-page,
+.rss-page,
+.dashboard-container {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+// ============= TABLETS (max-width: 768px) =============
+@media (max-width: 768px) {
+
+    // Container & Spacing
+    .container-fluid {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    // Typography
+    .gold-title,
+    h1 {
+        font-size: 1.75rem !important;
+        line-height: 1.3;
+    }
+
+    h2 {
+        font-size: 1.5rem !important;
+    }
+
+    h3 {
+        font-size: 1.25rem !important;
+    }
+
+    // Header Sections
+    .header-section {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem;
+
+        .title-area {
+            margin-bottom: 0.5rem;
+        }
+
+        .header-actions {
+            width: 100%;
+
+            button,
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    }
+
+    // Glass Panels
+    .glass-panel {
+        padding: 1rem;
+    }
+
+    // Tables
+    .luxury-table,
+    .table {
+        font-size: 0.875rem;
+
+        thead th {
+            padding: 10px !important;
+            font-size: 0.75rem;
+        }
+
+        tbody td {
+            padding: 10px !important;
+        }
+
+        // Hide 3rd column on tablets
+        th:nth-child(3),
+        td:nth-child(3) {
+            display: none;
+        }
+    }
+
+    // Stats Cards
+    .stat-card,
+    .stat-card-luxury {
+        margin-bottom: 1rem;
+
+        .count,
+        .stat-number {
+            font-size: 2rem;
+        }
+    }
+
+    // Modals
+    .modal-content,
+    .luxury-modal-content {
+        max-width: calc(100vw - 40px);
+        margin: 20px;
+    }
+
+    .modal-luxury-header,
+    .modal-luxury-body,
+    .modal-luxury-footer {
+        padding: 1rem;
+    }
+
+    // Forms
+    .form-row,
+    .row {
+
+        .col-md-6,
+        .col-lg-3,
+        .col-lg-4,
+        .col-lg-6 {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+    }
+
+    // Filter Panels
+    .filter-panel {
+        padding: 12px;
+
+        .col-6,
+        .col-lg-3,
+        .col-md-6 {
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+            margin-bottom: 0.75rem;
+        }
+    }
+}
+
+// ============= MOBILE PHONES (max-width: 480px) =============
+@media (max-width: 480px) {
+
+    // Container & Spacing
+    .container-fluid,
+    .luxury-dashboard,
+    .users-page,
+    .posts-dashboard {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+
+    // Typography
+    .gold-title,
+    h1 {
+        font-size: 1.5rem !important;
+    }
+
+    h2 {
+        font-size: 1.3rem !important;
+    }
+
+    h3,
+    h4 {
+        font-size: 1.1rem !important;
+    }
+
+    // Edge-to-Edge Cards
+    .glass-panel,
+    .table-card {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        margin-left: -8px !important;
+        margin-right: -8px !important;
+        padding: 0.75rem;
+    }
+
+    // Buttons
+    .btn,
+    button,
+    .btn-luxury-gold,
+    .btn-luxury-outline {
+        font-size: 0.85rem !important;
+        padding: 8px 12px !important;
+    }
+
+    // Tables
+    .luxury-table,
+    .table {
+        font-size: 0.8rem;
+
+        // Show only first and last columns
+        thead th:not(:first-child):not(:last-child),
+        tbody td:not(:first-child):not(:last-child) {
+            display: none !important;
+        }
+
+        thead th {
+            padding: 8px !important;
+            font-size: 0.7rem;
+        }
+
+        tbody td {
+            padding: 8px !important;
+        }
+    }
+
+    // Stats Cards
+    .stat-card,
+    .stat-card-luxury {
+        padding: 12px;
+        margin-bottom: 12px;
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+
+        .count,
+        .stat-number {
+            font-size: 1.75rem;
+        }
+
+        .label {
+            font-size: 0.75rem;
+        }
+    }
+
+    // Search & Inputs
+    .search-box {
+        input {
+            font-size: 0.85rem;
+            padding: 8px 10px 8px 35px !important;
+        }
+
+        i {
+            font-size: 0.9rem;
+        }
+    }
+
+    .luxury-input,
+    .luxury-select,
+    input,
+    select,
+    textarea {
+        font-size: 0.85rem !important;
+        padding: 10px !important;
+    }
+
+    // Badges & Tags
+    .badge,
+    .badge-custom,
+    .role-badge-luxury,
+    .id-badge {
+        font-size: 0.7rem !important;
+        padding: 3px 8px !important;
+    }
+
+    // Action Buttons
+    .action-btns {
+        gap: 6px !important;
+        flex-wrap: wrap;
+
+        button {
+            width: 32px;
+            height: 32px;
+            font-size: 0.85rem;
+        }
+    }
+
+    // Avatars
+    .luxury-avatar,
+    .luxury-avatar-wrapper,
+    .avatar-wrapper {
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    // Modals
+    .modal-content,
+    .luxury-modal-content {
+        max-width: calc(100vw - 20px);
+        margin: 10px;
+        border-radius: 16px;
+    }
+
+    .modal-luxury-footer {
+        flex-direction: column;
+
+        button {
+            width: 100%;
+        }
+    }
+
+    // Pagination
+    .pagination-luxury,
+    .pagination-footer {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+
+        .pagination-controls {
+            justify-content: center;
+        }
+    }
+}
+
+// ============= EXTRA SMALL PHONES (max-width: 374px) =============
+@media (max-width: 374px) {
+
+    // Container
+    .container-fluid {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+
+    // Typography
+    .gold-title,
+    h1 {
+        font-size: 1.25rem !important;
+    }
+
+    h2 {
+        font-size: 1.1rem !important;
+    }
+
+    h3,
+    h4 {
+        font-size: 1rem !important;
+    }
+
+    // Cards
+    .glass-panel {
+        padding: 0.5rem;
+    }
+
+    // Buttons
+    .btn,
+    button {
+        font-size: 0.75rem !important;
+        padding: 6px 10px !important;
+    }
+
+    // Tables
+    .luxury-table,
+    .table {
+        font-size: 0.7rem;
+
+        thead th {
+            padding: 6px !important;
+            font-size: 0.65rem;
+        }
+
+        tbody td {
+            padding: 6px !important;
+        }
+    }
+
+    // Stats Cards
+    .stat-card,
+    .stat-card-luxury {
+        padding: 10px;
+
+        .icon-box {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+
+        .count,
+        .stat-number {
+            font-size: 1.5rem !important;
+        }
+
+        .label {
+            font-size: 0.65rem;
+        }
+    }
+
+    // Search
+    .search-box {
+        input {
+            font-size: 0.75rem;
+            padding: 6px 8px 6px 30px !important;
+        }
+    }
+
+    // Inputs
+    .luxury-input,
+    .luxury-select,
+    input,
+    select {
+        font-size: 0.75rem !important;
+        padding: 8px !important;
+    }
+
+    // Badges
+    .badge,
+    .badge-custom,
+    .id-badge {
+        font-size: 0.65rem !important;
+        padding: 2px 6px !important;
+    }
+
+    // Action Buttons
+    .action-btns button {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+
+    // Avatars
+    .luxury-avatar,
+    .luxury-avatar-wrapper {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    // Modals
+    .modal-luxury-header,
+    .modal-luxury-body,
+    .modal-luxury-footer {
+        padding: 0.75rem;
+    }
+}
+
+// ============= TOUCH DEVICES =============
+@media (hover: none) and (pointer: coarse) {
+
+    // Ensure all interactive elements are touch-friendly
+    button,
+    .btn,
+    a {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    // Smaller action buttons still need minimum size
+    .action-btns button,
+    .btn-icon {
+        min-width: 36px;
+        min-height: 36px;
+    }
+}
+
+// ============= TABLE RESPONSIVE FALLBACK =============
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+
+        table {
+            min-width: 600px;
+        }
+    }
+}
+
+// ============= LANDSCAPE MODE =============
+@media (max-width: 768px) and (orientation: landscape) {
+
+    .modal-content,
+    .luxury-modal-content {
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+
+    .hero-section,
+    .header-section {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+}
+
+// ============= IMAGE FALLBACKS =============
+img {
+    max-width: 100%;
+    height: auto;
+
+    &[src=""],
+    &:not([src]) {
+        display: inline-block;
+        background: #f1f5f9;
+        border: 1px dashed #cbd5e1;
+        min-height: 100px;
+    }
+}
+
+// ============= GRID SYSTEMS =============
+@media (max-width: 768px) {
+    .row.g-4 {
+        gap: 1rem !important;
+    }
+
+    .row.g-3 {
+        gap: 0.75rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .row.g-4,
+    .row.g-3 {
+        gap: 0.5rem !important;
+    }
+}
+
+// ============= UTILITY CLASSES =============
+.mobile-only {
+    display: none;
+}
+
+.desktop-only {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .mobile-only {
+        display: block;
+    }
+
+    .desktop-only {
+        display: none !important;
+    }
+}
+
+// ============= PRINT STYLES =============
+@media print {
+
+    .action-btns,
+    .header-actions,
+    button,
+    .btn {
+        display: none !important;
+    }
+}

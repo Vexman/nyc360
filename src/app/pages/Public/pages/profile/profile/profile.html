@@ -1,543 +1,461 @@
 <div class="profile-page-container">
 
+   <!-- 1. LOADING STATE -->
    <div *ngIf="isLoading" class="loading-center">
-      <div class="spinner"></div>
+      <div class="loader-diamond"></div>
    </div>
 
    <div *ngIf="!isLoading && user" class="profile-wrapper">
 
-      <div class="header-card">
-         <div class="cover-area" [style.backgroundImage]="'url(' + resolveCover(user.coverImageUrl) + ')'">
-            <!-- Share Button -->
-            <button class="btn-share-top" (click)="shareProfile()" title="Share">
-               <i class="bi bi-share-fill"></i>
+      <!-- 2. HEADER SECTION -->
+      <header class="profile-header-premium animate__animated animate__fadeIn">
+         <div class="cover-photo" [style.backgroundImage]="'url(' + resolveCover(user.coverImageUrl) + ')'">
+            <div class="cover-overlay"></div>
+         </div>
+
+         <div class="profile-meta-row">
+            <div class="avatar-container">
+               <div class="avatar-wrapper">
+                  <img [src]="resolveImage(user.imageUrl)" alt="Profile">
+               </div>
+            </div>
+
+            <div class="identity-block">
+               <div class="name-status">
+                  <h1>
+                     {{ displayName }}
+                     <i class="bi bi-patch-check-fill verified-icon" *ngIf="isVerified"
+                        title="Verified Professional"></i>
+                  </h1>
+               </div>
+               <p class="headline-text">{{ user.headline || 'Impactful Member @ NYC 360' }}</p>
+               <div class="meta-badges">
+                  <span class="meta-tag"><i class="bi bi-geo-alt"></i> {{ user.location || 'New York, USA' }}</span>
+                  <!-- Show joined date only if we can derive it, or generic -->
+                  <span class="meta-tag"><i class="bi bi-calendar3"></i> Active Member</span>
+               </div>
+            </div>
+
+            <div class="header-actions">
+               <!-- Edit Profile Removed -->
+               <button *ngIf="!isOwner" class="btn-follow">
+                  <i class="bi bi-person-plus-fill"></i> Follow
+               </button>
+            </div>
+         </div>
+      </header>
+
+      <!-- 3. NAVIGATION -->
+      <nav class="sticky-tabs">
+         <div class="tabs-container">
+            <button class="tab-item" [class.active]="activeTab === 'posts'" (click)="switchTab('posts')">
+               <i class="bi bi-grid-3x3"></i> Timeline
             </button>
-
-
+            <button class="tab-item" [class.active]="activeTab === 'about'" (click)="switchTab('about')">
+               <i class="bi bi-person-badge"></i> About
+            </button>
+            <button class="tab-item" [class.active]="activeTab === 'saved'" (click)="switchTab('saved')"
+               *ngIf="isOwner">
+               <i class="bi bi-bookmark"></i> Saved
+            </button>
          </div>
+      </nav>
 
-         <div class="user-info-bar">
-            <div class="avatar-holder">
-               <img [src]="resolveImage(user.imageUrl)" alt="User">
+      <!-- 4. CONTENT GRID -->
+      <div class="layout-grid" [ngSwitch]="activeTab">
+
+         <!-- LEFT SIDEBAR -->
+         <aside class="side-col">
+            <div class="glass-card mb-4" *ngIf="user.bio || isOwner">
+               <h4 class="section-title">About Me</h4>
+               <p class="bio-text" *ngIf="user.bio">{{ user.bio }}</p>
+
             </div>
-            <div class="info-details">
-               <div class="name-row">
-                  <h1>{{ displayName }}</h1>
-                  <i class="bi bi-patch-check-fill verified-badge" *ngIf="isVerified" title="Verified Account"></i>
-               </div>
-               <p class="headline">{{ user.headline || 'No headline available' }}</p>
-               <div class="location" *ngIf="user.location || user.locationId">
-                  <i class="bi bi-geo-alt-fill"></i> {{ user.location || 'New York, USA' }}
-               </div>
-            </div>
-         </div>
-      </div>
-
-      <!-- Stats Section -->
 
 
-      <div class="nav-tabs-custom">
-         <a [class.active]="activeTab === 'posts'" (click)="switchTab('posts')">Posts</a>
-         <a [class.active]="activeTab === 'about'" (click)="switchTab('about')">About</a>
-         <a [class.active]="activeTab === 'saved'" (click)="switchTab('saved')" *ngIf="isOwner">Saved</a>
-      </div>
 
-      <div class="content-grid">
-         <!-- Sidebar and other tabs remain same -->
-         <aside class="left-sidebar">
-
-            <div class="sidebar-widget">
-               <h4>Intro</h4>
-               <div class="info-item" *ngIf="user.bio">
-                  <i class="bi bi-text-left"></i> <span>{{ user.bio }}</span>
-               </div>
-
-               <!-- Contact Info -->
-               <div class="info-item">
-                  <i class="bi bi-envelope"></i>
-                  <span *ngIf="user.email">{{ user.email }}</span>
-                  <span *ngIf="!user.email" style="color: #94a3b8; font-style: italic;">No email provided</span>
-               </div>
-               <div class="info-item">
-                  <i class="bi bi-telephone"></i>
-                  <span *ngIf="user.phoneNumber">{{ user.phoneNumber }}</span>
-                  <span *ngIf="!user.phoneNumber" style="color: #94a3b8; font-style: italic;">No phone provided</span>
-               </div>
-
-               <div class="info-item" *ngFor="let link of user.socialLinks">
-                  <i class="bi" [ngClass]="getPlatformIcon(link.platform)"></i>
-                  <a [href]="link.url" target="_blank">{{ getPlatformName(link.platform) }}</a>
-               </div>
-               <div *ngIf="(!user.socialLinks || user.socialLinks.length === 0)" class="empty-mini">
-                  <p>No social links.</p>
+            <div class="glass-card mb-4" *ngIf="user.socialLinks.length">
+               <h4 class="section-title">Connect</h4>
+               <div class="social-links-grid">
+                  <a *ngFor="let link of user.socialLinks" [href]="link.url" target="_blank" class="social-icon-btn"
+                     [title]="getPlatformName(link.platform)">
+                     <i class="bi" [ngClass]="getPlatformIcon(link.platform)"></i>
+                  </a>
                </div>
             </div>
 
-            <!-- Interests / Tags -->
-            <div class="sidebar-widget" *ngIf="user.tags && user.tags.length > 0">
-               <h4>Interests</h4>
-               <div class="tags-cloud" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                  <span *ngFor="let tag of user.tags" style="
-                        background: #e0f2fe; 
-                        color: #0284c7; 
-                        padding: 4px 10px; 
-                        border-radius: 20px; 
-                        font-size: 0.85rem; 
-                        font-weight: 500;">
-                     {{ tag.name }}
-                  </span>
-               </div>
-            </div>
-
-            <div class="sidebar-widget">
-               <h4>My Communities</h4>
-               <ng-container *ngIf="user.topCommunities && user.topCommunities.length > 0; else emptyCommunities">
-                  <div class="comm-item" *ngFor="let comm of user.topCommunities">
-                     <div class="comm-icon">{{ getInitials(comm.name) }}</div>
-                     <div class="comm-info">
-                        <h5>{{ comm.name }}</h5>
-                        <small>Resource Community</small>
-                     </div>
-                  </div>
-               </ng-container>
-               <ng-template #emptyCommunities>
-                  <div class="empty-mini">
-                     <p>No communities joined yet.</p>
-                  </div>
-               </ng-template>
-               <button class="btn-see-all">Explore Communities</button>
-            </div>
 
          </aside>
 
-         <main class="main-feed" [ngSwitch]="activeTab">
+         <!-- MAIN FEED -->
+         <main class="feed-col">
 
-            <!-- 1. Posts Tab -->
-            <div *ngSwitchCase="'posts'">
-               <div class="create-post" *ngIf="isOwner">
-                  <div class="cp-row">
-                     <img [src]="resolveImage(user.imageUrl)">
-                     <div class="fake-input" routerLink="/public/posts/create">What's on your mind?</div>
+            <!-- Timeline Tab -->
+            <div *ngSwitchCase="'posts'" class="animate__animated animate__fadeIn">
+               <!-- Create Post Reminder (Owner Only) -->
+               <div class="create-post-card glass-card" *ngIf="isOwner">
+                  <div class="input-trigger" (click)="viewPostDetails('create', $event)">
+                     <img [src]="resolveImage(user.imageUrl)" class="mini-avatar">
+                     <span class="">Share an update with your city...</span>
+                  </div>
+                  <div class="action-bar">
+                     <button (click)="viewPostDetails('create', $event)"><i class="bi bi-image text-success"></i>
+                        Media</button>
+                     <button (click)="viewPostDetails('create', $event)"><i
+                           class="bi bi-calendar-event text-warning"></i> Event</button>
+                     <button (click)="viewPostDetails('create', $event)"><i
+                           class="bi bi-file-earmark-text text-primary"></i> Article</button>
                   </div>
                </div>
 
-               <ng-container *ngIf="user.recentPosts && user.recentPosts.length > 0; else emptyPosts">
-                  <div class="post-card" *ngFor="let post of user.recentPosts"
-                     [routerLink]="['/public/posts/details', post.id]" style="cursor: pointer;">
-                     <div class="post-header">
-                        <img [src]="resolveImage(user.imageUrl)">
-                        <div>
-                           <h4>{{ displayName }}</h4>
-                           <small>{{ post.createdAt | date:'mediumDate' }}</small>
-                        </div>
-                     </div>
-                     <div class="post-body">
-                        <h2>{{ post.title }}</h2>
-                        <p>{{ post.content }}</p>
-                     </div>
-                     <div class="post-img-container" *ngIf="post.attachments && post.attachments.length > 0">
-                        <ng-container *ngFor="let att of post.attachments">
-                           <!-- Logic for resolving is handled in TS usually or simpler here -->
-                           <img [src]="resolvePostImage({imageUrl: att.url})" class="post-main-img"
-                              style="margin-right:5px; max-height:300px;">
-                        </ng-container>
-                     </div>
-                  </div>
-               </ng-container>
-
-               <ng-template #emptyPosts>
-                  <div class="empty-state">
-                     <i class="bi bi-postcard"></i>
-                     <p>No posts published yet.</p>
-                  </div>
-               </ng-template>
-            </div>
-
-            <!-- 2. About Tab -->
-            <div *ngSwitchCase="'about'">
-
-               <!-- Overview / Bio (Mobile Friendly duplicate or Main View) -->
-               <div class="about-box">
-                  <div class="box-header">
-                     <h3><i class="bi bi-person-lines-fill"></i> About Me</h3>
-                  </div>
-                  <div *ngIf="user.bio; else noBio">
-                     <p style="line-height: 1.6; color: #374151;">{{ user.bio }}</p>
-                  </div>
-                  <ng-template #noBio>
-                     <div class="empty-info-msg">No bio information provided.</div>
-                  </ng-template>
+               <!-- Empty Case -->
+               <div *ngIf="!user.recentPosts.length" class="empty-state">
+                  <div class="icon-circle"><i class="bi bi-journals"></i></div>
+                  <h3>No posts yet</h3>
+                  <p>Shared updates and insights will appear here.</p>
                </div>
 
-               <!-- Experience -->
-               <div class="about-box">
-                  <div class="box-header">
-                     <h3><i class="bi bi-briefcase-fill"></i> Experience</h3>
-                  </div>
-                  <ng-container *ngIf="user.positions && user.positions.length > 0; else emptyPositions">
-                     <div class="timeline-list">
-                        <div class="list-item" *ngFor="let pos of user.positions">
-                           <div class="icon"><i class="bi bi-briefcase"></i></div>
-                           <div class="text">
-                              <h4>{{ pos.title }}</h4>
-                              <span>{{ pos.company }}</span>
-                              <small>{{ pos.startDate | date:'MMM yyyy' }} - {{ pos.isCurrent ? 'Present' : (pos.endDate
-                                 |
-                                 date:'MMM yyyy') }}</small>
-                           </div>
+               <!-- Posts List -->
+               <article *ngFor="let post of user.recentPosts"
+                  class="post-card glass-card animate__animated animate__fadeInUp">
+                  <div class="post-header">
+                     <div class="user-info">
+                        <img [src]="resolveImage(user.imageUrl)" class="post-avatar">
+                        <div class="meta" (click)="viewPostDetails(post.id, $event)">
+                           <h3>{{ displayName }}</h3>
+                           <p>{{ post.createdAt | date:'longDate' }}</p>
                         </div>
                      </div>
-                  </ng-container>
-                  <ng-template #emptyPositions>
-                     <div class="empty-info-msg">No work experience added yet.</div>
-                  </ng-template>
-               </div>
-
-               <!-- Education -->
-               <div class="about-box">
-                  <div class="box-header">
-                     <h3><i class="bi bi-mortarboard-fill"></i> Education</h3>
                   </div>
-                  <ng-container *ngIf="user.education && user.education.length > 0; else emptyEducation">
-                     <div class="timeline-list">
-                        <div class="list-item" *ngFor="let edu of user.education">
-                           <div class="icon"><i class="bi bi-mortarboard"></i></div>
-                           <div class="text">
-                              <h4>{{ edu.school }}</h4>
-                              <span>{{ edu.degree }}</span>
-                              <span *ngIf="edu.fieldOfStudy" style="font-size: 0.85rem; color: #6b7280;">{{
-                                 edu.fieldOfStudy }}</span>
-                              <small style="margin-top: 5px;">{{ edu.startDate | date:'yyyy' }} - {{ edu.endDate ?
-                                 (edu.endDate | date:'yyyy') :
-                                 'Present' }}</small>
-                           </div>
+
+                  <div class="post-body" (click)="viewPostDetails(post.id, $event)">
+                     <h4 *ngIf="post.title" class="post-title">{{ post.title }}</h4>
+                     <p class="post-content">{{ post.content }}</p>
+
+                     <!-- Repost Content -->
+                     <!-- Repost Content -->
+                     <div *ngIf="post.parentPost" class="repost-box">
+                        <div class="re-header">
+                           <img [src]="getAuthorImage(post.parentPost.author)" class="re-avatar">
+                           <strong>{{ getAuthorName(post.parentPost.author) }}</strong>
+                        </div>
+                        <h5>{{ post.parentPost.title }}</h5>
+                        <p>{{ post.parentPost.content }}</p>
+
+                        <!-- Shared Post Media -->
+                        <div
+                           *ngIf="(post.parentPost.attachments && post.parentPost.attachments.length > 0) || post.parentPost.imageUrl"
+                           class="post-media-container mt-3">
+                           <img *ngIf="post.parentPost.attachments && post.parentPost.attachments.length > 0"
+                              [src]="resolveImageUrl(post.parentPost.attachments[0].url)" class="post-img">
+                           <img
+                              *ngIf="(!post.parentPost.attachments || post.parentPost.attachments.length === 0) && post.parentPost.imageUrl"
+                              [src]="resolveImageUrl(post.parentPost.imageUrl)" class="post-img">
                         </div>
                      </div>
-                  </ng-container>
-                  <ng-template #emptyEducation>
-                     <div class="empty-info-msg">No education details added yet.</div>
-                  </ng-template>
-               </div>
-            </div>
 
-            <!-- 3. Saved Tab -->
-            <div *ngSwitchCase="'saved'">
-               <ng-container *ngIf="savedPosts && savedPosts.length > 0; else emptySaved">
-                  <div class="post-card" *ngFor="let post of savedPosts"
-                     [routerLink]="['/public/posts/details', post.id]" style="cursor: pointer;">
-                     <div class="post-header">
-                        <img [src]="getAuthorImage(post.author)">
-                        <div>
-                           <h4>{{ getAuthorName(post.author) }}</h4>
-                           <small>Saved Post</small>
-                        </div>
-                     </div>
-                     <div class="post-body">
-                        <h2>{{ post.title }}</h2>
-                        <p>{{ post.content }}</p>
-                     </div>
-                  </div>
-               </ng-container>
-               <ng-template #emptySaved>
-                  <div class="empty-state">
-                     <i class="bi bi-bookmark-fill"></i>
-                     <p>You haven't saved any posts yet.</p>
-                  </div>
-               </ng-template>
-            </div>
-
-            <!-- 4. Updates (Manage Everything) Tab -->
-            <div *ngSwitchCase="'manage'">
-
-               <!-- A. Profile Images -->
-               <div class="about-box">
-                  <div class="box-header">
-                     <h3>Profile Images</h3>
-                  </div>
-                  <div class="edit-images-row" style="display: flex; gap: 20px; align-items: center;">
-                     <div style="text-align: center;">
-                        <img [src]="resolveImage(user.imageUrl)"
-                           style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;">
-                        <br>
-                        <button class="btn-check" (click)="avatarInput.click()">Change Avatar</button>
-                        <input #avatarInput type="file" (change)="onAvatarSelected($event)" accept="image/*" hidden>
-                     </div>
-                     <div style="flex:1; height: 80px; background: #cbd5e1; border-radius: 8px; position: relative;">
-                        <img [src]="resolveCover(user.coverImageUrl)"
-                           style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-                        <button class="btn-check" style="position: absolute; bottom: 10px; right: 10px;"
-                           (click)="coverInput.click()">Change Cover</button>
-                        <input #coverInput type="file" (change)="onCoverSelected($event)" accept="image/*" hidden>
-                     </div>
-                  </div>
-               </div>
-
-               <!-- B. Basic Info -->
-               <div class="about-box">
-                  <div class="box-header">
-                     <h3>Basic Info</h3>
-                     <button (click)="saveBasicInfo()" class="btn-check" style="background: #003366; color: white;">Save
-                        Changes</button>
-                  </div>
-                  <div class="form-grid" style="display: grid; gap: 15px;">
-                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                           <label style="font-size: 0.85rem; font-weight: 600;">First Name</label>
-                           <input [(ngModel)]="basicInfo.FirstName" class="form-control"
-                              style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px;">
-                        </div>
-                        <div>
-                           <label style="font-size: 0.85rem; font-weight: 600;">Last Name</label>
-                           <input [(ngModel)]="basicInfo.LastName" class="form-control"
-                              style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px;">
-                        </div>
-                     </div>
-                     <div>
-                        <label style="font-size: 0.85rem; font-weight: 600;">Headline</label>
-                        <input [(ngModel)]="basicInfo.Headline" class="form-control"
-                           style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px;">
-                     </div>
-                     <div>
-                        <label style="font-size: 0.85rem; font-weight: 600;">Bio</label>
-                        <textarea [(ngModel)]="basicInfo.Bio" class="form-control" rows="3"
-                           style="width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px;"></textarea>
-                     </div>
-                  </div>
-               </div>
-
-               <!-- C. Social Links -->
-               <div class="about-box">
-                  <div class="box-header">
-                     <h3>Social Links</h3>
-                     <button (click)="toggleAddLink()" class="btn-check">+ Add Link</button>
-                  </div>
-
-                  <!-- Add Form -->
-                  <div *ngIf="isAddingLink" class="add-form"
-                     style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <select [(ngModel)]="newLink.platform"
-                           style="padding: 8px; border-radius: 6px; border: 1px solid #e5e7eb;">
-                           <option *ngFor="let p of socialPlatforms" [value]="p.id">{{ p.name }}</option>
-                        </select>
-                        <input [(ngModel)]="newLink.url" placeholder="URL..."
-                           style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #e5e7eb;">
-                     </div>
-                     <button (click)="addSocialLink()" class="btn-check"
-                        style="background: #10b981; color: white; margin-right: 5px;">Add</button>
-                     <button (click)="toggleAddLink()" class="btn-check">Cancel</button>
-                  </div>
-
-                  <div class="manage-list">
-                     <div class="list-row" *ngFor="let link of user.socialLinks">
-                        <div class="info">
-                           <i class="bi" [ngClass]="getPlatformIcon(link.platform)"></i>
-                           <ng-container *ngIf="editingLink?.id !== (link.id || link.linkId)">
-                              <span>{{ link.url }}</span>
-                           </ng-container>
-                           <div *ngIf="editingLink?.id === (link.id || link.linkId)" class="edit-mode">
-                              <input [(ngModel)]="editingLink!.url" class="form-control-sm">
-                           </div>
-                        </div>
-                        <div class="actions">
-                           <ng-container *ngIf="editingLink?.id === (link.id || link.linkId)">
-                              <button class="btn-save-sm" (click)="saveLink()">Save</button>
-                              <button class="btn-cancel-sm" (click)="cancelEditLink()">Cancel</button>
-                           </ng-container>
-                           <ng-container *ngIf="editingLink?.id !== (link.id || link.linkId)">
-                              <button class="btn-icon" (click)="editLink(link)"><i class="bi bi-pencil"></i></button>
-                              <button class="btn-icon text-danger" (click)="deleteLink(link.id || link.linkId!)"><i
-                                    class="bi bi-trash"></i></button>
-                           </ng-container>
-                        </div>
-                     </div>
-                     <div *ngIf="user.socialLinks.length === 0 && !isAddingLink" class="empty-info-msg">No links added.
-                     </div>
-                  </div>
-               </div>
-
-               <!-- D. Experience -->
-               <div class="about-box">
-                  <div class="box-header">
-                     <h3>Experience</h3>
-                     <button (click)="toggleAddPos()" class="btn-check">+ Add Role</button>
-                  </div>
-
-                  <!-- Add Form -->
-                  <div *ngIf="isAddingPos" class="add-form"
-                     style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
-                     <h4 style="margin: 0 0 10px 0; font-size: 0.95rem;">Add New Experience</h4>
-                     <div style="display: grid; gap: 12px; margin-bottom: 15px;">
-                        <input [(ngModel)]="newPosition.Title" placeholder="Job Title" class="form-control-sm">
-                        <input [(ngModel)]="newPosition.Company" placeholder="Company Name" class="form-control-sm">
-                        <div style="display: flex; gap: 10px;">
-                           <div style="flex: 1;">
-                              <label style="font-size: 0.75rem; font-weight: 600; color: #64748b;">Start Date</label>
-                              <input type="date" [(ngModel)]="newPosition.StartDateStr" class="form-control-sm">
-                           </div>
-                           <div style="flex: 1;" *ngIf="!newPosition.IsCurrent">
-                              <label style="font-size: 0.75rem; font-weight: 600; color: #64748b;">End Date</label>
-                              <input type="date" [(ngModel)]="newPosition.EndDateStr" class="form-control-sm">
-                           </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                           <input type="checkbox" [(ngModel)]="newPosition.IsCurrent" id="addPosCurr">
-                           <label for="addPosCurr" style="font-size: 0.85rem; margin: 0;">I currently work here</label>
-                        </div>
-                     </div>
-                     <div style="display: flex; gap: 10px;">
-                        <button (click)="addPosition()" class="btn-check"
-                           style="background: #10b981; color: white;">Save</button>
-                        <button (click)="toggleAddPos()" class="btn-check">Cancel</button>
+                     <!-- Media -->
+                     <!-- Media -->
+                     <div *ngIf="(post.attachments && post.attachments.length > 0) || post.imageUrl"
+                        class="post-media-container">
+                        <img *ngIf="post.attachments && post.attachments.length > 0"
+                           [src]="resolveImageUrl(post.attachments[0].url)" class="post-img">
+                        <img *ngIf="(!post.attachments || post.attachments.length === 0) && post.imageUrl"
+                           [src]="resolveImageUrl(post.imageUrl)" class="post-img">
                      </div>
                   </div>
 
-                  <div class="manage-list">
-                     <div class="list-row" *ngFor="let pos of user.positions">
-                        <!-- View Mode -->
-                        <div class="info" *ngIf="editingPos?.PositionId !== pos.id">
-                           <div style="display: flex; flex-direction: column;">
-                              <strong>{{ pos.title }}</strong>
-                              <small>{{ pos.company }}</small>
-                           </div>
-                        </div>
+                  <!-- PRO INTERACTION BAR -->
+                  <div class="interaction-card"
+                     style="border:none; box-shadow:none; padding: 20px 0 0 0; margin: 0; margin-top: 15px; border-top: 1px solid #eee; border-radius: 0;">
+                     <button class="btn-action-premium"
+                        [class.active-like]="post.userInteraction === InteractionType.Like"
+                        (click)="toggleInteraction(post, InteractionType.Like, $event)">
+                        <i class="bi"
+                           [ngClass]="post.userInteraction === InteractionType.Like ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
+                        <span>{{ post.stats?.likes || 0 }}</span>
+                     </button>
 
-                        <!-- Edit Mode -->
-                        <div class="edit-mode-container" *ngIf="editingPos?.PositionId === pos.id"
-                           style="flex: 1; margin-right: 10px;">
-                           <div style="display: grid; gap: 8px;">
-                              <input [(ngModel)]="editingPos.Title" placeholder="Title" class="form-control-sm"
-                                 style="width: 100%;">
-                              <input [(ngModel)]="editingPos.Company" placeholder="Company" class="form-control-sm"
-                                 style="width: 100%;">
-                           </div>
-                        </div>
+                     <button class="btn-action-premium"
+                        [class.active-dislike]="post.userInteraction === InteractionType.Dislike"
+                        (click)="toggleInteraction(post, InteractionType.Dislike, $event)">
+                        <i class="bi"
+                           [ngClass]="post.userInteraction === InteractionType.Dislike ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'"></i>
+                        <span>{{ post.stats?.dislikes || 0 }}</span>
+                     </button>
 
-                        <div class="actions">
-                           <ng-container *ngIf="editingPos?.PositionId === pos.id">
-                              <button class="btn-save-sm" (click)="savePosition()">Save</button>
-                              <button class="btn-cancel-sm" (click)="cancelEditPos()">Cancel</button>
-                           </ng-container>
-                           <ng-container *ngIf="editingPos?.PositionId !== pos.id">
-                              <button class="btn-icon" (click)="editPos(pos)"><i class="bi bi-pencil"></i></button>
-                              <button class="btn-icon text-danger" (click)="deletePosition(pos.id)"><i
-                                    class="bi bi-trash"></i></button>
-                           </ng-container>
-                        </div>
-                     </div>
-                     <div *ngIf="user.positions.length === 0 && !isAddingPos" class="empty-info-msg">No positions added.
-                     </div>
-                  </div>
-               </div>
+                     <button class="btn-action-premium" (click)="toggleComments(post, $event)">
+                        <i class="bi bi-chat-left-dots"></i>
+                        <span>{{ post.stats?.comments || 0 }}</span>
+                     </button>
 
-               <!-- E. Education -->
-               <div class="about-box">
-                  <div class="box-header">
-                     <h3>Education</h3>
-                     <button (click)="toggleAddEdu()" class="btn-check">+ Add Education</button>
+                     <button class="share-btn-accent" (click)="openShareModal(post, $event)">
+                        <i class="bi bi-share-fill"></i> SHARE
+                     </button>
                   </div>
 
-                  <!-- Add Form -->
-                  <div *ngIf="isAddingEdu" class="add-form"
-                     style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
-                     <h4 style="margin: 0 0 10px 0; font-size: 0.95rem;">Add New Education</h4>
-                     <div style="display: grid; gap: 12px; margin-bottom: 15px;">
-                        <input [(ngModel)]="newEdu.School" placeholder="School / University" class="form-control-sm">
-                        <input [(ngModel)]="newEdu.Degree" placeholder="Degree" class="form-control-sm">
-                        <input [(ngModel)]="newEdu.FieldOfStudy" placeholder="Field of Study" class="form-control-sm">
-                        <div class="date-row" style="display: flex; gap: 10px;">
-                           <div style="flex: 1;">
-                              <label style="font-size: 0.75rem; font-weight: 600; color: #64748b;">Start Date</label>
-                              <input type="date" [(ngModel)]="newEdu.StartDateStr" class="form-control-sm">
-                           </div>
-                           <div style="flex: 1;">
-                              <label style="font-size: 0.75rem; font-weight: 600; color: #64748b;">End Date</label>
-                              <input type="date" [(ngModel)]="newEdu.EndDateStr" class="form-control-sm">
-                           </div>
-                        </div>
+                  <!-- PRO COMMENTS SECTION -->
+                  <section class="premium-comments animate__animated animate__fadeIn" *ngIf="post.showComments"
+                     style="margin-top: 25px;">
+                     <!-- Input -->
+                     <div class="comment-entry" (click)="$event.stopPropagation()">
+                        <input type="text" placeholder="Share your perspective..." [(ngModel)]="post.newCommentContent"
+                           (keydown.enter)="submitComment(post, $event)">
+                        <button class="btn-submit-comment" (click)="submitComment(post, $event)"
+                           [disabled]="!((post.newCommentContent || '').trim())">
+                           <i class="bi bi-arrow-right-short fs-2"></i>
+                        </button>
                      </div>
-                     <div style="display: flex; gap: 10px;">
-                        <button (click)="addEducation()" class="btn-check"
-                           style="background: #10b981; color: white;">Save</button>
-                        <button (click)="toggleAddEdu()" class="btn-check">Cancel</button>
-                     </div>
-                  </div>
 
-                  <div class="manage-list">
-                     <div class="list-row" *ngFor="let edu of user.education">
-                        <!-- View Mode -->
-                        <div class="info" *ngIf="editingEdu?.EducationId !== edu.id">
-                           <div style="display: flex; flex-direction: column;">
-                              <strong style="font-size: 1rem;">{{ edu.school }}</strong>
-                              <small>{{ edu.degree }} - {{ edu.fieldOfStudy }}</small>
-                              <small style="font-size: 0.75rem; color: #94a3b8;">
-                                 {{ edu.startDate | date:'mediumDate' }} - {{ edu.endDate ? (edu.endDate |
-                                 date:'mediumDate') : 'Present' }}
-                              </small>
-                           </div>
-                        </div>
-
-                        <!-- Edit Mode -->
-                        <div class="edit-mode-container" *ngIf="editingEdu?.EducationId === edu.id"
-                           style="flex: 1; margin-right: 15px;">
-                           <div
-                              style="display: grid; gap: 10px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                              <input [(ngModel)]="editingEdu.School" placeholder="School" class="form-control-sm">
-                              <input [(ngModel)]="editingEdu.Degree" placeholder="Degree" class="form-control-sm">
-                              <input [(ngModel)]="editingEdu.FieldOfStudy" placeholder="Field" class="form-control-sm">
-                              <div class="date-row" style="display: flex; gap: 10px;">
-                                 <div style="flex: 1;">
-                                    <label style="font-size: 0.75rem; font-weight: 600; color: #64748b;">Start
-                                       Date</label>
-                                    <input type="date" [(ngModel)]="editingEdu.StartDateStr" class="form-control-sm">
+                     <!-- Thread -->
+                     <div class="comments-thread" (click)="$event.stopPropagation()">
+                        <div class="comment-node" *ngFor="let comment of (post.comments || [])">
+                           <div class="comment-card">
+                              <div class="comment-content-box">
+                                 <div class="header">
+                                    <strong>{{ getAuthorName(comment.author) }}</strong>
+                                    <time>{{ comment.createdAt | date:'shortTime' }}</time>
                                  </div>
-                                 <div style="flex: 1;">
-                                    <label style="font-size: 0.75rem; font-weight: 600; color: #64748b;">End
-                                       Date</label>
-                                    <input type="date" [(ngModel)]="editingEdu.EndDateStr" class="form-control-sm">
+                                 <div class="text">{{ comment.content }}</div>
+                                 <div class="footer">
+                                    <button class="btn-reply-text" (click)="openReplyInput(comment)">REPLY</button>
+                                 </div>
+                              </div>
+                           </div>
+
+                           <!-- Reply Input -->
+                           <div class="comment-entry mt-3 mx-4" *ngIf="activeReplyId === comment.id">
+                              <input #replyIn type="text" placeholder="Replying..."
+                                 (keydown.enter)="submitReply(post, comment, replyIn.value)">
+                              <button class="btn-submit-comment" (click)="submitReply(post, comment, replyIn.value)">
+                                 <i class="bi bi-arrow-return-right"></i>
+                              </button>
+                           </div>
+
+                           <!-- Replies -->
+                           <div class="reply-indent" *ngIf="comment.replies?.length">
+                              <div class="reply-node" *ngFor="let reply of comment.replies">
+                                 <div class="comment-card">
+                                    <div class="comment-content-box">
+                                       <div class="header">
+                                          <strong>{{ getAuthorName(reply.author) }}</strong>
+                                          <time>{{ reply.createdAt | date:'shortTime' }}</time>
+                                       </div>
+                                       <div class="text">{{ reply.content }}</div>
+                                    </div>
                                  </div>
                               </div>
                            </div>
                         </div>
+                     </div>
+                  </section>
+               </article>
+            </div>
 
-                        <div class="actions" style="align-self: flex-start; margin-top: 10px;">
-                           <ng-container *ngIf="editingEdu?.EducationId === edu.id">
-                              <button class="btn-save-sm" (click)="saveEducation()">Save</button>
-                              <button class="btn-cancel-sm" (click)="cancelEditEdu()">Cancel</button>
-                           </ng-container>
-                           <ng-container *ngIf="editingEdu?.EducationId !== edu.id">
-                              <button class="btn-icon" (click)="editEdu(edu)" title="Edit"><i
-                                    class="bi bi-pencil"></i></button>
-                              <button class="btn-icon text-danger" (click)="deleteEducation(edu.id)" title="Delete"><i
-                                    class="bi bi-trash"></i></button>
-                           </ng-container>
+            <!-- About Tab -->
+            <div *ngSwitchCase="'about'" class="animate__animated animate__fadeIn">
+               <div class="glass-card mb-4">
+                  <h3 class="section-title"><i class="bi bi-briefcase"></i> Work Experience</h3>
+                  <div class="experience-list">
+                     <div *ngFor="let pos of user.positions" class="exp-item">
+                        <div class="dot-line">
+                           <div class="dot"></div>
+                        </div>
+                        <div class="details">
+                           <h4>{{ pos.title }}</h4>
+                           <p class="company">{{ pos.company }}</p>
+                           <p class="period">{{ pos.startDate | date:'MMM yyyy' }} - {{ pos.isCurrent ? 'Present' :
+                              (pos.endDate | date:'MMM yyyy') }}</p>
                         </div>
                      </div>
-                     <div *ngIf="user.education.length === 0 && !isAddingEdu" class="empty-info-msg">No education added.
-                     </div>
+                     <div *ngIf="!user.positions.length" class="empty-item">Professional history not shared.</div>
                   </div>
                </div>
 
-               <!-- F. Global Save Button (User Request) -->
-               <div class="save-actions" style="margin-top: 30px; margin-bottom: 20px; text-align: center;">
-                  <button (click)="saveBasicInfo()" class="btn-save-all" style="
-                     background: #003366; 
-                     color: white; 
-                     padding: 12px 40px; 
-                     border-radius: 30px; 
-                     font-size: 1.1rem; 
-                     font-weight: 700; 
-                     border: none; 
-                     box-shadow: 0 4px 10px rgba(0,51,102,0.3); 
-                     cursor: pointer;
-                     transition: transform 0.2s;
-                  ">
-                     Save All Updates
-                  </button>
+               <div class="glass-card">
+                  <h3 class="section-title"><i class="bi bi-mortarboard"></i> Education</h3>
+                  <div class="edu-list">
+                     <div *ngFor="let edu of user.education" class="edu-item">
+                        <div class="edu-icon"><i class="bi bi-book"></i></div>
+                        <div class="details">
+                           <h4>{{ edu.school }}</h4>
+                           <p>{{ edu.degree }} • {{ edu.fieldOfStudy }}</p>
+                           <p class="period">{{ edu.startDate | date:'yyyy' }}</p>
+                        </div>
+                     </div>
+                     <div *ngIf="!user.education.length" class="empty-item">Academic background is private.</div>
+                  </div>
                </div>
-
             </div>
 
+            <!-- Saved Posts Tab -->
+            <div *ngSwitchCase="'saved'" class="animate__animated animate__fadeIn">
+               <!-- Loading State -->
+               <div *ngIf="isSavedLoading" class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status"></div>
+               </div>
+
+               <!-- Empty State -->
+               <div *ngIf="!isSavedLoading && !savedPosts.length" class="empty-state">
+                  <div class="icon-circle"><i class="bi bi-bookmark"></i></div>
+                  <h3>No saved items</h3>
+                  <p>Posts you save will appear here for easy access.</p>
+               </div>
+
+               <!-- Saved Posts List -->
+               <article *ngFor="let post of savedPosts"
+                  class="post-card glass-card animate__animated animate__fadeInUp">
+                  <div class="post-header">
+                     <div class="user-info">
+                        <img [src]="getAuthorImage(post.author)" class="post-avatar">
+                        <div class="meta" (click)="viewPostDetails(post.id, $event)">
+                           <h3>{{ getAuthorName(post.author) }}</h3>
+                           <p>{{ post.createdAt | date:'longDate' }}</p>
+                        </div>
+                     </div>
+                     <div class="post-actions-btn"><i class="bi bi-three-dots"></i></div>
+                  </div>
+
+                  <div class="post-body" (click)="viewPostDetails(post.id, $event)">
+                     <h4 *ngIf="post.title" class="post-title">{{ post.title }}</h4>
+                     <p class="post-content">{{ post.content }}</p>
+
+                     <!-- Repost Content -->
+                     <!-- Repost Content -->
+                     <div *ngIf="post.parentPost" class="repost-box">
+                        <div class="re-header">
+                           <img [src]="getAuthorImage(post.parentPost.author)" class="re-avatar">
+                           <strong>{{ getAuthorName(post.parentPost.author) }}</strong>
+                        </div>
+                        <h5>{{ post.parentPost.title }}</h5>
+                        <p>{{ post.parentPost.content }}</p>
+
+                        <!-- Shared Post Media -->
+                        <div
+                           *ngIf="(post.parentPost.attachments && post.parentPost.attachments.length > 0) || post.parentPost.imageUrl"
+                           class="post-media-container mt-3">
+                           <img *ngIf="post.parentPost.attachments && post.parentPost.attachments.length > 0"
+                              [src]="resolveImageUrl(post.parentPost.attachments[0].url)" class="post-img">
+                           <img
+                              *ngIf="(!post.parentPost.attachments || post.parentPost.attachments.length === 0) && post.parentPost.imageUrl"
+                              [src]="resolveImageUrl(post.parentPost.imageUrl)" class="post-img">
+                        </div>
+                     </div>
+
+                     <!-- Media -->
+                     <div *ngIf="(post.attachments && post.attachments.length > 0) || post.imageUrl"
+                        class="post-media-container">
+                        <img *ngIf="post.attachments && post.attachments.length > 0"
+                           [src]="resolveImageUrl(post.attachments[0].url)" class="post-img">
+                        <img *ngIf="(!post.attachments || post.attachments.length === 0) && post.imageUrl"
+                           [src]="resolveImageUrl(post.imageUrl)" class="post-img">
+                     </div>
+                  </div>
+
+                  <!-- PRO INTERACTION BAR (SAVED POSTS) -->
+                  <div class="interaction-card"
+                     style="border:none; box-shadow:none; padding: 20px 0 0 0; margin: 0; margin-top: 15px; border-top: 1px solid #eee; border-radius: 0;">
+                     <button class="btn-action-premium"
+                        [class.active-like]="post.userInteraction === InteractionType.Like"
+                        (click)="toggleInteraction(post, InteractionType.Like, $event)">
+                        <i class="bi"
+                           [ngClass]="post.userInteraction === InteractionType.Like ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
+                        <span>{{ post.stats?.likes || 0 }}</span>
+                     </button>
+
+                     <button class="btn-action-premium"
+                        [class.active-dislike]="post.userInteraction === InteractionType.Dislike"
+                        (click)="toggleInteraction(post, InteractionType.Dislike, $event)">
+                        <i class="bi"
+                           [ngClass]="post.userInteraction === InteractionType.Dislike ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'"></i>
+                        <span>{{ post.stats?.dislikes || 0 }}</span>
+                     </button>
+
+                     <button class="btn-action-premium" (click)="toggleComments(post, $event)">
+                        <i class="bi bi-chat-left-dots"></i>
+                        <span>{{ post.stats?.comments || 0 }}</span>
+                     </button>
+
+                     <button class="share-btn-accent" (click)="openShareModal(post, $event)">
+                        <i class="bi bi-share-fill"></i> SHARE
+                     </button>
+                  </div>
+
+                  <!-- PRO COMMENTS SECTION (SAVED) -->
+                  <section class="premium-comments animate__animated animate__fadeIn" *ngIf="post.showComments"
+                     style="margin-top: 25px;">
+                     <div class="comment-entry" (click)="$event.stopPropagation()">
+                        <input type="text" placeholder="Share your perspective..." [(ngModel)]="post.newCommentContent"
+                           (keydown.enter)="submitComment(post, $event)">
+                        <button class="btn-submit-comment" (click)="submitComment(post, $event)"
+                           [disabled]="!((post.newCommentContent || '').trim())">
+                           <i class="bi bi-arrow-right-short fs-2"></i>
+                        </button>
+                     </div>
+                     <div class="comments-thread" (click)="$event.stopPropagation()">
+                        <div class="comment-node" *ngFor="let comment of (post.comments || [])">
+                           <div class="comment-card">
+                              <div class="comment-content-box">
+                                 <div class="header">
+                                    <strong>{{ getAuthorName(comment.author) }}</strong>
+                                    <time>{{ comment.createdAt | date:'shortTime' }}</time>
+                                 </div>
+                                 <div class="text">{{ comment.content }}</div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </section>
+               </article>
+            </div>
+
+
+
          </main>
+
+         <!-- RIGHT SIDEBAR -->
+         <aside class="side-col">
+            <div class="glass-card mb-4" *ngIf="user.topCommunities && user.topCommunities.length">
+               <h4 class="section-title">Communities</h4>
+               <div class="community-list">
+                  <div *ngFor="let comm of user.topCommunities" class="comm-item">
+                     <div class="comm-badge">{{ getInitials(comm.name) }}</div>
+                     <div class="comm-info">
+                        <h6>{{ comm.name }}</h6>
+                        <p>Member</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+
+            <!-- Tags Section -->
+            <div class="glass-card mb-4" *ngIf="user.tags">
+               <h4 class="section-title"><i class="bi bi-tags"></i> Tags</h4>
+               <div class="tags-container" *ngIf="user.tags.length > 0">
+                  <span class="badge-tag" *ngFor="let tag of user.tags">{{ tag.name }}</span>
+               </div>
+               <div class="empty-side-text" *ngIf="user.tags.length === 0">
+                  No tags selected.
+               </div>
+            </div>
+         </aside>
+
       </div>
    </div>
+</div>
+
+<!-- SHARE MODAL (Simplified UI) -->
+<div class="modal-overlay" *ngIf="showShareModal">
+   <div class="modal-card glass-card">
+      <h3>Republish Post</h3>
+      <textarea [(ngModel)]="shareCommentary" placeholder="What's on your mind?"></textarea>
+      <div class="modal-actions">
+         <button class="btn-cancel" (click)="closeShareModal()">Cancel</button>
+         <button class="btn-confirm" (click)="submitShare()" [disabled]="isSharing">
+            <span *ngIf="!isSharing">Repost</span>
+            <span *ngIf="isSharing" class="spinner-border spinner-border-sm"></span>
+         </button>
+      </div>
+   </div>
+</div>

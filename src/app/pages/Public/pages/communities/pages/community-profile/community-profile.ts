@@ -93,21 +93,9 @@ export class CommunityProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // auth
-    this.subs.add(
-      this.authService.currentUser$.subscribe((user) => {
-        this.currentUserId = user ? user.id : null;
-      }),
-    );
-
-    // route params
-    this.subs.add(
-      this.route.paramMap.subscribe((params) => {
-        const slug = params.get('slug');
-        if (slug) this.loadData(slug);
-      }),
-    );
-  }
+    this.authService.currentUser$.subscribe(user => {
+      if (user) this.currentUserId = user.id || user.userId;
+    });
 
   ngOnDestroy() {
     this.subs.unsubscribe();
@@ -115,31 +103,26 @@ export class CommunityProfileComponent implements OnInit, OnDestroy {
 
   loadData(slug: string) {
     this.isLoading = true;
-    this.cdr.detectChanges();
+    this.profileService.getCommunityBySlug(slug).subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        const data = res.data || res.Data;
+        if ((res.isSuccess || res.IsSuccess) && data) {
+          this.community = data.community;
+          this.ownerId = data.ownerId;
+          this.memberRole = data.memberRole ? Number(data.memberRole) : null;
 
-    this.subs.add(
-      this.profileService.getCommunityBySlug(slug).subscribe({
-        next: (res) => {
-          this.isLoading = false;
-
-          if (res.isSuccess && res.data) {
-            this.community = res.data.community;
-            this.ownerId = res.data.ownerId;
-            this.memberRole = res.data.memberRole ? Number(res.data.memberRole) : null;
-
-            const list = res.data.posts?.data;
-            if (Array.isArray(list)) {
-              this.posts = list.map((p: any) => ({
-                ...p,
-                comments: [],
-                currentUserInteraction: p.currentUserInteraction || InteractionType.None,
-                showComments: false,
-                newCommentContent: '',
-                activeReplyId: null,
-              }));
-            } else {
-              this.posts = [];
-            }
+          if (data.posts && Array.isArray(data.posts.data)) {
+            // Map to ExtendedPost
+            this.posts = data.posts.data.map((p: any) => ({
+              ...p,
+              comments: [], // Init empty
+              currentUserInteraction: p.currentUserInteraction || InteractionType.None,
+              showComments: false,
+              newCommentContent: ''
+            }));
+          } else {
+            this.posts = [];
           }
 
           this.cdr.detectChanges();

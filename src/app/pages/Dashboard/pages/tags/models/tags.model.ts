@@ -12,6 +12,7 @@ export interface TagModel {
   type: TagType;
   division: number;
   parent: string | null;
+  parentTagId?: number;
   children: string[] | null;
 }
 

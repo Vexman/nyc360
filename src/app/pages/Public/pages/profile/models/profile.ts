@@ -1,4 +1,4 @@
-import { Post } from "../../posts/models/posts";
+import { Post, PostComment, PostStats } from "../../posts/models/posts";
 
 export enum UserType {
   Normal = 0, Organization = 1, Admin = 2
@@ -72,6 +72,8 @@ export interface ProfilePost {
   category: number;
   createdAt: string;
   attachments: any[];
+  imageUrl?: string | null;
+
   parentPost?: ProfilePost | null; // For shared posts
   author?: {
     id: number;
@@ -79,12 +81,11 @@ export interface ProfilePost {
     fullName: string;
     imageUrl: string;
   };
-  stats?: {
-    views: number;
-    likes: number;
-    comments: number;
-    shares: number;
-  };
+  stats?: PostStats;
+  userInteraction?: number | null;
+  showComments?: boolean;
+  newCommentContent?: string;
+  comments?: PostComment[];
 }
 
 export interface UserProfileData {
@@ -107,6 +108,7 @@ export interface UserProfileData {
   socialLinks: UserSocialLink[];
   stats?: UserStats | null;
   tags?: any[];
+  interests?: number[];
 }
 
 // --- Request DTOs ---

@@ -44,6 +44,7 @@ export class TagUpdateComponent implements OnInit {
   parentSearchTerm$ = new Subject<string>();
   parentSearchResults: TagModel[] = [];
   selectedParentName: string = 'NONE (TOP LEVEL)';
+  parentSearchQuery: string = '';
 
   ngOnInit(): void {
     this.tagId = this.route.snapshot.paramMap.get('id');
@@ -73,29 +74,43 @@ export class TagUpdateComponent implements OnInit {
 
     this.tagsService.getTagById(this.tagId).subscribe({
       next: (res: any) => {
-        // Assume res is the tag object or res.data is the tag object. 
-        // Based on typical API, it might be res.data or just res.
-        // Let's assume res.data if wrapped, or res if direct.
-        const tag = res.data || res;
+        // Robust mapping for both camelCase and PascalCase
+        const tag = res.data || res.Data || res;
 
         if (tag) {
-          this.tagName = tag.name || '';
-          this.selectedDivision = tag.division;
-          this.selectedType = tag.type || 3;
-          // Check if parent info is available
-          this.parentTagId = tag.parentTagId || 0;
+          // Map properties safely
+          this.tagName = tag.name || tag.Name || '';
+          this.selectedDivision = tag.division ?? tag.Division ?? null;
+          this.selectedType = tag.type ?? tag.Type ?? 3;
 
-          if (tag.parent) {
-            this.selectedParentName = typeof tag.parent === 'object' ? (tag.parent.name || 'UNKNOWN') : String(tag.parent).toUpperCase();
+          // Map parent info
+          const parent = tag.parent || tag.Parent;
+          this.parentTagId = tag.parentTagId ?? tag.ParentTagId ?? 0;
+
+          if (parent) {
+            if (typeof parent === 'object') {
+              this.selectedParentName = (parent.name || parent.Name || 'UNKNOWN');
+              // Use ID from parent object if available
+              this.parentTagId = parent.id || parent.Id || this.parentTagId;
+            } else if (typeof parent === 'string') {
+              this.selectedParentName = parent.toUpperCase();
+            } else {
+              this.selectedParentName = String(parent).toUpperCase();
+            }
           } else {
             this.selectedParentName = 'NONE (TOP LEVEL)';
           }
+          this.parentSearchQuery = this.selectedParentName;
+        } else {
+          console.error('Tag load error - no data found in response:', res);
+          this.toastService.error('Tag details not found');
         }
         this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.toastService.error('Failed to fetch tag details');
+        console.error('Network error fetching tag:', err);
+        this.toastService.error('Failed to communicate with server');
         this.isLoading = false;
         this.cdr.detectChanges();
         this.router.navigate(['/admin/tags']);
@@ -115,6 +130,7 @@ export class TagUpdateComponent implements OnInit {
       this.parentTagId = tag.id;
       this.selectedParentName = tag.name.toUpperCase();
     }
+    this.parentSearchQuery = this.selectedParentName;
     this.parentSearchResults = [];
   }
 

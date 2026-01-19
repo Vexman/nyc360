@@ -121,9 +121,11 @@ export class Home implements OnInit {
   // Helper check (Used mainly for Hero selection logic)
   private hasValidImage(post: Post): boolean {
     if (post.imageUrl && post.imageUrl.trim() !== '') return true;
-    if (post.attachments && post.attachments.length > 0) {
-      const url = post.attachments[0].url;
-      if (url && url.trim() !== '') return true;
+    if (post.attachments && post.attachments.length > 0 && post.attachments[0].url) return true;
+    // Check Parent Post (for Shared Posts)
+    if (post.parentPost) {
+      if (post.parentPost.imageUrl && post.parentPost.imageUrl.trim() !== '') return true;
+      if (post.parentPost.attachments && post.parentPost.attachments.length > 0 && post.parentPost.attachments[0].url) return true;
     }
     return false;
   }
@@ -153,8 +155,8 @@ export class Home implements OnInit {
       }
     });
 
-    // Take top 4 valid images for featured
-    this.featuredPosts = validFeatured.slice(0, 4);
+    // Take top 3 valid images for featured row
+    this.featuredPosts = validFeatured.slice(0, 3);
 
     // 2. Hero Banner Logic
     const rawDiscovery = data.discoveryPosts || [];
@@ -171,9 +173,9 @@ export class Home implements OnInit {
 
     if (validDiscovery.length > 0) {
       this.heroBanner = validDiscovery[0];
-    } else if (validFeatured.length > 4) {
-      // If we have extra featured posts with images, use the 5th one as hero
-      this.heroBanner = validFeatured[4];
+    } else if (validFeatured.length > 3) {
+      // If we have extra featured posts with images, use the 4th one as hero (index 3)
+      this.heroBanner = validFeatured[3];
     } else {
       this.heroBanner = null;
     }
@@ -285,29 +287,38 @@ export class Home implements OnInit {
       // لو الرابط لينك خارجي رجعه زي ما هو
       if (url.startsWith('http') || url.startsWith('https')) return url;
 
-      // لو الرابط محلي، ضيف مسار السيرفر
-      return `${this.environment.apiBaseUrl3}/${url}`;
+      // لو الرابط محلي، ضيف مسار السيرفر وفولدر الأفاتار
+      return `${this.environment.apiBaseUrl2}/avatars/${url}`;
     }
     return 'assets/images/default-avatar.png';
   }
 
   resolvePostImage(post: Post): string {
-    const attachment = post.attachments?.[0];
+    let attachment = post.attachments?.[0];
     let url = attachment?.url || post.imageUrl;
 
-    // 1. لو مفيش صورة، رجع صورة احتياطية (Placeholder)
-    if (!url || url.trim() === '') return 'assets/images/placeholder-news.jpg';
+    // 1. If no direct image, check parent (Shared Post)
+    if ((!url || url.trim() === '') && post.parentPost) {
+      attachment = post.parentPost.attachments?.[0];
+      url = attachment?.url || post.parentPost.imageUrl;
+    }
 
-    // 2. تنظيف المسار من @local://
+    // 2. If still no image, return placeholder
+    if (!url || url.trim() === '') return 'assets/images/default-post.jpg';
+
+    // 3. Clean path
     url = url.replace('@local://', '');
 
-    // 3. 🔥 الفحص الذكي:
-    // لو الرابط بيبدأ بـ http يعني ده لينك خارجي -> رجعه زي ما هو
+    // 4. Smart Check
     if (url.startsWith('http') || url.startsWith('https')) {
       return url;
     }
 
-    // 4. لو الرابط مش http يعني ده اسم ملف محلي -> ضيف مسار السيرفر والفولدر posts
+    // 5. Local path check
+    if (url.startsWith('posts/')) {
+      return `${this.environment.apiBaseUrl2}/${url}`;
+    }
+
     return `${this.environment.apiBaseUrl3}/${url}`;
   }
 }

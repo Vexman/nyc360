@@ -74,7 +74,7 @@ export class PostDetailsComponent implements OnInit {
   ];
 
   showShareModal = false;
-  shareComment = '';
+  shareCommentary = '';
   isSharing = false;
 
   ngOnInit() {
@@ -157,6 +157,15 @@ export class PostDetailsComponent implements OnInit {
     if (post.currentUserInteraction !== undefined) post.userInteraction = post.currentUserInteraction;
     if (post.isSavedByUser !== undefined) post.isSaved = post.isSavedByUser;
     else post.isSaved = false;
+
+    // Recursively normalize parent post
+    if (post.parentPost && typeof post.parentPost === 'object') {
+      this.normalizePostData(post.parentPost);
+    } else if ((post as any).ParentPost && typeof (post as any).ParentPost === 'object') {
+      post.parentPost = (post as any).ParentPost;
+      this.normalizePostData(post.parentPost!);
+    }
+
     return post;
   }
 
@@ -166,19 +175,19 @@ export class PostDetailsComponent implements OnInit {
       return;
     }
     this.showShareModal = true;
-    this.shareComment = '';
+    this.shareCommentary = '';
   }
 
   closeShareModal() {
     this.showShareModal = false;
-    this.shareComment = '';
+    this.shareCommentary = '';
     this.isSharing = false;
   }
 
   submitShare() {
     if (!this.post) return;
     this.isSharing = true;
-    this.postsService.sharePost(this.post.id, this.shareComment).subscribe({
+    this.postsService.sharePost(this.post.id, this.shareCommentary).subscribe({
       next: (res: any) => {
         this.isSharing = false;
         if (res.isSuccess) {
@@ -266,15 +275,36 @@ export class PostDetailsComponent implements OnInit {
   }
 
   getAuthorAvatar(author: PostAuthor | string | undefined): string {
-    if (typeof author === 'object' && author?.imageUrl) return this.resolveImageUrl(author.imageUrl);
+    if (typeof author === 'object' && author?.imageUrl) {
+      let url = author.imageUrl;
+      // If external link, return as is
+      if (url.startsWith('http') || url.startsWith('https')) return url;
+
+      // If local, use apiBaseUrl2 with avatars folder
+      return `${this.environment.apiBaseUrl2}/avatars/${url}`;
+    }
     return 'assets/images/default-avatar.png';
   }
 
   resolveImageUrl(url: string | undefined | null): string {
-    if (!url) return 'assets/images/placeholder.jpg';
-    if (url.includes('@local://')) return `${this.environment.apiBaseUrl3 || this.environment.apiBaseUrl}/${url.replace('@local://', '')}`;
-    if (!url.startsWith('http') && !url.startsWith('data:')) return `${this.environment.apiBaseUrl}/${url}`;
-    return url;
+    if (!url || url.trim() === '') return 'assets/images/placeholder.jpg';
+
+    // 1. Clean path
+    let cleanUrl = url.replace('@local://', '');
+
+    // 2. Smart Check (External or Data URI)
+    if (cleanUrl.startsWith('http') || cleanUrl.startsWith('https') || cleanUrl.startsWith('data:')) {
+      return cleanUrl;
+    }
+
+    // 3. Local path check
+    // If it starts with 'posts/', it likely belongs to apiBaseUrl2
+    if (cleanUrl.startsWith('posts/')) {
+      return `${this.environment.apiBaseUrl2}/${cleanUrl}`;
+    }
+
+    // Default to apiBaseUrl3 for other media
+    return `${this.environment.apiBaseUrl3}/${cleanUrl}`;
   }
 
   getCategoryName(id: number): string {

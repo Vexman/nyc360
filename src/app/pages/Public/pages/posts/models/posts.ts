@@ -69,10 +69,16 @@ export interface Post {
   currentUserInteraction?: InteractionType | null;
   userInteraction?: InteractionType | null; // For UI mapping
 
+  parentPost?: Post;
+
   // ✅ Backend Field
   isSavedByUser?: boolean;
   // ✅ UI State Field
   isSaved?: boolean;
+
+  // UI State for feed/profile
+  showComments?: boolean;
+  newCommentContent?: string;
 }
 
 export interface InterestGroup {

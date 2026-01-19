@@ -1,0 +1,79 @@
+// .dashboard-container is handled by admin-layout
+
+.header-section {
+    margin-bottom: 2.5rem;
+
+    .page-title {
+        font-weight: 850;
+        color: #0f172a;
+        margin-bottom: 0.25rem;
+    }
+
+    .page-subtitle {
+        color: #64748b;
+    }
+}
+
+.filters-card {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+}
+
+.data-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.custom-table {
+    margin-bottom: 0;
+
+    thead th {
+        background: #f1f5f9;
+        color: #475569;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 1rem 1.5rem;
+        border-bottom: 0;
+    }
+
+    tbody td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border-color: #f1f5f9;
+    }
+}
+
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: white;
+    transition: all 0.2s;
+
+    &:hover {
+        background: #f1f5f9;
+        transform: translateX(-2px);
+    }
+}
+
+.italic {
+    font-style: italic;
+}
+
+@media (max-width: 991px) {
+    .sticky-top {
+        position: static !important;
+        margin-top: 2rem;
+    }
+}

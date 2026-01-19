@@ -38,6 +38,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--community-color'),
     label: 'Community',
     path: 'community',
+    icon: 'bi-people-fill' ,
   },
 
   [CategoryEnum.Culture]: {
@@ -46,6 +47,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--culture-color'),
     label: 'Culture',
     path: 'culture',
+    icon: 'bi-palette-fill',
   },
 
   [CategoryEnum.Education]: {
@@ -54,6 +56,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--education-color'),
     label: 'Education',
     path: 'education',
+    icon: 'bi-mortarboard-fill',
   },
 
   [CategoryEnum.Housing]: {
@@ -62,6 +65,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--housing-color'),
     label: 'Housing',
     path: 'housing',
+    icon: 'bi-house-door-fill',
   },
 
   [CategoryEnum.Health]: {
@@ -70,6 +74,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--health-color'),
     label: 'Health',
     path: 'health',
+    icon: 'bi-heart-pulse-fill',
   },
 
   [CategoryEnum.Legal]: {
@@ -78,6 +83,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--legal-color'),
     label: 'Legal',
     path: 'legal',
+    icon: 'bi-hammer',
   },
 
   [CategoryEnum.Lifestyle]: {
@@ -86,6 +92,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--lifestyle-color'),
     label: 'Lifestyle',
     path: 'lifestyle',
+    icon: 'bi-cup-hot-fill',
   },
 
   [CategoryEnum.News]: {
@@ -94,6 +101,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--news-color'),
     label: 'News',
     path: 'news',
+    icon: 'bi-newspaper',
   },
 
   [CategoryEnum.Professions]: {
@@ -102,6 +110,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--professions-color'),
     label: 'Professions',
     path: 'professions',
+    icon: 'bi-briefcase-fill',
   },
 
   [CategoryEnum.Social]: {
@@ -110,6 +119,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--social-color'),
     label: 'Social',
     path: 'social',
+    icon: 'bi-chat-quote-fill',
   },
 
   [CategoryEnum.Transportation]: {
@@ -118,6 +128,7 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--transportation-color'),
     label: 'Transportation',
     path: 'transportation',
+    icon: 'bi-car-front-fill',
   },
 
   [CategoryEnum.Tv]: {
@@ -126,5 +137,6 @@ export const CATEGORY_THEMES: Readonly<Record<CategoryEnum, CategoryTheme>> = {
     color: cssVar('--tv-color'),
     label: 'TV',
     path: 'tv',
+    icon: 'bi-tv-fill',
   },
 } as const;

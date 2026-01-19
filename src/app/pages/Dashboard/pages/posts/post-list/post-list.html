@@ -62,12 +62,13 @@
           </select>
         </div>
 
-        <!-- Loading Spinner -->
-        <div class="col-12 col-lg-1 text-center" *ngIf="isLoading">
-          <div class="spinner-border text-gold spinner-border-sm"></div>
+        <!-- Subtle Loading Indicator -->
+        <div *ngIf="isLoading" class="position-fixed top-0 start-0 w-100" style="z-index: 9999; height: 3px;">
+          <div class="progress" style="height: 3px; border-radius: 0;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width: 100%;"></div>
+          </div>
         </div>
       </div>
-    </div>
 
     <!-- Data Table -->
     <div class="table-card glass-panel animate__animated animate__fadeInUp">
@@ -186,8 +187,9 @@
         </table>
       </div>
 
-      <div class="footer-info p-3 text-muted small text-center border-top">
-        Showing {{ filteredPosts.length }} of {{ allPosts.length }} total posts
+        <div class="footer-info p-3 text-muted small text-center border-top">
+          Showing {{ filteredPosts.length }} of {{ allPosts.length }} total posts
+        </div>
       </div>
     </div>
   </div>

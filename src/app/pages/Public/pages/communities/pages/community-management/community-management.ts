@@ -17,7 +17,7 @@ interface ManagementTab {
 @Component({
     selector: 'app-community-management',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink],
+    imports: [CommonModule, FormsModule],
     templateUrl: './community-management.html',
     styleUrls: ['./community-management.scss']
 })

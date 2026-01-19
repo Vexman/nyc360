@@ -44,7 +44,7 @@ export class TagCreateComponent implements OnInit {
       switchMap(term => term.length > 0 ? this.tagsService.searchTags(term) : of({ isSuccess: true, data: [] }))
     ).subscribe({
       next: (res: any) => {
-        this.parentSearchResults = res.data || [];
+        this.parentSearchResults = res.data || res.Data || [];
         this.cdr.detectChanges();
       }
     });

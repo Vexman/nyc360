@@ -98,6 +98,41 @@
         [innerHTML]="post.content"
       ></div>
 
+      <!-- Parent/Shared Post Section -->
+      <div class="shared-post-container animate__animated animate__fadeInUp" *ngIf="post.parentPost">
+        <div class="shared-post-card" [routerLink]="['/public/posts/details', post.parentPost.id]">
+
+          <div class="shared-header">
+            <img [src]="getAuthorAvatar(post.parentPost.author)" class="shared-avatar" alt="Avatar">
+            <div class="shared-meta">
+              <span class="shared-author">{{ getAuthorName(post.parentPost.author) }}</span>
+              <span class="shared-date">{{ post.parentPost.createdAt | date:'mediumDate' }}</span>
+            </div>
+          </div>
+
+          <div class="shared-layout">
+            <div class="shared-text-col">
+              <h4 class="shared-title">{{ post.parentPost.title }}</h4>
+              <div class="shared-excerpt"
+                [innerHTML]="(post.parentPost.content | slice:0:280) + (post.parentPost.content.length > 280 ? '...' : '')">
+              </div>
+            </div>
+
+            <div class="shared-media-col"
+              *ngIf="(post.parentPost.attachments && post.parentPost.attachments.length > 0) || post.parentPost.imageUrl">
+              <div class="shared-img-wrapper">
+                <img *ngIf="post.parentPost.attachments && post.parentPost.attachments.length > 0"
+                  [src]="resolveImageUrl(post.parentPost.attachments[0].url)" alt="Shared Media">
+                <img
+                  *ngIf="(!post.parentPost.attachments || post.parentPost.attachments.length === 0) && post.parentPost.imageUrl"
+                  [src]="resolveImageUrl(post.parentPost.imageUrl)" alt="Shared Media">
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <!-- Interaction Bar -->
       <div class="interaction-card animate__animated animate__fadeInUp">
         <button
@@ -284,11 +319,12 @@
       <p class="modal-desc small text-muted mb-3">Add a comment to your shared post:</p>
       <div class="form-group">
         <textarea
+          name="shareCommentary"
           class="luxury-textarea form-control"
           rows="3"
           placeholder="What's on your mind?..."
-          [(ngModel)]="shareComment"
-        ></textarea>
+          [(ngModel)]="shareCommentary"
+          (input)="shareCommentary = $any($event.target).value"></textarea>
       </div>
     </div>
     <div class="modal-footer border-top p-3 d-flex gap-2">
