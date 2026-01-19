@@ -12,15 +12,20 @@ $radius: 16px;
 
 
 .category-header {
+  // background-color: #f2f2f2;
   background-color: var(--community-bg);
   padding: 50px 0;
-  margin-bottom: 80px;
+  margin-bottom: 40px;
+  // border-bottom: 5px solid var(--theme-color);
 
   .main-title {
     font-family: "Gelasio", serif;
     font-optical-sizing: auto;
+    // font-size: 3.5rem;
+    // font-weight: 900;
     margin-bottom: 10px;
     color: var(--community-color);
+    // color: #fff;
 
     @media (min-width: 768px) {
       font-size: 5rem;
@@ -28,14 +33,17 @@ $radius: 16px;
   }
 
   .sub-meta {
-    color: var(--community-stroke);
-    font-size: 1.5rem;
+    font-size: 1rem;
+    color: var(--neutral-text-100);
+    max-width: 600px;
     margin: 0 auto;
   }
 
   .top-meta {
-    color: var(--community-stroke);
-    font-size: 1.5rem;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--neutral-text-100);
+    text-transform: uppercase;
   }
 }
 

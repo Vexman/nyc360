@@ -117,9 +117,7 @@ $cat-colors: (
           color: $color;
 
         // On Hover OR Active -> Use the specific category color
-        &:hover {
-          opacity: 0.8;
-        }
+        &:hover,
         &.active-link {
         }
 
